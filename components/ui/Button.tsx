@@ -1,0 +1,44 @@
+import { cva, type VariantProps } from "class-variance-authority";
+
+import { cn } from "@/lib/utils";
+import { forwardRef } from "react";
+
+const buttonVariants = cva(
+  "text-white font-semibold text-base leading-6 bg-brand-600 relative fadding-border rounded-lg py-2.5 ",
+  {
+    variants: {
+      variant: {
+        default: "",
+      },
+      size: {
+        default: "",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+);
+
+interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {}
+
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ children, className, variant, size, ...props }, ref) => {
+    return (
+      <button
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        {...props}
+      >
+        {children}
+      </button>
+    );
+  }
+);
+
+Button.displayName = "Button";
+
+export { Button, buttonVariants };
