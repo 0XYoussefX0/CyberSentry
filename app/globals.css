@@ -41,3 +41,44 @@
   -webkit-mask-composite: xor;
   mask-composite: exclude;
 }
+
+/* this has to be moved to the styling sheet of the checkemail modal component*/
+.shadows {
+  box-shadow: 0 1px 2px 0px rgba(16, 24, 40, 0.05);
+}
+
+.gridd {
+  position: absolute;
+  top: 0px;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+  background: linear-gradient(#e4e7ec 1px, transparent 1px),
+    linear-gradient(90deg, #e4e7ec 1px, transparent 1px);
+  background-size: 31px 31px;
+  background-position: center;
+}
+
+.mask {
+  position: absolute;
+  top: 0px;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  border-radius: 12px;
+  background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 1) 0%,
+      rgba(255, 255, 255, 0) 20%,
+      rgba(255, 255, 255, 1) 100%
+    ),
+    linear-gradient(
+      to right,
+      rgba(255, 255, 255, 1) 0%,
+      rgba(255, 255, 255, 0) 50%,
+      rgba(255, 255, 255, 1) 100%
+    );
+  pointer-events: none; /* Allows interaction with content below */
+}

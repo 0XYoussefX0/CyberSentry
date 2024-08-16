@@ -14,6 +14,7 @@ const config: Config = {
           700: "#344054",
           600: "#475467",
           300: "#D0D5DD",
+          200: "#E4E7EC",
         },
         brand: {
           600: "#7F56D9",
@@ -30,6 +31,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 };
 export default config;

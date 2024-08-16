@@ -10,6 +10,10 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
+    "@radix-ui/react-dialog": "^1.1.1",
+    "@radix-ui/react-toast": "^1.2.1",
+    "@supabase/ssr": "^0.4.0",
+    "@supabase/supabase-js": "^2.45.1",
     "check-password-strength": "^2.0.10",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -19,6 +23,7 @@
     "react-dom": "^18",
     "react-hook-form": "^7.52.2",
     "tailwind-merge": "^2.5.2",
+    "tailwindcss-animate": "^1.0.7",
     "valibot": "^0.37.0"
   },
   "devDependencies": {

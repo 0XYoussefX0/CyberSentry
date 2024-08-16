@@ -33,7 +33,7 @@ function CheckMark({ success }: { success: boolean }) {
         rx="9"
         stroke={success ? "#32D583" : "#D0D5DD"}
         className="transition-colors duration-300"
-        stroke-width="2"
+        strokeWidth="2"
       />
     </svg>
   );

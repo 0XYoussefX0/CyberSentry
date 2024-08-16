@@ -13,12 +13,19 @@ import {
   SignUpSchemaType,
   SignUpSchema,
 } from "@/lib/types";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { valibotResolver } from "@hookform/resolvers/valibot";
 
 import { useState } from "react";
 
 import RevealButton from "@/components/ui/RevealButton";
+
+import signup from "@/app/actions/(auth)/signup";
+
+import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
+
+import CheckEmailModal from "@/components/CheckEmailModal";
 
 const passwordConstraints: PasswordConstraints = [
   {
@@ -41,12 +48,19 @@ const passwordConstraints: PasswordConstraints = [
 
 export default function Signup() {
   const [revealPassword, setRevealPassword] = useState(false);
+  const [confirmEmailModal, setConfirmEmailModal] = useState({
+    email: "",
+    open: false,
+  });
+
+  const { toast } = useToast();
 
   const {
     register,
     handleSubmit,
     watch,
     setError,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<SignUpSchemaType>({
     resolver: valibotResolver(SignUpSchema),
@@ -56,8 +70,44 @@ export default function Signup() {
 
   const passwordStrengthResult = passwordStrength(password);
 
+  const handleSignUp: SubmitHandler<SignUpSchemaType> = async (data) => {
+    const response = await signup(data);
+    if (response.status === "serverError") {
+      toast({
+        title: "Server Error",
+        description: response.message,
+      });
+    } else if (response.status === "validation_error" && response.errors) {
+      for (const error of response.errors) {
+        if (error.path && error.path[0].key === "email") {
+          setError("email", {
+            type: "manual",
+            message: error.message,
+          });
+        } else if (error.path && error.path[0].key === "password") {
+          setError("password", {
+            type: "manual",
+            message: error.message,
+          });
+        }
+      }
+    } else {
+      setConfirmEmailModal({
+        email: data.email,
+        open: true,
+      });
+      reset();
+    }
+  };
+
   return (
     <div className="px-4 pt-12 flex flex-col gap-8">
+      <CheckEmailModal
+        open={confirmEmailModal.open}
+        setOpen={setConfirmEmailModal}
+        email={confirmEmailModal.email}
+      />
+      <Toaster />
       <div className="flex flex-col gap-6">
         <nav>
           <Link href="/">
@@ -75,15 +125,24 @@ export default function Signup() {
           </p>
         </div>
       </div>
-      <form className="flex flex-col gap-5">
+      <form
+        className="flex flex-col gap-5"
+        onSubmit={handleSubmit(handleSignUp)}
+      >
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="email">Email</Label>
           <Input
+            {...register("email")}
             id="email"
             name="email"
             type="email"
             placeholder="Enter your email"
           />
+          {errors.email && (
+            <p className="text-red-500 text-sm font-normal">
+              {errors.email.message}
+            </p>
+          )}
         </div>
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-1.5">
@@ -103,6 +162,11 @@ export default function Signup() {
                 setRevealPassword={setRevealPassword}
               />
             </div>
+            {errors.password && (
+              <p className="text-red-500 text-sm font-normal">
+                {errors.password.message}
+              </p>
+            )}
             <span id="password-help" className="sr-only">
               {revealPassword ? "Password is visible" : "Password is hidden"}
             </span>
@@ -134,7 +198,9 @@ export default function Signup() {
             })}
           </div>
         </div>
-        <Button className="mt-1">Get started</Button>
+        <Button className="mt-1" disabled={isSubmitting}>
+          Get started
+        </Button>
       </form>
       <p className="font-normal text-sm leading-5 text-gray-600 text-center">
         {"Already have an account? "}
