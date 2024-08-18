@@ -4,11 +4,13 @@ import { cn } from "@/lib/utils";
 import { forwardRef } from "react";
 
 const buttonVariants = cva(
-  "text-white font-semibold text-base leading-6 bg-brand-600 relative fadding-border rounded-lg py-2.5 ",
+  "font-semibold text-base leading-6 rounded-lg py-2.5 ",
   {
     variants: {
       variant: {
-        default: "",
+        default: "text-white bg-brand-600 relative fadding-border",
+        secondary:
+          "bg-white text-brand-700 border border-solid px-8 border-brand-300",
       },
       size: {
         default: "",

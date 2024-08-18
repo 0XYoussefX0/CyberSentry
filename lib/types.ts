@@ -28,3 +28,89 @@ export const SignUpSchema = v.object({
 });
 
 export type SignUpSchemaType = v.InferOutput<typeof SignUpSchema>;
+
+export const avatarImageSchemaClient = v.objectAsync({
+  avatarImage: v.pipeAsync(
+    v.file("Please select an image file."),
+    v.mimeType(
+      ["image/jpeg", "image/png", "image/jpg"],
+      "Please select a JPEG or PNG file"
+    ),
+    v.maxSize(2000 * 1024, "Please select a file smaller than 2MB"),
+    v.checkAsync((input) => {
+      return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(input);
+        const img = new Image();
+
+        img.src = url;
+
+        img.onload = () => {
+          if (img.width <= 5000 && img.height <= 5000) {
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        };
+
+        img.onerror = () => {
+          resolve(false);
+        };
+      });
+    }, "Image is too large, the maximum size is 5000x5000px"),
+    v.checkAsync((input) => {
+      return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(input);
+        const img = new Image();
+
+        img.src = url;
+
+        img.onload = () => {
+          if (img.width >= 256 && img.height >= 256) {
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        };
+
+        img.onerror = () => {
+          resolve(false);
+        };
+      });
+    }, "Image is too small, the minimum size is 256x256px")
+  ),
+});
+
+export const fullNameSchema = v.object({
+  fullname: v.pipe(
+    v.string("fullname must be a string"),
+    v.nonEmpty("fullname is required")
+  ),
+});
+
+export const profileDetailsFormSchemaClient = v.objectAsync({
+  ...fullNameSchema.entries,
+  ...avatarImageSchemaClient.entries,
+});
+
+export type ProfileDetailsFormSchemaClientType = v.InferOutput<
+  typeof profileDetailsFormSchemaClient
+>;
+
+export type croppedArea = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+export type onCropCompleteType = (
+  croppedArea: croppedArea,
+  croppedAreaPixels: croppedArea
+) => void;
+
+export type getCroppedImgType = (
+  imageSrc: string,
+  pixelCrop: croppedArea,
+  rotation: number,
+  flip?: { horizontal: boolean; vertical: boolean }
+) => Promise<Blob | null>;
