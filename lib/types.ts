@@ -1,4 +1,5 @@
 import * as v from "valibot";
+import type { Database as DB } from "@/lib/supabase/database.types";
 
 type Constraints = "length" | "symbol" | "uppercase" | "number";
 
@@ -114,3 +115,13 @@ export type getCroppedImgType = (
   rotation: number,
   flip?: { horizontal: boolean; vertical: boolean }
 ) => Promise<Blob | null>;
+
+declare global {
+  type Database = DB;
+}
+
+export const OTPSchema = v.object({
+  otp: v.pipe(v.string(), v.length(6, "OTP must be 6 characters long")),
+});
+
+export type OTPSchemaType = v.InferOutput<typeof OTPSchema>;

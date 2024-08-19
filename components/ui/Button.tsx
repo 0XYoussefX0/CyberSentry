@@ -11,6 +11,7 @@ const buttonVariants = cva(
         default: "text-white bg-brand-600 relative fadding-border",
         secondary:
           "bg-white text-brand-700 border border-solid px-8 border-brand-300",
+        link: "text-brand-600 underline",
       },
       size: {
         default: "",
