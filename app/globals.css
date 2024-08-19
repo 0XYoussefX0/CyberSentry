@@ -119,6 +119,14 @@
   pointer-events: none; /* Allows interaction with content below */
 }
 
-.ReactCrop__crop-mask {
-  border-radius: 12px !important;
+.countryTrigger .countryData {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }

@@ -3,6 +3,9 @@ import { twMerge } from "tailwind-merge";
 
 import { getCroppedImgType } from "./types";
 
+import examples from "libphonenumber-js/mobile/examples";
+import { CountryCode, getExampleNumber } from "libphonenumber-js";
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -111,4 +114,10 @@ export const getCroppedImg: getCroppedImgType = async (
       }
     }, "image/jpeg");
   });
+};
+
+export const generatePlaceholder = (countryCode: CountryCode) => {
+  const phoneNumber = getExampleNumber(countryCode, examples);
+  if (!phoneNumber) return "+1 (555) 000-0000";
+  return phoneNumber.formatNational();
 };
