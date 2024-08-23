@@ -30,6 +30,13 @@ export const SignUpSchema = v.object({
 
 export type SignUpSchemaType = v.InferOutput<typeof SignUpSchema>;
 
+export const LoginSchema = v.object({
+  ...SignUpSchema.entries,
+  rememberMe: v.boolean(),
+});
+
+export type LoginSchemaType = v.InferOutput<typeof LoginSchema>;
+
 export const avatarImageSchemaClient = v.objectAsync({
   avatarImage: v.pipeAsync(
     v.file("Please select an image file."),

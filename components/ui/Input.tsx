@@ -1,10 +1,10 @@
 import { cva, type VariantProps } from "class-variance-authority";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils.client";
 import { forwardRef } from "react";
 
 const inputVariants = cva(
-  "bg-white border border-solid border-gray-300 rounded-lg py-2.5 px-3.5",
+  "bg-white border border-solid border-gray-300 rounded-lg py-2.5 px-3.5 leading-6 font-normal placeholder:text-gray-500",
   {
     variants: {
       variant: {

@@ -39,7 +39,7 @@ export default async function verifyPhoneNumber(
   /* now check if the otp is valid */
   const client = twilio(accountSid, authToken);
   const verificationCheck = await client.verify.v2
-    .services("CyberSentry")
+    .services(process.env.NEXT_PUBLIC_VERIFICATION_SID!)
     .verificationChecks.create({
       code: otp,
       to: phoneNumber,

@@ -3,8 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { isValidPhoneNumber } from "libphonenumber-js";
 import twilio from "twilio";
 
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
+const accountSid = process.env.NEXT_PUBLIC_TWILIO_ACCOUNT_SID;
+const authToken = process.env.NEXT_PUBLIC_TWILIO_AUTH_TOKEN;
 
 export default async function sendOTP(phoneNumber: string) {
   const supabase = createClient();
@@ -24,7 +24,7 @@ export default async function sendOTP(phoneNumber: string) {
 
   const client = twilio(accountSid, authToken);
   const verification = await client.verify.v2
-    .services("CyberSentry")
+    .services(process.env.NEXT_PUBLIC_VERIFICATION_SID!)
     .verifications.create({
       channel: "sms",
       to: phoneNumber,

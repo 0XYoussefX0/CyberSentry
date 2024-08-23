@@ -28,6 +28,8 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
   const [phoneNumberError, setPhoneNumberError] = useState("");
   const phoneNumber = localStorage.getItem("phoneNumber") as string;
 
+  const [loading, setLoading] = useState(false);
+
   const router = useRouter();
 
   const {
@@ -53,6 +55,7 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
   }, []);
 
   const checkTheOtp: SubmitHandler<OTPSchemaType> = async (data) => {
+    setLoading(true);
     const response = await verifyPhoneNumber(phoneNumber, data.otp);
     if (!response) return;
     if (response.status === "error" && response.type === "otp") {
@@ -64,9 +67,10 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
     if (response.status === "success") {
       router.push("/");
     }
+    setLoading(false);
   };
 
-  const formRef = useRef<HTMLFormElement | null>(null);
+  const submitButtonRef = useRef<HTMLButtonElement | null>(null);
 
   return (
     <>
@@ -94,7 +98,6 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
         <form
           className="flex flex-col gap-5"
           onSubmit={handleSubmit(checkTheOtp)}
-          ref={formRef}
         >
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="otp">One-Time Password</Label>
@@ -105,7 +108,7 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
                 <InputOTP
                   maxLength={6}
                   autoFocus
-                  onComplete={() => formRef.current?.submit()}
+                  onComplete={() => submitButtonRef.current?.click()}
                   {...field}
                 >
                   <InputOTPGroup>
@@ -129,7 +132,9 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
               <p className="text-red-500 text-sm">{phoneNumberError}</p>
             )}
           </div>
-          <Button className="mt-1">Continue</Button>
+          <Button ref={submitButtonRef} className="mt-1" disabled={loading}>
+            Continue
+          </Button>
         </form>
       </div>
     </>

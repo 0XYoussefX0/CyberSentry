@@ -20,16 +20,20 @@ import { useEffect, useMemo, useState } from "react";
 import { CountryCode, isValidPhoneNumber } from "libphonenumber-js";
 
 import parsePhoneNumber from "libphonenumber-js";
-import { generatePlaceholder } from "@/lib/utils";
+import { generatePlaceholder } from "@/lib/utils.client";
 
 import dropDownIcon from "@/assets/dropDownIcon.svg";
 
-export default function PhoneNumber() {
+import { FormEvent } from "react";
+
+export default function PhoneNumber({ nextStep }: { nextStep: () => void }) {
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>("MA");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneNumberError, setPhoneNumberError] = useState("");
 
   const [selectIsOpen, setSelectIsOpen] = useState(false);
+
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -43,22 +47,6 @@ export default function PhoneNumber() {
     })();
   }, []);
 
-  const submitPhoneNumber = () => {
-    const result = isValidPhoneNumber(phoneNumber, selectedCountry);
-    if (result) {
-      localStorage.setItem("phoneNumber", phoneNumber);
-      setPhoneNumberError("");
-      /* move on to the next step */
-    } else {
-      setPhoneNumberError("Invalid phone number");
-    }
-  };
-
-  let placeholder = useMemo(
-    () => generatePlaceholder(selectedCountry),
-    [selectedCountry]
-  );
-
   const phoneNumberData = parsePhoneNumber(phoneNumber);
 
   let formattedPhoneNumber = phoneNumberData?.formatInternational();
@@ -69,6 +57,29 @@ export default function PhoneNumber() {
       setSelectedCountry(phoneNumberData.country);
     }
   }
+
+  const submitPhoneNumber = (e: FormEvent<HTMLFormElement>) => {
+    setLoading(true);
+    const result = parsePhoneNumber(phoneNumber, selectedCountry);
+    if (!result) {
+      setPhoneNumberError("Invalid phone number");
+      return;
+    }
+    if (result.isValid()) {
+      localStorage.setItem("phoneNumber", result.number);
+      setPhoneNumberError("");
+      /* move on to the next step */
+      nextStep();
+    } else {
+      setPhoneNumberError("Invalid phone number");
+    }
+    setLoading(false);
+  };
+
+  let placeholder = useMemo(
+    () => generatePlaceholder(selectedCountry),
+    [selectedCountry]
+  );
 
   return (
     <>
@@ -157,7 +168,9 @@ export default function PhoneNumber() {
               )}
             </div>
           </div>
-          <Button className="mt-1">Continue</Button>
+          <Button className="mt-1" disabled={loading}>
+            Continue
+          </Button>
         </form>
       </div>
     </>

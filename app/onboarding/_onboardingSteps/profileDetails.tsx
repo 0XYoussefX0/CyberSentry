@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/Dialog";
 
 import { useState, ChangeEvent, FormEvent } from "react";
-import { getCroppedImg } from "@/lib/utils";
+import { getCroppedImg } from "@/lib/utils.client";
 
 import Cropper from "react-easy-crop";
 
@@ -39,7 +39,7 @@ import {
 import questionIcon from "@/assets/questionIcon.svg";
 import completeProfile from "@/app/actions/(auth)/completeProfile";
 
-export default function ProfileDetails() {
+export default function ProfileDetails({ nextStep }: { nextStep: () => void }) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [rotation, setRotation] = useState(0);
   const [croppedAreaPixels, setCroppedAreaPixels] =
@@ -85,7 +85,10 @@ export default function ProfileDetails() {
       formData.set("avatarImage", croppedImage);
 
       const response = await completeProfile(formData);
+
       console.log(response);
+
+      nextStep();
     }
   };
 

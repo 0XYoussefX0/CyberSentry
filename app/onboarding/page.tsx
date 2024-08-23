@@ -7,7 +7,7 @@ import notificationMessageIcon from "@/assets/notificationMessageIcon.svg";
 
 import ProfileDetails from "@/app/onboarding/_onboardingSteps/ProfileDetails";
 import PhoneNumber from "@/app/onboarding/_onboardingSteps/PhoneNumber";
-import VerifyPhoneNumber from "@/app/onboarding/_onboardingSteps/verifyPhoneNumber";
+import VerifyPhoneNumber from "@/app/onboarding/_onboardingSteps/VerifyPhoneNumber";
 import { createClient } from "@/lib/supabase/client";
 
 import { useEffect, useState, useMemo } from "react";
@@ -25,6 +25,10 @@ export default function Onboarding() {
     setCurrentStep((prev) => prev - 1);
   };
 
+  const nextStep = () => {
+    setCurrentStep((prev) => prev + 1);
+  };
+
   const steps = useMemo(
     () => [
       {
@@ -37,13 +41,13 @@ export default function Onboarding() {
         title: "Profile Details",
         description: "Upload a picture and add your full name.",
         icon: profileEditIcon,
-        component: <ProfileDetails />,
+        component: <ProfileDetails nextStep={nextStep} />,
       },
       {
         title: "Phone Number",
         description: "Provide and verify your phone number.",
         icon: phoneNumberIcon,
-        component: <PhoneNumber />,
+        component: <PhoneNumber nextStep={nextStep} />,
       },
       {
         title: "Verification",

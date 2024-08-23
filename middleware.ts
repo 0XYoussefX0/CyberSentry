@@ -2,6 +2,7 @@ import { type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
+  /* check if the user has the rememeber me property and the value of it and the active session */
   return await updateSession(request);
 }
 

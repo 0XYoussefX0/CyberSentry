@@ -5,22 +5,15 @@ import Logo from "@/assets/logo.svg";
 import { Label } from "@/components/ui/Label";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import CheckMark from "@/components/ui/CheckMark";
-import PasswordStrengthChecker from "@/components/PasswordStrengthChecker";
-import { passwordStrength } from "check-password-strength";
-import {
-  PasswordConstraints,
-  SignUpSchemaType,
-  SignUpSchema,
-} from "@/lib/types";
-import { SubmitHandler, useForm } from "react-hook-form";
+
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { valibotResolver } from "@hookform/resolvers/valibot";
 
 import { useState } from "react";
 
 import RevealButton from "@/components/ui/RevealButton";
 
-import signup from "@/app/actions/(auth)/signup";
+import login from "@/app/actions/(auth)/login";
 
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
@@ -29,51 +22,36 @@ import CheckEmailModal from "@/components/CheckEmailModal";
 
 import emailIcon from "@/assets/emailIcon.svg";
 
-const passwordConstraints: PasswordConstraints = [
-  {
-    id: "length",
-    text: "Must be at least 8 characters long.",
-  },
-  {
-    id: "symbol",
-    text: "Must include at least one special character (e.g., !, @, #, $).",
-  },
-  {
-    id: "uppercase",
-    text: "Must contain an uppercase letter (A-Z).",
-  },
-  {
-    id: "number",
-    text: "Must include at least one number (0-9).",
-  },
-];
+import RememberMeCheckbox from "@/components/RememberMeCheckbox";
+import { LoginSchema, LoginSchemaType } from "@/lib/types";
 
-export default function Signup() {
+import { useRouter } from "next/navigation";
+
+export default function Login() {
   const [revealPassword, setRevealPassword] = useState(false);
-  const [confirmEmailModal, setConfirmEmailModal] = useState({
-    email: "",
-    open: false,
-  });
 
   const { toast } = useToast();
 
   const {
     register,
+    control,
     handleSubmit,
-    watch,
     setError,
     reset,
+    watch,
     formState: { errors, isSubmitting },
-  } = useForm<SignUpSchemaType>({
-    resolver: valibotResolver(SignUpSchema),
+  } = useForm<LoginSchemaType>({
+    resolver: valibotResolver(LoginSchema),
   });
 
-  const password = watch("password");
+  const router = useRouter();
 
-  const passwordStrengthResult = passwordStrength(password);
+  const f = watch();
+  console.log(f);
 
-  const handleSignUp: SubmitHandler<SignUpSchemaType> = async (data) => {
-    const response = await signup(data);
+  const handleSignUp: SubmitHandler<LoginSchemaType> = async (data) => {
+    const response = await login(data);
+    console.log(response);
     if (response.status === "serverError") {
       toast({
         title: "Server Error",
@@ -94,10 +72,7 @@ export default function Signup() {
         }
       }
     } else {
-      setConfirmEmailModal({
-        email: data.email,
-        open: true,
-      });
+      router.push("/");
       reset();
     }
   };
@@ -114,11 +89,6 @@ export default function Signup() {
           </div>
         </div>
         <div className="px-4 py-12 lg:py-0 flex flex-col gap-8 lg:px-0 lg:max-w-[380px]">
-          <CheckEmailModal
-            open={confirmEmailModal.open}
-            setOpen={setConfirmEmailModal}
-            email={confirmEmailModal.email}
-          />
           <Toaster />
           <div className="flex flex-col gap-6">
             <nav className="lg:hidden">
@@ -128,12 +98,12 @@ export default function Signup() {
             </nav>
             <div className="flex gap-2 lg:gap-3 flex-col">
               <h1 className="font-semibold text-2xl lg:text-4xl lg:leading-11 lg:tracking-[-0.72px] leading-8 text-gray-900">
-                Sign up
+                Login
               </h1>
               <p className="font-normal text-base leading-6 text-gray-600">
-                Sign up now to secure your business with our cutting-edge
-                vulnerability scans. Protect your data, prevent breaches, and
-                ensure peace of mind.
+                Welcome back! Log in to access your personalized dashboard,
+                monitor your security status, and stay ahead of potential
+                threats. Your peace of mind is just a click away.
               </p>
             </div>
           </div>
@@ -184,42 +154,30 @@ export default function Signup() {
                     ? "Password is visible"
                     : "Password is hidden"}
                 </span>
-                <PasswordStrengthChecker
-                  passwordStrengthResult={passwordStrengthResult}
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                {passwordConstraints.map(({ id, text }, index) => {
-                  let success = false;
-                  if (id === "length") {
-                    success = passwordStrengthResult.length >= 8;
-                  } else {
-                    success = passwordStrengthResult.contains.includes(id);
-                  }
-                  return (
-                    <div className="flex items-center gap-2" key={id}>
-                      <CheckMark success={success} />
-                      <p
-                        id={`password-hint-${index}`}
-                        className={`${
-                          success ? "text-green-400" : "text-gray-600"
-                        } transition-colors duration-300 font-normal text-xs leading-5 flex-1`}
-                      >
-                        {text}
-                      </p>
-                    </div>
-                  );
-                })}
               </div>
             </div>
+            <div className="mt-1 flex justify-between">
+              <Controller
+                control={control}
+                name="rememberMe"
+                defaultValue={false}
+                render={({ field }) => <RememberMeCheckbox {...field} />}
+              />
+              <Link
+                href="/forgotPassword"
+                className="font-medium text-sm leading-5 text-brand-700"
+              >
+                Forgot your password?
+              </Link>
+            </div>
             <Button className="mt-1" disabled={isSubmitting}>
-              Get started
+              Login
             </Button>
           </form>
           <p className="font-normal text-sm leading-5 text-gray-600 text-center">
-            {"Already have an account? "}
-            <Link href="/login" className="font-semibold text-brand-700">
-              Log in
+            {"Don't have an account? "}
+            <Link href="/signup" className="font-medium text-brand-700">
+              Sign up
             </Link>
           </p>
         </div>
