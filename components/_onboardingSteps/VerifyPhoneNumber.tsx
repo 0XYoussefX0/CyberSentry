@@ -116,7 +116,9 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
       await deleteUser(result.user);
       // (future me will handle this) check if the user deletion was successful before updating the Supabase user.
 
-      const response = await supabase.auth.updateUser({ phone: phoneNumber });
+      const response = await supabase.auth.updateUser({
+        data: { phoneNumber },
+      });
       if (response.error) {
         // Handle Supabase update error
         console.error("Supabase update error:", response.error);
