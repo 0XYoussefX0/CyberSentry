@@ -5,9 +5,9 @@ import profileEditIcon from "@/assets/profileEditIcon.svg";
 import phoneNumberIcon from "@/assets/phoneNumberIcon.svg";
 import notificationMessageIcon from "@/assets/notificationMessageIcon.svg";
 
-import ProfileDetails from "@/app/onboarding/_onboardingSteps/ProfileDetails";
-import PhoneNumber from "@/app/onboarding/_onboardingSteps/PhoneNumber";
-import VerifyPhoneNumber from "@/app/onboarding/_onboardingSteps/VerifyPhoneNumber";
+import ProfileDetails from "@/components/_onboardingSteps/ProfileDetails";
+import PhoneNumber from "@/components/_onboardingSteps/PhoneNumber";
+import VerifyPhoneNumber from "@/components/_onboardingSteps/VerifyPhoneNumber";
 import { createClient } from "@/lib/supabase/client";
 
 import { useEffect, useState, useMemo } from "react";

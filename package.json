@@ -24,7 +24,6 @@
     "firebase": "^10.13.0",
     "framer-motion": "^11.3.28",
     "input-otp": "^1.2.4",
-    "ip-geolocation-api-sdk-typescript": "^1.0.7",
     "jose": "^5.7.0",
     "libphonenumber-js": "^1.11.7",
     "lucide-react": "^0.428.0",
@@ -39,7 +38,6 @@
     "supabase": "^1.190.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
-    "twilio": "^5.2.2",
     "valibot": "^0.37.0"
   },
   "devDependencies": {
