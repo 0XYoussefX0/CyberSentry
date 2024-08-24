@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/OTPInput";
 import { valibotResolver } from "@hookform/resolvers/valibot";
 
-import { OTPSchema, OTPSchemaType } from "@/lib/types";
+import { OTPSchema, OTPSchemaType, CaptchaDataType } from "@/lib/types";
 
 import { SubmitHandler, useForm, Controller } from "react-hook-form";
 import { useRouter } from "next/navigation";
@@ -25,6 +25,7 @@ import { auth } from "@/lib/firebase/config";
 import {
   signInWithPhoneNumber,
   RecaptchaVerifier,
+  ConfirmationResult,
   deleteUser,
 } from "firebase/auth";
 import { toast } from "@/hooks/use-toast";
@@ -42,51 +43,75 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
 
   const router = useRouter();
 
+  const [captchaData, setCaptchaData] = useState<CaptchaDataType>({
+    appVerifier: undefined,
+    widgetId: undefined,
+  });
+
+  const [confirmationResult, setConfirmationResult] =
+    useState<ConfirmationResult>();
+
+  const [error, setError] = useState("");
+
   const {
     handleSubmit,
-    setError,
     control,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<OTPSchemaType>({
     resolver: valibotResolver(OTPSchema),
   });
 
-  const sendOTP = () => {
-    console.log("waaa nwara");
-    const appVerifier = window.recaptchaVerifier;
-    signInWithPhoneNumber(auth, phoneNumber, appVerifier)
-      .then((confirmationResult) => {
-        setSentOTP(true);
-        window.confirmationResult = confirmationResult;
-      })
-      .catch((error) => {
-        console.log(error);
-        setAttemptsNumber((prev) => prev + 1);
-        appVerifier.render().then(function (widgetId) {
-          // @ts-expect-error
-          grecaptcha.reset(widgetId);
-          toast({
-            title: "Error Sending OTP",
-            description: error.message,
-          });
-          setSentOTP(false);
-        });
+  const sendOTP = async () => {
+    const { appVerifier, widgetId } = captchaData;
+    if (!appVerifier) {
+      setError("You have to solve the Captcha First");
+      return;
+    }
+    try {
+      const confirmationResult = await signInWithPhoneNumber(
+        auth,
+        phoneNumber,
+        appVerifier
+      );
+      setConfirmationResult(confirmationResult);
+      setSentOTP(true);
+    } catch (error: any) {
+      console.log(error);
+      setAttemptsNumber((prev) => prev + 1);
+      // @ts-expect-error
+      grecaptcha.reset(widgetId);
+      toast({
+        title: "Error Sending OTP",
+        description: error.message,
       });
+      setSentOTP(false);
+    }
   };
 
   useEffect(() => {
-    window.recaptchaVerifier = new RecaptchaVerifier(auth, "send-otp", {
-      size: "invisible",
-      callback: () => {},
-    });
+    (async () => {
+      const recaptchaVerifier = new RecaptchaVerifier(
+        auth,
+        "recaptcha-container",
+        {}
+      );
+      const widgetId = await recaptchaVerifier.render();
+      setCaptchaData({
+        appVerifier: recaptchaVerifier,
+        widgetId,
+      });
+    })();
   }, []);
 
   const supabase = createClient();
 
   const checkTheOtp: SubmitHandler<OTPSchemaType> = async (data) => {
+    if (!confirmationResult) {
+      return;
+    }
     setLoading(true);
     try {
-      const result = await window.confirmationResult.confirm(data.otp);
+      const result = await confirmationResult.confirm(data.otp);
       console.log(result);
       await deleteUser(result.user);
       // (future me will handle this) check if the user deletion was successful before updating the Supabase user.
@@ -172,7 +197,6 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
             )}
           </div>
           <Button
-            id="send-otp"
             type={sentOTP ? "submit" : "button"}
             ref={submitButtonRef}
             className="mt-1"
@@ -181,6 +205,8 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
           >
             {sentOTP ? "Verify OTP" : attemptsNumber > 1 ? "Retry" : "Send OTP"}
           </Button>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+          <div id="recaptcha-container"></div>
         </form>
       </div>
     </>

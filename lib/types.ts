@@ -1,5 +1,7 @@
 import * as v from "valibot";
-import type { Database as DB } from "@/lib/supabase/database.types";
+import type { Database as DB } from "@/lib/supabase/database.types.ts";
+
+import { RecaptchaVerifier } from "firebase/auth";
 
 type Constraints = "length" | "symbol" | "uppercase" | "number";
 
@@ -132,3 +134,8 @@ export const OTPSchema = v.object({
 });
 
 export type OTPSchemaType = v.InferOutput<typeof OTPSchema>;
+
+export type CaptchaDataType = {
+  appVerifier: RecaptchaVerifier | undefined;
+  widgetId: number | undefined;
+};
