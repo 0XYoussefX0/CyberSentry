@@ -58,8 +58,7 @@ export default function PhoneNumber({ nextStep }: { nextStep: () => void }) {
     }
   }
 
-  const submitPhoneNumber = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const submitPhoneNumber = () => {
     setLoading(true);
     const result = parsePhoneNumber(phoneNumber, selectedCountry);
     if (!result) {
