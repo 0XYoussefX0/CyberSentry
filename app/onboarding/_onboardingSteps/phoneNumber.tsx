@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/Select";
 
 import countriesData from "@/public/assets/countriesData/data.json";
-import { useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import { CountryCode, isValidPhoneNumber } from "libphonenumber-js";
 
@@ -23,8 +23,6 @@ import parsePhoneNumber from "libphonenumber-js";
 import { generatePlaceholder } from "@/lib/utils.client";
 
 import dropDownIcon from "@/assets/dropDownIcon.svg";
-
-import { FormEvent } from "react";
 
 export default function PhoneNumber({ nextStep }: { nextStep: () => void }) {
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>("MA");
@@ -51,6 +49,8 @@ export default function PhoneNumber({ nextStep }: { nextStep: () => void }) {
 
   let formattedPhoneNumber = phoneNumberData?.formatInternational();
 
+  console.log(phoneNumberData);
+
   if (phoneNumberData?.country) {
     formattedPhoneNumber = phoneNumberData?.formatNational();
     if (phoneNumberData?.country !== selectedCountry) {
@@ -59,6 +59,7 @@ export default function PhoneNumber({ nextStep }: { nextStep: () => void }) {
   }
 
   const submitPhoneNumber = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setLoading(true);
     const result = parsePhoneNumber(phoneNumber, selectedCountry);
     if (!result) {

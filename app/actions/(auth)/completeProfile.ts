@@ -77,11 +77,11 @@ export default async function completeProfile(data: unknown) {
     //   data: { publicUrl },
     // } = supabase.storage.from("avatars").getPublicUrl(avatarImage.name);
 
-    // const { data, error } = await supabase.from("profiles").insert({
-    //   avatarImage: publicUrl,
-    //   fullname,
-    //   verified: false,
-    //   user_id: user.id,
+    // const { data, error } = await supabase.auth.updateUser({
+    //   data: {
+    //     avatar_image: publicUrl,
+    //     full_name: fullname,
+    //   },
     // });
 
     // if (error) {

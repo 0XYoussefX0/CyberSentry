@@ -5,10 +5,7 @@ import phoneNumberIcon from "@/assets/phoneNumberIcon.svg";
 import { Button } from "@/components/ui/Button";
 import { Label } from "@/components/ui/Label";
 
-import { useEffect, useState, useRef } from "react";
-
-import verifyPhoneNumber from "@/app/actions/(auth)/verifyPhoneNumber";
-import sendOTP from "@/app/actions/(auth)/sendOTP";
+import { useState, useRef } from "react";
 
 import {
   InputOTP,
@@ -23,12 +20,25 @@ import { OTPSchema, OTPSchemaType } from "@/lib/types";
 import { SubmitHandler, useForm, Controller } from "react-hook-form";
 import { useRouter } from "next/navigation";
 
+import { auth } from "@/lib/firebase/config";
+
+import {
+  signInWithPhoneNumber,
+  RecaptchaVerifier,
+  deleteUser,
+} from "firebase/auth";
+import { toast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
+import { createClient } from "@/lib/supabase/client";
+
 export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
   const [sentOTP, setSentOTP] = useState(false);
   const [phoneNumberError, setPhoneNumberError] = useState("");
   const phoneNumber = localStorage.getItem("phoneNumber") as string;
 
   const [loading, setLoading] = useState(false);
+
+  const [attemptsNumber, setAttemptsNumber] = useState(1);
 
   const router = useRouter();
 
@@ -41,39 +51,67 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
     resolver: valibotResolver(OTPSchema),
   });
 
-  useEffect(() => {
-    (async () => {
-      const response = await sendOTP(phoneNumber);
-      if (!response) return;
-      if (response.status === "error") {
-        setPhoneNumberError(response.message as string);
-      }
-      if (response.status === "success") {
+  const sendOTP = () => {
+    signInWithPhoneNumber(auth, phoneNumber, appVerifier)
+      .then((confirmationResult) => {
         setSentOTP(true);
-      }
-    })();
-  }, []);
+        window.confirmationResult = confirmationResult;
+      })
+      .catch((error) => {
+        console.log(error);
+        setAttemptsNumber((prev) => prev + 1);
+        appVerifier.render().then(function (widgetId) {
+          // @ts-expect-error
+          grecaptcha.reset(widgetId);
+          toast({
+            title: "Error Sending OTP",
+            description: error.message,
+          });
+          setSentOTP(false);
+        });
+      });
+  };
+
+  window.recaptchaVerifier = new RecaptchaVerifier(auth, "send-otp", {
+    size: "invisible",
+    callback: () => {
+      sendOTP();
+    },
+  });
+
+  const appVerifier = window.recaptchaVerifier;
+
+  const supabase = createClient();
 
   const checkTheOtp: SubmitHandler<OTPSchemaType> = async (data) => {
     setLoading(true);
-    const response = await verifyPhoneNumber(phoneNumber, data.otp);
-    if (!response) return;
-    if (response.status === "error" && response.type === "otp") {
-      setError("otp", { message: response.message });
-    }
-    if (response.status === "error" && response.type === "phoneNumber") {
-      setPhoneNumberError(response.message);
-    }
-    if (response.status === "success") {
+    try {
+      const result = await window.confirmationResult.confirm(data.otp);
+      console.log(result);
+      await deleteUser(result.user);
+      // (future me will handle this) check if the user deletion was successful before updating the Supabase user.
+
+      const response = await supabase.auth.updateUser({ phone: phoneNumber });
+      if (response.error) {
+        // Handle Supabase update error
+        console.error("Supabase update error:", response.error);
+        return;
+      }
+
       router.push("/");
+    } catch (error: any) {
+      toast({
+        title: "Error Verifying OTP",
+        description: error.message,
+      });
     }
-    setLoading(false);
   };
 
   const submitButtonRef = useRef<HTMLButtonElement | null>(null);
 
   return (
     <>
+      <Toaster />
       <div className="mask-2"></div>
       <div className="gridd-2"></div>
       <div className="flex flex-col gap-8">
@@ -87,8 +125,8 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
             </h1>
             <p className="text-center font-normal leading-6 text-base text-gray-600">
               {sentOTP
-                ? " We've sent a verification code to your phone. Enter the code to confirm your number and complete the setup."
-                : "We are sending a verification code to your phone. Please wait for the code."}
+                ? " We've sent a verification code to your phone. Enter the code to confirm your number and complete the onboarding."
+                : "Click 'Send OTP' to receive a verification code on your phone."}
             </p>
             <Button variant={"link"} onClick={() => goback()} className="all">
               Change your number
@@ -110,6 +148,7 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
                   autoFocus
                   onComplete={() => submitButtonRef.current?.click()}
                   {...field}
+                  disabled={!sentOTP}
                 >
                   <InputOTPGroup>
                     <InputOTPSlot index={0} />
@@ -132,8 +171,14 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
               <p className="text-red-500 text-sm">{phoneNumberError}</p>
             )}
           </div>
-          <Button ref={submitButtonRef} className="mt-1" disabled={loading}>
-            Continue
+          <Button
+            id="send-otp"
+            type={sentOTP ? "submit" : "button"}
+            ref={submitButtonRef}
+            className="mt-1"
+            disabled={loading}
+          >
+            {sentOTP ? "Verify OTP" : attemptsNumber > 1 ? "Retry" : "Send OTP"}
           </Button>
         </form>
       </div>

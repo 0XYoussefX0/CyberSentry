@@ -14,6 +14,10 @@ import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { isValidPhoneNumber } from "libphonenumber-js";
 
+import { auth } from "@/lib/firebase/config";
+
+auth.useDeviceLanguage();
+
 export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState<number>(0);
 
@@ -67,17 +71,19 @@ export default function Onboarding() {
 
       if (!user) return;
 
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("avatarimage, full_name, verified")
-        .eq("user_id", user.id)
-        .single();
+      // inser the avatar image and full name inside the user object, to make everything easy for you
 
-      if (!data) {
+      // const { data, error } = await supabase
+      //   .from("profiles")
+      //   .select("avatarimage, full_name")
+      //   .eq("user_id", user.id)
+      //   .single();
+
+      if (!user.user_metadata.avatar_image || !user.user_metadata.full_name) {
         setCurrentStep(1);
-      } else if (data.verified) {
+      } else if (user.phone) {
         router.push("/");
-      } else if (!data.verified) {
+      } else {
         const phoneNumber = localStorage.getItem("phoneNumber");
         if (!phoneNumber) {
           setCurrentStep(2);
