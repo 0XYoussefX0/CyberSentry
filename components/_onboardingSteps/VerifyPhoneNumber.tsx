@@ -5,7 +5,7 @@ import phoneNumberIcon from "@/assets/phoneNumberIcon.svg";
 import { Button } from "@/components/ui/Button";
 import { Label } from "@/components/ui/Label";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 import {
   InputOTP,
@@ -52,6 +52,8 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
   });
 
   const sendOTP = () => {
+    console.log("waaa nwara");
+    const appVerifier = window.recaptchaVerifier;
     signInWithPhoneNumber(auth, phoneNumber, appVerifier)
       .then((confirmationResult) => {
         setSentOTP(true);
@@ -72,14 +74,12 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
       });
   };
 
-  window.recaptchaVerifier = new RecaptchaVerifier(auth, "send-otp", {
-    size: "invisible",
-    callback: () => {
-      sendOTP();
-    },
-  });
-
-  const appVerifier = window.recaptchaVerifier;
+  useEffect(() => {
+    window.recaptchaVerifier = new RecaptchaVerifier(auth, "send-otp", {
+      size: "invisible",
+      callback: () => {},
+    });
+  }, []);
 
   const supabase = createClient();
 
@@ -177,6 +177,7 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
             ref={submitButtonRef}
             className="mt-1"
             disabled={loading}
+            onClick={!sentOTP ? sendOTP : undefined}
           >
             {sentOTP ? "Verify OTP" : attemptsNumber > 1 ? "Retry" : "Send OTP"}
           </Button>

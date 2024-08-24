@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/Select";
 
 import countriesData from "@/public/assets/countriesData/data.json";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { CountryCode, isValidPhoneNumber } from "libphonenumber-js";
 
@@ -35,7 +35,7 @@ export default function PhoneNumber({ nextStep }: { nextStep: () => void }) {
 
   useEffect(() => {
     (async () => {
-      const response = await fetch("/selectedCountry");
+      const response = await fetch("/userCountry");
       if (response.ok) {
         const { country } = await response.json();
         if (country) {
@@ -63,6 +63,7 @@ export default function PhoneNumber({ nextStep }: { nextStep: () => void }) {
     const result = parsePhoneNumber(phoneNumber, selectedCountry);
     if (!result) {
       setPhoneNumberError("Invalid phone number");
+      setLoading(false);
       return;
     }
     if (result.isValid()) {
@@ -72,8 +73,8 @@ export default function PhoneNumber({ nextStep }: { nextStep: () => void }) {
       nextStep();
     } else {
       setPhoneNumberError("Invalid phone number");
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   let placeholder = useMemo(
