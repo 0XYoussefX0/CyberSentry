@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import * as v from "valibot";
 import sharp from "sharp";
+import { redirect } from "next/navigation";
 
 const profileDetailsFormSchemaServer = v.objectAsync({
   fullname: v.pipe(
@@ -31,7 +32,9 @@ export default async function completeProfile(data: unknown) {
     return error;
   }
 
-  if (!user) return;
+  if (!user) {
+    redirect("/login");
+  }
 
   let formData;
 
@@ -64,7 +67,7 @@ export default async function completeProfile(data: unknown) {
 
     const { error: storageError } = await supabase.storage
       .from("avatars")
-      .upload("/avatarImage.jpeg", resizedAvatarImage);
+      .upload(`${user.id}/avatarImage.jpeg`, resizedAvatarImage);
 
     if (storageError) {
       return {

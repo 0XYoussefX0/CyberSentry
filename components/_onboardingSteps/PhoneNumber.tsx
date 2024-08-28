@@ -5,26 +5,16 @@ import phoneNumberIcon from "@/assets/phoneNumberIcon.svg";
 import { Button } from "@/components/ui/Button";
 import { Label } from "@/components/ui/Label";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/Select";
-
-import countriesData from "@/public/assets/countriesData/data.json";
-import { useEffect, useState, useRef, MutableRefObject } from "react";
+import { useEffect, useState, MutableRefObject, FormEvent } from "react";
 
 import { CountryCode } from "libphonenumber-js";
 
-import dropDownIcon from "@/assets/dropDownIcon.svg";
 import PhoneNumberInput from "../PhoneNumberInput";
 
 import parsePhoneNumber from "libphonenumber-js";
 
 import CountriesSelect from "@/components/CountriesSelect";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 
 export default function PhoneNumber({
   nextStep,
@@ -53,14 +43,15 @@ export default function PhoneNumber({
     })();
   }, []);
 
-  const submitPhoneNumber = () => {
+  const submitPhoneNumber = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setLoading(true);
     const phoneNumber = phoneNumberRef.current;
     const result = parsePhoneNumber(phoneNumber, selectedCountry);
     if (result && result.isValid()) {
+      phoneNumberRef.current = result.number;
       setPhoneNumberError("");
       setExit(true);
-      // nextStep();
       return;
     }
     setPhoneNumberError("Invalid phone number");

@@ -18,9 +18,15 @@ type CheckEmailModalProps = {
     }>
   >;
   email: string;
+  message: string;
 };
 
-function CheckEmailModal({ open, setOpen, email }: CheckEmailModalProps) {
+function CheckEmailModal({
+  open,
+  setOpen,
+  email,
+  message,
+}: CheckEmailModalProps) {
   return (
     <Dialog
       open={open}
@@ -38,8 +44,7 @@ function CheckEmailModal({ open, setOpen, email }: CheckEmailModalProps) {
               Check your email
             </DialogTitle>
             <DialogDescription className="font-normal text-center text-base leading-6 text-gray-600">
-              We sent a verification link to{" "}
-              <span className="font-medium">{email}</span>
+              {message + " "} <span className="font-medium">{email}</span>
             </DialogDescription>
           </DialogHeader>
         </div>

@@ -160,7 +160,7 @@ export default function Login() {
                 render={({ field }) => <RememberMeCheckbox {...field} />}
               />
               <Link
-                href="/forgotPassword"
+                href="/forgotpassword"
                 className="font-medium text-sm leading-5 text-brand-700"
               >
                 Forgot your password?

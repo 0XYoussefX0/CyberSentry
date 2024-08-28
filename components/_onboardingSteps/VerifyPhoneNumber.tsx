@@ -60,6 +60,8 @@ export default function VerifyPhoneNumber({
 
   const [error, setError] = useState("");
 
+  console.log(phoneNumber, "phoneNumber");
+
   const {
     handleSubmit,
     control,

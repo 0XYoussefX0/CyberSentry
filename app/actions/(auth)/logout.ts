@@ -6,7 +6,18 @@ import { redirect } from "next/navigation";
 export default async function logout() {
   const supabase = createClient();
 
-  // check if the user is logged in before trying to log him out
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError) {
+    return { status: "error", message: authError.message };
+  }
+
+  if (!user) {
+    redirect("/login");
+  }
 
   const { error } = await supabase.auth.signOut();
 

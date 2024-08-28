@@ -15,12 +15,14 @@ export default function useRecaptchaVerifier(containerID: string) {
 
   useEffect(() => {
     (async () => {
-      const recaptchaVerifier = new RecaptchaVerifier(auth, containerID, {});
-      const widgetId = await recaptchaVerifier.render();
-      setCaptchaData({
-        appVerifier: recaptchaVerifier,
-        widgetId,
-      });
+      if (!captchaData.appVerifier) {
+        const recaptchaVerifier = new RecaptchaVerifier(auth, containerID, {});
+        const widgetId = await recaptchaVerifier.render();
+        setCaptchaData({
+          appVerifier: recaptchaVerifier,
+          widgetId,
+        });
+      }
     })();
   }, []);
 

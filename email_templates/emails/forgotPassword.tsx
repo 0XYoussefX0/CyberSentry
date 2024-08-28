@@ -35,8 +35,11 @@ export const ForgotPassword = () => {
             </Row>
           </Section>
           <Section style={content}>
-            {/* make sure to split the full name and only use the first half of it  */}
-            <Text style={paragraph}>Hi Youssef,</Text>
+            {/* the next paragraph is replaced by the following code in production: 
+  <p style="font-size:14px;line-height:1.5;margin:16px 0">
+  {{ if .Data.full_name }}Hi {{ .Data.full_name }} 👋,{{ else }}Hi There 👋,{{ end }}
+</p> */}
+            <Text style={paragraph}>Hi X,</Text>
             <Text style={paragraph}>
               We received a request to reset the password for your CyberSentry
               account. No worries—it's easy to get back on track!
@@ -47,13 +50,13 @@ export const ForgotPassword = () => {
             <Text style={paragraph}>
               <Button
                 style={button}
-                href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=signup"
+                href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/resetpassword"
               >
                 Reset Your Password
               </Button>
             </Text>
             <Text style={paragraph}>
-              If you didn’t request a password reset, you can safely ignore this
+              If you didn't request a password reset, you can safely ignore this
               email. Your password will remain unchanged.
             </Text>
             <Text style={paragraph}>

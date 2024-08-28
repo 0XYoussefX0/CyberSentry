@@ -54,21 +54,19 @@ export async function updateSession(request: NextRequest) {
     user.user_metadata.rememberMe === false &&
     (!activeSession || !userId || userId !== user.id)
   ) {
-    console.log("amiho");
     const { error } = await supabase.auth.signOut();
+    /* handle error */
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
-    /* handle error */
   }
+
+  const allowedRoutes = ["/login", "/signup", "/auth", "/forgotpassword"];
 
   if (
     !user &&
-    !request.nextUrl.pathname.startsWith("/login") &&
-    !request.nextUrl.pathname.startsWith("/signup") &&
-    !request.nextUrl.pathname.startsWith("/auth")
+    !allowedRoutes.some((route) => request.nextUrl.pathname.startsWith(route))
   ) {
-    // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);

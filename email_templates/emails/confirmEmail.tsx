@@ -46,7 +46,7 @@ export const ConfirmEmail = () => {
             <Text style={paragraph}>
               <Button
                 style={button}
-                href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=signup"
+                href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=signup&next=%2Fonboarding"
               >
                 Confirm Your Email
               </Button>

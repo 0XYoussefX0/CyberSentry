@@ -12,12 +12,15 @@ export type PasswordConstraints = {
   text: string;
 }[];
 
-export const SignUpSchema = v.object({
+export const EmailSchema = v.object({
   email: v.pipe(
     v.string(),
     v.nonEmpty("Email is required"),
     v.email("Invalid email address")
   ),
+});
+
+export const PasswordSchema = v.object({
   password: v.pipe(
     v.string(),
     v.nonEmpty("Password is required"),
@@ -30,6 +33,15 @@ export const SignUpSchema = v.object({
       "Your password must contain a special character."
     )
   ),
+});
+
+export type EmailSchemaType = v.InferOutput<typeof EmailSchema>;
+
+export type PasswordSchemaType = v.InferOutput<typeof PasswordSchema>;
+
+export const SignUpSchema = v.object({
+  ...EmailSchema.entries,
+  ...PasswordSchema.entries,
 });
 
 export type SignUpSchemaType = v.InferOutput<typeof SignUpSchema>;

@@ -86,13 +86,12 @@ export default function ProfileDetails({ nextStep }: { nextStep: () => void }) {
       //   type: croppedImage.type,
       // });
       formData.set("avatarImage", croppedImage);
-
+      console.log(formData);
       const response = await completeProfile(formData);
 
       console.log(response);
 
       setExit(true);
-      // nextStep();
     }
   };
 
