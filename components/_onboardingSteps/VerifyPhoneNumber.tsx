@@ -5,7 +5,7 @@ import phoneNumberIcon from "@/assets/phoneNumberIcon.svg";
 import { Button } from "@/components/ui/Button";
 import { Label } from "@/components/ui/Label";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, MutableRefObject } from "react";
 
 import {
   InputOTP,
@@ -31,11 +31,21 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { createClient } from "@/lib/supabase/client";
+import useRecaptchaVerifier from "@/hooks/useRecaptchaVerifier";
 
-export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
+import { motion } from "framer-motion";
+
+export default function VerifyPhoneNumber({
+  goback,
+  phoneNumberRef,
+}: {
+  goback: () => void;
+  phoneNumberRef: MutableRefObject<string>;
+}) {
+  const [exit, setExit] = useState(false);
   const [sentOTP, setSentOTP] = useState(false);
   const [phoneNumberError, setPhoneNumberError] = useState("");
-  const phoneNumber = localStorage.getItem("phoneNumber") as string;
+  const phoneNumber = phoneNumberRef.current;
 
   const [loading, setLoading] = useState(false);
 
@@ -43,10 +53,7 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
 
   const router = useRouter();
 
-  const [captchaData, setCaptchaData] = useState<CaptchaDataType>({
-    appVerifier: undefined,
-    widgetId: undefined,
-  });
+  const captchaData = useRecaptchaVerifier("recaptcha-container");
 
   const [confirmationResult, setConfirmationResult] =
     useState<ConfirmationResult>();
@@ -60,6 +67,8 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
   } = useForm<OTPSchemaType>({
     resolver: valibotResolver(OTPSchema),
   });
+
+  const submitButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const sendOTP = async () => {
     const { appVerifier, widgetId } = captchaData;
@@ -88,21 +97,6 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
     }
   };
 
-  useEffect(() => {
-    (async () => {
-      const recaptchaVerifier = new RecaptchaVerifier(
-        auth,
-        "recaptcha-container",
-        {}
-      );
-      const widgetId = await recaptchaVerifier.render();
-      setCaptchaData({
-        appVerifier: recaptchaVerifier,
-        widgetId,
-      });
-    })();
-  }, []);
-
   const supabase = createClient();
 
   const checkTheOtp: SubmitHandler<OTPSchemaType> = async (data) => {
@@ -125,7 +119,8 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
         return;
       }
 
-      router.push("/");
+      // router.push("/");
+      setExit(true);
     } catch (error: any) {
       toast({
         title: "Error Verifying OTP",
@@ -134,14 +129,26 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
     }
   };
 
-  const submitButtonRef = useRef<HTMLButtonElement | null>(null);
-
   return (
-    <>
+    <motion.div
+      initial={{ y: 50, scale: 0.8, opacity: 0 }}
+      animate={
+        exit
+          ? { y: -50, scale: 0.8, opacity: 0 }
+          : { y: 0, scale: 1, opacity: 1 }
+      }
+      onAnimationComplete={() => {
+        if (exit) {
+          router.push("/");
+        }
+      }}
+      transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+      className="relative lp:max-w-[420px] lp:w-full"
+    >
       <Toaster />
       <div className="mask-2"></div>
       <div className="gridd-2"></div>
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-8 h-[484px]">
         <div className="flex flex-col items-center gap-6">
           <div className="bg-white border border-solid border-gray-200 w-14 h-14 flex items-center justify-center rounded-xl shadows">
             <img src={phoneNumberIcon.src} alt="" />
@@ -164,7 +171,7 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
           className="flex flex-col gap-5"
           onSubmit={handleSubmit(checkTheOtp)}
         >
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col items-center gap-1.5">
             <Label htmlFor="otp">One-Time Password</Label>
             <Controller
               name="otp"
@@ -208,9 +215,9 @@ export default function VerifyPhoneNumber({ goback }: { goback: () => void }) {
             {sentOTP ? "Verify OTP" : attemptsNumber > 1 ? "Retry" : "Send OTP"}
           </Button>
           {error && <p className="text-red-500 text-sm">{error}</p>}
-          <div id="recaptcha-container"></div>
+          <div className="mx-auto" id="recaptcha-container"></div>
         </form>
       </div>
-    </>
+    </motion.div>
   );
 }

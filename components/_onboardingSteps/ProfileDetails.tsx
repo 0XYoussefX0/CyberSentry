@@ -39,7 +39,10 @@ import {
 import questionIcon from "@/assets/questionIcon.svg";
 import completeProfile from "@/app/actions/(auth)/completeProfile";
 
+import { motion } from "framer-motion";
+
 export default function ProfileDetails({ nextStep }: { nextStep: () => void }) {
+  const [exit, setExit] = useState(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [rotation, setRotation] = useState(0);
   const [croppedAreaPixels, setCroppedAreaPixels] =
@@ -88,7 +91,8 @@ export default function ProfileDetails({ nextStep }: { nextStep: () => void }) {
 
       console.log(response);
 
-      nextStep();
+      setExit(true);
+      // nextStep();
     }
   };
 
@@ -179,66 +183,82 @@ export default function ProfileDetails({ nextStep }: { nextStep: () => void }) {
           </Button>
         </DialogContent>
       </Dialog>
-
-      <div className="mask-2"></div>
-      <div className="gridd-2"></div>
-      <div className="flex flex-col gap-8">
-        <div className="flex flex-col items-center gap-6">
-          <div className="bg-white border border-solid border-gray-200 w-14 h-14 flex items-center justify-center rounded-xl shadows">
-            <img src={profileEditIcon.src} alt="" />
-          </div>
-          <div className="flex flex-col gap-2">
-            <h1 className="font-semibold text-center leading-8 text-2xl text-gray-900">
-              Complete Your Profile
-            </h1>
-            <p className="text-center font-normal leading-6 text-base text-gray-600">
-              Upload a profile picture and enter your full name. This helps us
-              personalize your experience.
-            </p>
-          </div>
-        </div>
-        <form className="flex flex-col gap-5" onSubmit={submitProfileData}>
-          <div className="flex items-center pt-[3px] gap-4">
-            <label htmlFor="avatarImage" className="cursor-pointer">
-              <img
-                src={croppedImageUrl ?? addAvatarIcon.src}
-                alt=""
-                className="object-cover w-20 h-20 rounded-full"
-              />
-              <span className="sr-only">Select an avatar image</span>
-            </label>
-            <input
-              type="file"
-              onChange={handleFileChange}
-              aria-describedby="avatar-description"
-              id="avatarImage"
-              name="avatarImage"
-              multiple={false}
-              accept=".jpg, .jpeg, .png"
-              className="sr-only"
-            />
-            <div className="flex-1">
-              <span>Avatar Image</span>
-              <p
-                id="avatar-description"
-                className="text-sm font-medium leading-5 text-gray-400"
-              >
-                JPG or PNG, max 2MB and 5000x5000px
+      <motion.div
+        initial={{ y: 50, scale: 0.8, opacity: 0 }}
+        animate={
+          exit
+            ? { y: -50, scale: 0.8, opacity: 0 }
+            : { y: 0, scale: 1, opacity: 1 }
+        }
+        onAnimationComplete={() => {
+          if (exit) {
+            console.log("alo");
+            nextStep();
+          }
+        }}
+        transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+        className="relative lp:max-w-[420px] lp:w-full"
+      >
+        <div className="mask-2"></div>
+        <div className="gridd-2"></div>
+        <div className="flex flex-col gap-8 h-[484px]">
+          <div className="flex flex-col items-center gap-6">
+            <div className="bg-white border border-solid border-gray-200 w-14 h-14 flex items-center justify-center rounded-xl shadows">
+              <img src={profileEditIcon.src} alt="" />
+            </div>
+            <div className="flex flex-col gap-2">
+              <h1 className="font-semibold text-center leading-8 text-2xl text-gray-900">
+                Complete Your Profile
+              </h1>
+              <p className="text-center font-normal leading-6 text-base text-gray-600">
+                Upload a profile picture and enter your full name. This helps us
+                personalize your experience.
               </p>
             </div>
           </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="fullname">Full Name</Label>
-            <Input
-              type="text"
-              id="fullname"
-              name="fullname"
-              placeholder="Enter your name"
-            />
-          </div>
-          <Button className="mt-1">Continue</Button>
-        </form>
-      </div>
+          <form className="flex flex-col gap-5" onSubmit={submitProfileData}>
+            <div className="flex items-center pt-[3px] gap-4">
+              <label htmlFor="avatarImage" className="cursor-pointer">
+                <img
+                  src={croppedImageUrl ?? addAvatarIcon.src}
+                  alt=""
+                  className="object-cover w-20 h-20 rounded-full"
+                />
+                <span className="sr-only">Select an avatar image</span>
+              </label>
+              <input
+                type="file"
+                onChange={handleFileChange}
+                aria-describedby="avatar-description"
+                id="avatarImage"
+                name="avatarImage"
+                multiple={false}
+                accept=".jpg, .jpeg, .png"
+                className="sr-only"
+              />
+              <div className="flex-1">
+                <span>Avatar Image</span>
+                <p
+                  id="avatar-description"
+                  className="text-sm font-medium leading-5 text-gray-400"
+                >
+                  JPG or PNG, max 2MB and 5000x5000px
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="fullname">Full Name</Label>
+              <Input
+                type="text"
+                id="fullname"
+                name="fullname"
+                placeholder="Enter your name"
+              />
+            </div>
+            <Button className="mt-1">Continue</Button>
+          </form>
+        </div>
+      </motion.div>
     </>
   );
 }

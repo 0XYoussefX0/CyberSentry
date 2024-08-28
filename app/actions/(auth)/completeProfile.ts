@@ -51,7 +51,6 @@ export default async function completeProfile(data: unknown) {
     return { error: "Invalid data type" };
   }
 
-  /* check if the data is valid  */
   const result = await v.safeParseAsync(
     profileDetailsFormSchemaServer,
     formData
@@ -73,20 +72,20 @@ export default async function completeProfile(data: unknown) {
       };
     }
 
-    // const {
-    //   data: { publicUrl },
-    // } = supabase.storage.from("avatars").getPublicUrl(avatarImage.name);
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("avatars").getPublicUrl(avatarImage.name);
 
-    // const { data, error } = await supabase.auth.updateUser({
-    //   data: {
-    //     avatar_image: publicUrl,
-    //     full_name: fullname,
-    //   },
-    // });
+    const { data, error } = await supabase.auth.updateUser({
+      data: {
+        avatar_image: publicUrl,
+        full_name: fullname,
+      },
+    });
 
-    // if (error) {
-    //   return { error: error.message };
-    // }
+    if (error) {
+      return { error: error.message };
+    }
 
     return { status: "success" };
   } else {
@@ -94,6 +93,5 @@ export default async function completeProfile(data: unknown) {
       status: "validation_error",
       errors: JSON.stringify(result.issues),
     };
-    /* return the errors and show them in their corresponding place */
   }
 }

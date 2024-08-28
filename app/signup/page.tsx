@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Logo from "@/assets/logo.svg";
 import { Label } from "@/components/ui/Label";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -28,6 +27,8 @@ import { Toaster } from "@/components/ui/toaster";
 import CheckEmailModal from "@/components/CheckEmailModal";
 
 import emailIcon from "@/assets/emailIcon.svg";
+
+import Logo from "@/components/Logo";
 
 const passwordConstraints: PasswordConstraints = [
   {
@@ -105,13 +106,10 @@ export default function Signup() {
   return (
     <div className="lg:p-4 lg:flex lg:gap-4 min-h-screen h-full">
       <div className="lg:w-1/2 flex flex-col items-center lg:gap-[130px] lg:justify-between lg:p-4 ">
-        <div className="gap-2 items-center w-full hidden lg:flex">
-          <Link href="/">
-            <img src={Logo.src} className="w-10 h-10" alt="" />
+        <div className="w-full">
+          <Link href="/" className="h-fit w-[200px] hidden lg:inline-block">
+            <Logo />
           </Link>
-          <div className="font-semibold text-base tracking-[0.16px] text-black">
-            CyberSentry
-          </div>
         </div>
         <div className="px-4 py-12 lg:py-0 flex flex-col gap-8 lg:px-0 lg:max-w-[380px]">
           <CheckEmailModal
@@ -122,8 +120,8 @@ export default function Signup() {
           <Toaster />
           <div className="flex flex-col gap-6">
             <nav className="lg:hidden">
-              <Link href="/">
-                <img src={Logo.src} className="w-10 h-10" />
+              <Link href="/" className="h-fit w-[200px] inline-block">
+                <Logo />
               </Link>
             </nav>
             <div className="flex gap-2 lg:gap-3 flex-col">

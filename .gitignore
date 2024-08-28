@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/email_templates/node_modules
 /.pnp
 .pnp.js
 .yarn/install-state.gz

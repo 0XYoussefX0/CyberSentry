@@ -3,6 +3,8 @@ import type { Database as DB } from "@/lib/supabase/database.types.ts";
 
 import { RecaptchaVerifier } from "firebase/auth";
 
+import { ReactNode } from "react";
+
 type Constraints = "length" | "symbol" | "uppercase" | "number";
 
 export type PasswordConstraints = {
@@ -139,3 +141,11 @@ export type CaptchaDataType = {
   appVerifier: RecaptchaVerifier | undefined;
   widgetId: number | undefined;
 };
+
+export type OnboardingSteos = {
+  title: string;
+  description: string;
+  concise_description: string;
+  icon: any;
+  component: null | ReactNode;
+}[];

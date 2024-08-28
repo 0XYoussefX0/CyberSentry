@@ -3,7 +3,6 @@
 import phoneNumberIcon from "@/assets/phoneNumberIcon.svg";
 
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 
 import {
@@ -15,23 +14,32 @@ import {
 } from "@/components/ui/Select";
 
 import countriesData from "@/public/assets/countriesData/data.json";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState, useRef, MutableRefObject } from "react";
 
-import { CountryCode, isValidPhoneNumber } from "libphonenumber-js";
-
-import parsePhoneNumber from "libphonenumber-js";
-import { generatePlaceholder } from "@/lib/utils.client";
+import { CountryCode } from "libphonenumber-js";
 
 import dropDownIcon from "@/assets/dropDownIcon.svg";
+import PhoneNumberInput from "../PhoneNumberInput";
 
-export default function PhoneNumber({ nextStep }: { nextStep: () => void }) {
+import parsePhoneNumber from "libphonenumber-js";
+
+import CountriesSelect from "@/components/CountriesSelect";
+import { AnimatePresence, motion } from "framer-motion";
+
+export default function PhoneNumber({
+  nextStep,
+  phoneNumberRef,
+}: {
+  nextStep: () => void;
+  phoneNumberRef: MutableRefObject<string>;
+}) {
+  const [exit, setExit] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>("MA");
-  const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneNumberError, setPhoneNumberError] = useState("");
 
-  const [selectIsOpen, setSelectIsOpen] = useState(false);
-
   const [loading, setLoading] = useState(false);
+
+  const [resetPhoneNumber, setResetPhoneNumber] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -45,48 +53,39 @@ export default function PhoneNumber({ nextStep }: { nextStep: () => void }) {
     })();
   }, []);
 
-  const phoneNumberData = parsePhoneNumber(phoneNumber);
-
-  let formattedPhoneNumber = phoneNumberData?.formatInternational();
-
-  console.log(phoneNumberData);
-
-  if (phoneNumberData?.country) {
-    formattedPhoneNumber = phoneNumberData?.formatNational();
-    if (phoneNumberData?.country !== selectedCountry) {
-      setSelectedCountry(phoneNumberData.country);
-    }
-  }
-
   const submitPhoneNumber = () => {
     setLoading(true);
+    const phoneNumber = phoneNumberRef.current;
     const result = parsePhoneNumber(phoneNumber, selectedCountry);
-    if (!result) {
-      setPhoneNumberError("Invalid phone number");
-      setLoading(false);
+    if (result && result.isValid()) {
+      setPhoneNumberError("");
+      setExit(true);
+      // nextStep();
       return;
     }
-    if (result.isValid()) {
-      localStorage.setItem("phoneNumber", result.number);
-      setPhoneNumberError("");
-      /* move on to the next step */
-      nextStep();
-    } else {
-      setPhoneNumberError("Invalid phone number");
-      setLoading(false);
-    }
+    setPhoneNumberError("Invalid phone number");
+    setLoading(false);
   };
 
-  let placeholder = useMemo(
-    () => generatePlaceholder(selectedCountry),
-    [selectedCountry]
-  );
-
   return (
-    <>
+    <motion.div
+      initial={{ y: 50, scale: 0.8, opacity: 0 }}
+      animate={
+        exit
+          ? { y: -50, scale: 0.8, opacity: 0 }
+          : { y: 0, scale: 1, opacity: 1 }
+      }
+      onAnimationComplete={() => {
+        if (exit) {
+          nextStep();
+        }
+      }}
+      transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+      className="relative lp:max-w-[420px] lp:w-full"
+    >
       <div className="mask-2"></div>
       <div className="gridd-2"></div>
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-8 h-[484px]">
         <div className="flex flex-col items-center gap-6">
           <div className="bg-white border border-solid border-gray-200 w-14 h-14 flex items-center justify-center rounded-xl shadows">
             <img src={phoneNumberIcon.src} alt="" />
@@ -106,62 +105,17 @@ export default function PhoneNumber({ nextStep }: { nextStep: () => void }) {
             <Label htmlFor="phoneNumber">Phone Number</Label>
             <div className="flex flex-col gap-1">
               <div className="flex">
-                <Select
-                  value={selectedCountry}
-                  onValueChange={(value) => {
-                    setPhoneNumber("");
-                    setSelectedCountry(value as CountryCode);
-                  }}
-                  open={selectIsOpen}
-                  onOpenChange={setSelectIsOpen}
-                >
-                  <SelectTrigger className="w-fit shrink-0 caret-transparent countryTrigger flex items-center px-3 h-[46px] gap-1 border border-solid border-gray-300 rounded-lg rounded-r-none border-r-0">
-                    <SelectValue placeholder="Theme" />
-                    <div
-                      className={`w-5 h-5 flex items-center justify-center ${
-                        selectIsOpen ? "rotate-180" : "rotate-0"
-                      } transition-transform`}
-                    >
-                      <img src={dropDownIcon.src} alt="" />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent className="bg-white w-[300px]">
-                    {countriesData.map(({ code, country, icon, alpha2 }) => (
-                      <SelectItem
-                        value={alpha2}
-                        key={country}
-                        className="px-4 w-full hover:bg-gray-200 cursor-pointer transition-colors mt-1 rounded-md"
-                      >
-                        <div className="flex w-full items-center gap-3 ">
-                          <img
-                            src={`/assets/countriesData/countriesFlags/${icon}`}
-                            alt=""
-                            width={21}
-                            height={15}
-                          />
-                          <div className="countryData flex items-center gap-1 py-1">
-                            <div className="text-gray-500 text-xs leading-[18px]">
-                              {code}
-                            </div>
-                            <div className="text-gray-700 font-medium text-sm leading-5">
-                              {country}
-                            </div>
-                          </div>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Input
-                  className="pl-0 border-l-0 rounded-l-none h-[46px] outline-none flex-1"
-                  type="tel"
-                  id="phoneNumber"
-                  value={formattedPhoneNumber}
-                  onChange={(e) => {
-                    setPhoneNumber(e.target.value);
-                  }}
-                  name="phoneNumber"
-                  placeholder={placeholder}
+                <CountriesSelect
+                  selectedCountry={selectedCountry}
+                  setResetPhoneNumber={setResetPhoneNumber}
+                  setSelectedCountry={setSelectedCountry}
+                />
+                <PhoneNumberInput
+                  selectedCountry={selectedCountry}
+                  setSelectedCountry={setSelectedCountry}
+                  phoneNumberRef={phoneNumberRef}
+                  resetPhoneNumber={resetPhoneNumber}
+                  setResetPhoneNumber={setResetPhoneNumber}
                 />
               </div>
               {phoneNumberError && (
@@ -174,6 +128,6 @@ export default function PhoneNumber({ nextStep }: { nextStep: () => void }) {
           </Button>
         </form>
       </div>
-    </>
+    </motion.div>
   );
 }
