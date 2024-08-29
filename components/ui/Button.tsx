@@ -8,7 +8,8 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "text-white bg-brand-600 relative fadding-border",
+        default:
+          "text-white bg-brand-600 hover:bg-brand-700 disabled:opacity-80 active:scale-[0.96] active:bg-brand-700 transition-transform transition-colors relative fadding-border",
         secondary:
           "bg-white text-brand-700 border border-solid px-8 border-brand-300",
         link: "text-brand-600 underline",

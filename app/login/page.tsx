@@ -167,7 +167,7 @@ export default function Login() {
               </Link>
             </div>
             <Button className="mt-1" disabled={isSubmitting}>
-              Login
+              {isSubmitting ? "Logging in..." : "Login"}
             </Button>
           </form>
           <p className="font-normal text-sm leading-5 text-gray-600 text-center">

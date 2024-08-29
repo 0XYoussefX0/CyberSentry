@@ -60,8 +60,6 @@ export default function VerifyPhoneNumber({
 
   const [error, setError] = useState("");
 
-  console.log(phoneNumber, "phoneNumber");
-
   const {
     handleSubmit,
     control,
@@ -73,8 +71,10 @@ export default function VerifyPhoneNumber({
   const submitButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const sendOTP = async () => {
+    setLoading(true);
     const { appVerifier, widgetId } = captchaData;
     if (!appVerifier) {
+      setLoading(false);
       setError("You have to solve the Captcha First");
       return;
     }
@@ -86,8 +86,10 @@ export default function VerifyPhoneNumber({
       );
       setConfirmationResult(confirmationResult);
       setSentOTP(true);
+      setLoading(false);
     } catch (error: any) {
       console.log(error);
+      setLoading(false);
       setAttemptsNumber((prev) => prev + 1);
       // @ts-expect-error
       grecaptcha.reset(widgetId);
@@ -212,9 +214,17 @@ export default function VerifyPhoneNumber({
             ref={submitButtonRef}
             className="mt-1"
             disabled={loading}
-            onClick={!sentOTP ? sendOTP : undefined}
+            onClick={sentOTP ? undefined : sendOTP}
           >
-            {sentOTP ? "Verify OTP" : attemptsNumber > 1 ? "Retry" : "Send OTP"}
+            {loading && !sentOTP && !(attemptsNumber > 1)
+              ? "Sending..."
+              : loading && sentOTP
+              ? "Verifying..."
+              : !loading && sentOTP
+              ? "Verify OTP"
+              : !loading && attemptsNumber > 1
+              ? "Resend"
+              : "Send OTP"}
           </Button>
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <div className="mx-auto" id="recaptcha-container"></div>

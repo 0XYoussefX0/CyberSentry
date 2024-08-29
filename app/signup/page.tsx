@@ -174,7 +174,7 @@ export default function Signup() {
               />
             </div>
             <Button className="mt-1" disabled={isSubmitting}>
-              Get started
+              {isSubmitting ? "Signing up..." : "Get started"}
             </Button>
           </form>
           <p className="font-normal text-sm leading-5 text-gray-600 text-center">

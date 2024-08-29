@@ -63,8 +63,11 @@ export default function ProfileDetails({ nextStep }: { nextStep: () => void }) {
     fullname: [],
   });
 
+  const [loading, setLoading] = useState(false);
+
   const submitProfileData = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
     const formElement = e.target as HTMLFormElement;
     const formData = new FormData(formElement);
 
@@ -89,10 +92,10 @@ export default function ProfileDetails({ nextStep }: { nextStep: () => void }) {
       console.log(formData);
       const response = await completeProfile(formData);
 
-      console.log(response);
-
+      setLoading(false);
       setExit(true);
     }
+    setLoading(false);
   };
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -254,7 +257,9 @@ export default function ProfileDetails({ nextStep }: { nextStep: () => void }) {
                 placeholder="Enter your name"
               />
             </div>
-            <Button className="mt-1">Continue</Button>
+            <Button className="mt-1" disabled={loading}>
+              {loading ? "Submitting..." : "Continue"}
+            </Button>
           </form>
         </div>
       </motion.div>

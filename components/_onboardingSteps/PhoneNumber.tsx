@@ -51,6 +51,7 @@ export default function PhoneNumber({
     if (result && result.isValid()) {
       phoneNumberRef.current = result.number;
       setPhoneNumberError("");
+      setLoading(false);
       setExit(true);
       return;
     }
@@ -115,7 +116,7 @@ export default function PhoneNumber({
             </div>
           </div>
           <Button className="mt-1" disabled={loading}>
-            Continue
+            {loading ? "Verifying..." : "Continue"}
           </Button>
         </form>
       </div>
