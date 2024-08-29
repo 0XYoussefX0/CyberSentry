@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "email": "cd email_templates && email dev"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -15,6 +16,7 @@
     "@radix-ui/react-select": "^2.1.1",
     "@radix-ui/react-toast": "^1.2.1",
     "@radix-ui/react-tooltip": "^1.1.2",
+    "@react-email/components": "^0.0.23",
     "@supabase/ssr": "^0.4.0",
     "@supabase/supabase-js": "^2.45.1",
     "@tanstack/react-virtual": "^3.10.4",
@@ -33,6 +35,7 @@
     "react-aria-components": "^1.3.1",
     "react-dom": "^18",
     "react-easy-crop": "^5.0.8",
+    "react-email": "^3.0.1",
     "react-firebase-hooks": "^5.1.1",
     "react-hook-form": "^7.52.2",
     "react-window": "^1.8.10",

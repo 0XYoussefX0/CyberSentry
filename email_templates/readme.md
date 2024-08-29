@@ -15,9 +15,9 @@ yarn
 Then, run the development server:
 
 ```sh
-npm run dev
+npm run email
 # or
-yarn dev
+yarn email
 ```
 
 Open [localhost:3000](http://localhost:3000) with your browser to see the result.
