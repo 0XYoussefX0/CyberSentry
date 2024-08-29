@@ -1,36 +1,31 @@
-"use client";
+import { createClient } from "@/lib/supabase/server";
 
-import logout from "@/app/actions/(auth)/logout";
-import { toast } from "@/hooks/use-toast";
+import { redirect } from "next/navigation";
 
-import { Button } from "@/components/ui/Button";
-import { useState } from "react";
+import LogOutButton from "@/components/LogOutButton";
 
-export default function Home() {
-  const handleLogOut = async () => {
-    const response = await logout();
-    if (response && response.status === "error") {
-      toast({
-        title: "Error logging out",
-        description: response.message,
-      });
-    }
-  };
+export default async function Home() {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const [disable, setDisable] = useState(false);
+  if (!user) {
+    redirect("/login");
+  }
+
+  if (
+    !user.user_metadata.avatar_image ||
+    !user.user_metadata.full_name ||
+    !user.user_metadata.phoneNumber
+  ) {
+    redirect("/onboarding");
+  }
+
   return (
     <>
       <div>Dashboard</div>
-      <button onClick={() => handleLogOut()} className="text-red-400">
-        Log out
-      </button>
-      <Button
-        disabled={disable}
-        className="ml-10 p-4"
-        onClick={() => setDisable(!disable)}
-      >
-        Logging in...
-      </Button>
+      <LogOutButton />
     </>
   );
 }

@@ -61,7 +61,13 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  const allowedRoutes = ["/login", "/signup", "/auth", "/forgotpassword"];
+  const allowedRoutes = [
+    "/login",
+    "/signup",
+    "/auth",
+    "/forgotpassword",
+    "/resetpassword",
+  ];
 
   if (
     !user &&

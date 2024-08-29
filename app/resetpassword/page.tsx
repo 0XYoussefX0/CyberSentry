@@ -38,11 +38,12 @@ export default function ResetPassword() {
     resolver: valibotResolver(PasswordSchema),
   });
 
+  const supabase = createClient();
+
   const password = watch("password");
 
   const passwordStrengthResult = passwordStrength(password);
 
-  const supabase = createClient();
   const handlePasswordResetting: SubmitHandler<PasswordSchemaType> = async (
     data
   ) => {
