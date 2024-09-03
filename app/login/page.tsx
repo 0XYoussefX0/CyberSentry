@@ -172,7 +172,7 @@ export default function Login() {
           </form>
           <p className="font-normal text-sm leading-5 text-gray-600 text-center">
             {"Don't have an account? "}
-            {process.env.APP_ENV === "production" ? (
+            {process.env.NEXT_PUBLIC_APP_ENV === "production" ? (
               <Link
                 href="mailto:arib@ims-technology.ma"
                 className="font-medium text-brand-700"
