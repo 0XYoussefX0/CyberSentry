@@ -172,9 +172,18 @@ export default function Login() {
           </form>
           <p className="font-normal text-sm leading-5 text-gray-600 text-center">
             {"Don't have an account? "}
-            <Link href="/signup" className="font-medium text-brand-700">
-              Sign up
-            </Link>
+            {process.env.ENVIRONMENT === "production" ? (
+              <Link
+                href="mailto:arib@ims-technology.ma"
+                className="font-medium text-brand-700"
+              >
+                Email admin
+              </Link>
+            ) : (
+              <Link href="/signup" className="font-medium text-brand-700">
+                Sign up
+              </Link>
+            )}
           </p>
         </div>
         <div className="justify-between items-center w-full hidden lg:flex">
