@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "pre-build": "node routeGuard.mjs",
+    "build": "npm run pre-build && next build",
     "start": "next start",
     "lint": "next lint",
     "email": "cd email_templates && email dev"
@@ -24,8 +25,10 @@
     "check-password-strength": "^2.0.10",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "dotenv": "^16.4.5",
     "firebase": "^10.13.0",
     "framer-motion": "^11.3.28",
+    "fs-extra": "^11.2.0",
     "input-otp": "^1.2.4",
     "jose": "^5.7.0",
     "libphonenumber-js": "^1.11.7",
