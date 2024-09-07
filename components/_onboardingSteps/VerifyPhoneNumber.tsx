@@ -96,6 +96,7 @@ export default function VerifyPhoneNumber({
       toast({
         title: "Error Sending OTP",
         description: error.message,
+        toastType: "destructive",
       });
       setSentOTP(false);
     }
@@ -129,6 +130,7 @@ export default function VerifyPhoneNumber({
       toast({
         title: "Error Verifying OTP",
         description: error.message,
+        toastType: "destructive",
       });
     }
   };

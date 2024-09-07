@@ -11,6 +11,7 @@ function LogOutButton() {
       toast({
         title: "Error logging out",
         description: response.error,
+        toastType: "destructive",
       });
     }
   };

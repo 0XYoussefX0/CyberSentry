@@ -7,6 +7,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 import errorIcon from "@/assets/errorIcon.svg";
+import successIcon from "@/assets/successIcon.svg";
 
 const ToastProvider = ToastPrimitives.Provider;
 
@@ -44,8 +45,10 @@ const toastVariants = cva(
 const Toast = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> &
-    VariantProps<typeof toastVariants>
->(({ children, className, variant, ...props }, ref) => {
+    VariantProps<typeof toastVariants> & {
+      toastType: "destructive" | "successful";
+    }
+>(({ children, className, toastType, variant, ...props }, ref) => {
   return (
     <ToastPrimitives.Root
       ref={ref}
@@ -54,10 +57,19 @@ const Toast = React.forwardRef<
       duration={15000}
     >
       {children}
-      <img
-        src={errorIcon.src}
-        className="absolute top-1.5 -left-1.5 w-[38px] h-[38px]"
-      />
+      {toastType === "destructive" ? (
+        <img
+          src={errorIcon.src}
+          className="absolute top-1.5 -left-1.5 w-[38px] h-[38px]"
+        />
+      ) : toastType === "successful" ? (
+        <img
+          src={successIcon.src}
+          className="absolute top-1.5 -left-1.5 w-[38px] h-[38px]"
+        />
+      ) : (
+        <></>
+      )}
     </ToastPrimitives.Root>
   );
 });

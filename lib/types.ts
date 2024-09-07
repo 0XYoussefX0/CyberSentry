@@ -199,6 +199,29 @@ export type LoginResponse =
     }
   | { status: "server_error"; error: string };
 
+export type ForgotPasswordResponse =
+  | { status: "success" }
+  | {
+      status: "validation_error";
+      errors: [
+        InferIssue<typeof EmailSchema>,
+        ...InferIssue<typeof EmailSchema>[]
+      ];
+    }
+  | { status: "server_error"; error: string };
+
+export type ResetPasswordResponse =
+  | undefined
+  | { status: "success" }
+  | {
+      status: "validation_error";
+      errors: [
+        InferIssue<typeof PasswordSchema>,
+        ...InferIssue<typeof PasswordSchema>[]
+      ];
+    }
+  | { status: "server_error"; error: string };
+
 export type CheckEmailModalProps = {
   open: boolean;
   setOpen: Dispatch<
@@ -209,4 +232,9 @@ export type CheckEmailModalProps = {
   >;
   email: string;
   message: string;
+};
+
+export type ResetPasswordFormProps = {
+  userId: string;
+  secret: string;
 };

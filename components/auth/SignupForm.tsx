@@ -75,6 +75,7 @@ export default function SignupForm() {
         toast({
           title: "Server Error",
           description: response.error,
+          toastType: "destructive",
         });
         break;
     }

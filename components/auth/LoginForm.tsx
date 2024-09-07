@@ -39,7 +39,7 @@ export default function LoginForm() {
 
   const handleLogin: SubmitHandler<LoginSchemaType> = async (data) => {
     const response = await login(data);
-
+    if (!response) return;
     switch (response.status) {
       case "validation_error":
         for (const error of response.errors) {
@@ -61,6 +61,7 @@ export default function LoginForm() {
         toast({
           title: "Server Error",
           description: response.error,
+          toastType: "destructive",
         });
         break;
     }

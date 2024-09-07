@@ -13,11 +13,12 @@ import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 
 import keyIcon from "@/assets/keyIcon.svg";
-import { createClient } from "@/lib/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import CheckEmailModal from "@/components/CheckEmailModal";
 
 import { useState } from "react";
+import forgotPassword from "@/app/actions/(auth)/forgotPassword";
+
 export default function ForgotPassword() {
   const [confirmEmailModal, setConfirmEmailModal] = useState({
     email: "",
@@ -27,32 +28,40 @@ export default function ForgotPassword() {
     register,
     handleSubmit,
     setError,
-    reset,
     formState: { errors, isSubmitting },
   } = useForm<EmailSchemaType>({
     resolver: valibotResolver(EmailSchema),
   });
 
-  const supabase = createClient();
   const sendResetPasswordEmail: SubmitHandler<EmailSchemaType> = async (
     data
   ) => {
-    const { email } = data;
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
-
-    if (error) {
-      toast({
-        title: "Error Sending Reset Link",
-        description: error.message,
-      });
-      return;
+    const response = await forgotPassword(data);
+    switch (response.status) {
+      case "success":
+        setConfirmEmailModal({
+          email: data.email,
+          open: true,
+        });
+        break;
+      case "validation_error":
+        for (const error of response.errors) {
+          if (error.path && error.path[0].key === "email") {
+            setError("email", {
+              type: "manual",
+              message: error.message,
+            });
+          }
+        }
+        break;
+      case "server_error":
+        toast({
+          title: "Error Sending Reset Link",
+          description: response.error,
+          toastType: "destructive",
+        });
+        break;
     }
-
-    setConfirmEmailModal({
-      open: true,
-      email,
-    });
-    reset();
   };
 
   return (

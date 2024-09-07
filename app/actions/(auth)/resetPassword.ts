@@ -1,37 +1,36 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
 import { PasswordSchema } from "@/lib/types";
 import { redirect } from "next/navigation";
 import * as v from "valibot";
-export default async function resetPassword(data: unknown) {
-  const supabase = createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
+import { ResetPasswordResponse } from "@/lib/types";
+import { createAdminClient } from "@/lib/appwrite/config";
 
-  if (authError) {
-    return { status: "server_error", message: authError.message };
+import { AppwriteException } from "node-appwrite";
+
+export default async function resetPassword(
+  data: unknown,
+  userId: unknown,
+  secret: unknown
+): Promise<ResetPasswordResponse> {
+  if (typeof userId !== "string" || typeof secret !== "string") {
+    redirect("/forgotpassword");
   }
 
-  if (!user) {
-    redirect("/login");
+  const formData = v.safeParse(PasswordSchema, data);
+  if (!formData.success) {
+    return { status: "validation_error", errors: formData.issues };
   }
 
-  const result = v.safeParse(PasswordSchema, data);
+  const { password } = formData.output;
+  const { account } = await createAdminClient();
 
-  if (result.success) {
-    const { password } = result.output;
-    const { error } = await supabase.auth.updateUser({
-      password,
-    });
+  try {
+    await account.updateRecovery(userId, secret, password);
 
-    if (error) {
-      return { status: "server_error", message: error.message };
-    }
-    redirect("/");
+    return { status: "success" };
+  } catch (e) {
+    const err = e as AppwriteException;
+    return { status: "server_error", error: err.message };
   }
-
-  return { status: "validation_error", errors: result.issues };
 }
