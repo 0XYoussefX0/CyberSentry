@@ -1,9 +1,13 @@
 import * as v from "valibot";
-import type { Database as DB } from "@/lib/supabase/database.types.ts";
 
 import { RecaptchaVerifier } from "firebase/auth";
 
 import { ReactNode } from "react";
+
+import { InferIssue } from "valibot";
+import { Models } from "node-appwrite";
+
+import { Dispatch, SetStateAction } from "react";
 
 type Constraints = "length" | "symbol" | "uppercase" | "number";
 
@@ -139,10 +143,6 @@ export type getCroppedImgType = (
   flip?: { horizontal: boolean; vertical: boolean }
 ) => Promise<Blob | null>;
 
-declare global {
-  type Database = DB;
-}
-
 export const OTPSchema = v.object({
   otp: v.pipe(v.string(), v.length(6, "OTP must be 6 characters long")),
 });
@@ -161,3 +161,52 @@ export type OnboardingSteos = {
   icon: any;
   component: null | ReactNode;
 }[];
+
+export type SignUpResponse =
+  | { status: "success" }
+  | {
+      status: "validation_error";
+      errors: [
+        InferIssue<typeof SignUpSchema>,
+        ...InferIssue<typeof SignUpSchema>[]
+      ];
+    }
+  | { status: "server_error"; error: string };
+
+export type LogOutResponse =
+  | {
+      status: "error";
+      error: string;
+    }
+  | undefined;
+
+export type SessionCookie = { name: "session"; value: string };
+
+export type Auth = {
+  user: null | Models.User<Models.Preferences>;
+  sessionCookie: SessionCookie | null;
+  getUser: () => Promise<Auth["user"]>;
+};
+
+export type LoginResponse =
+  | undefined
+  | {
+      status: "validation_error";
+      errors: [
+        InferIssue<typeof LoginSchema>,
+        ...InferIssue<typeof LoginSchema>[]
+      ];
+    }
+  | { status: "server_error"; error: string };
+
+export type CheckEmailModalProps = {
+  open: boolean;
+  setOpen: Dispatch<
+    SetStateAction<{
+      email: string;
+      open: boolean;
+    }>
+  >;
+  email: string;
+  message: string;
+};

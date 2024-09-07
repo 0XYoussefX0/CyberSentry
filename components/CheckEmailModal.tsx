@@ -5,21 +5,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/Dialog";
-import { Dispatch, SetStateAction } from "react";
 
 import emailIcon from "@/assets/emailIcon.svg";
-
-type CheckEmailModalProps = {
-  open: boolean;
-  setOpen: Dispatch<
-    SetStateAction<{
-      email: string;
-      open: boolean;
-    }>
-  >;
-  email: string;
-  message: string;
-};
+import { CheckEmailModalProps } from "@/lib/types";
 
 function CheckEmailModal({
   open,

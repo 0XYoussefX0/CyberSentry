@@ -1,54 +1,36 @@
 "use server";
+
 import * as v from "valibot";
-import { LoginSchema } from "@/lib/types";
-
-import { createClient } from "@/lib/supabase/server";
+import { LoginSchema, LoginResponse } from "@/lib/types";
 import { cookies } from "next/headers";
-import { encryptSymmetric, sign } from "@/lib/utils.server";
+import { createAdminClient } from "@/lib/appwrite/config";
+import { AppwriteException } from "node-appwrite";
+import { redirect } from "next/navigation";
 
-export default async function login(data: unknown) {
+export default async function login(data: unknown): Promise<LoginResponse> {
   const formData = v.safeParse(LoginSchema, data);
 
-  if (formData.success) {
-    const { email, password, rememberMe } = formData.output;
-    const supabase = createClient();
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    const cookieStore = cookies();
-
-    const {
-      data: { user },
-      error: updateError,
-    } = await supabase.auth.updateUser({
-      data: { rememberMe },
-    });
-
-    /* handle this error */
-    if (updateError) {
-
-    }
-
-    if (!rememberMe && user && user.id) {
-      const encryptedUserId = await encryptSymmetric(user.id);
-      const token = await sign({ userId: encryptedUserId });
-      cookieStore.set("activeSession", token, {
-        path: "/",
-        httpOnly: true,
-        sameSite: "strict",
-        secure: process.env.NODE_ENV === "production",
-      });
-    }
-
-    if (error) {
-      return { status: "server_error", message: error.message };
-    }
-
-    return { status: "success" };
-  } else {
+  if (!formData.success) {
     return { status: "validation_error", errors: formData.issues };
+  }
+
+  const { email, password, rememberMe } = formData.output;
+  const { account } = await createAdminClient();
+
+  try {
+    const session = await account.createEmailPasswordSession(email, password);
+
+    cookies().set("session", session.secret, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: true,
+      path: "/",
+      ...(rememberMe ? { expires: new Date(session.expire) } : {}),
+    });
+
+    redirect("/");
+  } catch (e) {
+    const err = e as AppwriteException;
+    return { status: "server_error", error: err.message };
   }
 }

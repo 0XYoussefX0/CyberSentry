@@ -1,29 +1,30 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import auth from "@/lib/auth";
+import { SessionCookie, LogOutResponse } from "@/lib/types";
+import { createSessionClient } from "@/lib/appwrite/config";
+import { AppwriteException } from "node-appwrite";
 
-export default async function logout() {
-  const supabase = createClient();
+export default async function logout(): Promise<LogOutResponse> {
+  const session = cookies().get("session");
+  auth.sessionCookie = session ? (session as SessionCookie) : null;
 
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError) {
-    return { status: "error", message: authError.message };
+  console.log(auth);
+  if (auth.sessionCookie) {
+    try {
+      const { account } = await createSessionClient(auth.sessionCookie.value);
+      await account.deleteSession("current");
+    } catch (e) {
+      const err = e as AppwriteException;
+      return { status: "error", error: err.message };
+    }
   }
 
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { error } = await supabase.auth.signOut();
-
-  if (error) {
-    return { status: "error", message: error.message };
-  }
-
+  cookies().delete("session");
+  auth.user = null;
+  auth.sessionCookie = null;
+  console.log(auth);
   redirect("/login");
 }

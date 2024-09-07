@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/Dialog";
 
 import { useState, ChangeEvent, FormEvent } from "react";
-import { getCroppedImg } from "@/lib/utils.client";
+import { getCroppedImg } from "@/lib/utils";
 
 import Cropper from "react-easy-crop";
 

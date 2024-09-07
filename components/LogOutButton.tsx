@@ -2,6 +2,7 @@
 
 import logout from "@/app/actions/(auth)/logout";
 import { toast } from "@/hooks/use-toast";
+import { Toaster } from "./ui/toaster";
 
 function LogOutButton() {
   const handleLogOut = async () => {
@@ -9,15 +10,18 @@ function LogOutButton() {
     if (response && response.status === "error") {
       toast({
         title: "Error logging out",
-        description: response.message,
+        description: response.error,
       });
     }
   };
 
   return (
-    <button onClick={() => handleLogOut()} className="text-red-400">
-      Log out
-    </button>
+    <>
+      <Toaster />
+      <button onClick={() => handleLogOut()} className="text-red-400">
+        Log out
+      </button>
+    </>
   );
 }
 

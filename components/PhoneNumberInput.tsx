@@ -14,7 +14,7 @@ import {
 import { CountryCode } from "libphonenumber-js";
 import parsePhoneNumber from "libphonenumber-js";
 
-import { generatePlaceholder } from "@/lib/utils.client";
+import { generatePlaceholder } from "@/lib/utils";
 
 type PhoneNumberProps = {
   selectedCountry: CountryCode;
