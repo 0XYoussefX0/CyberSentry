@@ -16,6 +16,8 @@ import parsePhoneNumber from "libphonenumber-js";
 import CountriesSelect from "@/components/CountriesSelect";
 import { motion } from "framer-motion";
 
+import { createClient } from "@/lib/appwrite/clientConfig";
+
 export default function PhoneNumber({
   nextStep,
   phoneNumberRef,
@@ -33,12 +35,14 @@ export default function PhoneNumber({
 
   useEffect(() => {
     (async () => {
-      const response = await fetch("/userCountry");
-      if (response.ok) {
-        const { country } = await response.json();
-        if (country) {
-          setSelectedCountry(country);
-        }
+      const { locale } = await createClient();
+
+      try {
+        const result = await locale.get();
+        const { countryCode } = result;
+        setSelectedCountry(countryCode as CountryCode);
+      } catch (e) {
+        // ignore the error
       }
     })();
   }, []);

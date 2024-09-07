@@ -8,7 +8,6 @@ import notificationMessageIcon from "@/assets/notificationMessageIcon.svg";
 import ProfileDetails from "@/components/_onboardingSteps/ProfileDetails";
 import PhoneNumber from "@/components/_onboardingSteps/PhoneNumber";
 import VerifyPhoneNumber from "@/components/_onboardingSteps/VerifyPhoneNumber";
-import { createClient } from "@/lib/supabase/client";
 
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -18,6 +17,8 @@ import { auth } from "@/lib/firebase/config";
 import { OnboardingSteos } from "@/lib/types";
 
 import StepIndicator from "@/components/StepIndicator";
+import { createClient } from "@/lib/appwrite/clientConfig";
+import { DATABASE_ID, USERS_COLLECTION_ID } from "@/lib/appwrite/envConfig";
 
 auth.useDeviceLanguage();
 
@@ -25,8 +26,6 @@ export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState<number>(0);
 
   const phoneNumberRef = useRef<string>("");
-
-  const supabase = createClient();
 
   const router = useRouter();
 
@@ -78,25 +77,27 @@ export default function Onboarding() {
 
   useEffect(() => {
     (async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { account, databases } = await createClient();
+      const user = await account.get();
+      const { avatar_image, phone_number } = await databases.getDocument(
+        DATABASE_ID,
+        USERS_COLLECTION_ID,
+        user.$id
+      );
+
+      const full_name = user.name;
 
       if (!user) return;
 
-      console.log(user);
-
-      if (!user.user_metadata.avatar_image || !user.user_metadata.full_name) {
+      if (!avatar_image || !full_name) {
         setCurrentStep(1);
-      } else if (!user.user_metadata.phoneNumber) {
+      } else if (!phone_number) {
         setCurrentStep(2);
       } else {
         router.push("/");
       }
     })();
   }, []);
-
-  console.log(currentStep);
 
   if (currentStep === 0) return;
 

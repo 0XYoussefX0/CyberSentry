@@ -15,7 +15,9 @@ import {
 } from "@/components/ui/OTPInput";
 import { valibotResolver } from "@hookform/resolvers/valibot";
 
-import { OTPSchema, OTPSchemaType, CaptchaDataType } from "@/lib/types";
+import { OTPSchemaType } from "@/lib/types";
+
+import { OTPSchema } from "@/lib/validationSchemas";
 
 import { SubmitHandler, useForm, Controller } from "react-hook-form";
 import { useRouter } from "next/navigation";
@@ -24,16 +26,19 @@ import { auth } from "@/lib/firebase/config";
 
 import {
   signInWithPhoneNumber,
-  RecaptchaVerifier,
   ConfirmationResult,
   deleteUser,
 } from "firebase/auth";
 import { toast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import { createClient } from "@/lib/supabase/client";
 import useRecaptchaVerifier from "@/hooks/useRecaptchaVerifier";
 
 import { motion } from "framer-motion";
+import { createClient } from "@/lib/appwrite/clientConfig";
+
+import { AppwriteException } from "appwrite";
+
+import { DATABASE_ID, USERS_COLLECTION_ID } from "@/lib/appwrite/envConfig";
 
 export default function VerifyPhoneNumber({
   goback,
@@ -102,8 +107,6 @@ export default function VerifyPhoneNumber({
     }
   };
 
-  const supabase = createClient();
-
   const checkTheOtp: SubmitHandler<OTPSchemaType> = async (data) => {
     if (!confirmationResult) {
       return;
@@ -113,18 +116,7 @@ export default function VerifyPhoneNumber({
       const result = await confirmationResult.confirm(data.otp);
       console.log(result);
       await deleteUser(result.user);
-      // (future me will handle this) check if the user deletion was successful before updating the Supabase user.
 
-      const response = await supabase.auth.updateUser({
-        data: { phoneNumber },
-      });
-      if (response.error) {
-        // Handle Supabase update error
-        console.error("Supabase update error:", response.error);
-        return;
-      }
-
-      // router.push("/");
       setExit(true);
     } catch (error: any) {
       toast({
@@ -132,6 +124,22 @@ export default function VerifyPhoneNumber({
         description: error.message,
         toastType: "destructive",
       });
+    }
+
+    try {
+      const { databases, account } = await createClient();
+      const user = await account.get();
+
+      await databases.createDocument(
+        DATABASE_ID,
+        USERS_COLLECTION_ID,
+        user.$id,
+        { phone_number: phoneNumber },
+        ["read('any')"]
+      );
+    } catch (e) {
+      const err = e as AppwriteException;
+      return { status: "server_error", error: err.message };
     }
   };
 

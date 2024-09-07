@@ -19,8 +19,8 @@ const auth: Auth = {
       }
     }
 
-    console.log("getUser has been called", auth);
-    return auth.user;
+    const { getUser, ...userSession } = auth;
+    return userSession;
   },
 };
 

@@ -33,7 +33,7 @@ const moveFolders = async (srcDir, destDir, foldersToMove) => {
 const sourceDirectory = env === "production" ? "./app/" : "./app/_ignore";
 const destinationDirectory = env === "production" ? "./app/_ignore" : "./app/";
 
-const folders = ["signup", "onboarding", "userCountry"];
+const folders = ["signup"];
 
 const main = async () => {
   console.log("Environment:", env);

@@ -1,38 +1,28 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import auth from "@/lib/auth";
 import * as v from "valibot";
 import sharp from "sharp";
 import { redirect } from "next/navigation";
+import { createSessionClient } from "@/lib/appwrite/serverConfig";
+import { ID } from "node-appwrite";
+import { InputFile } from "node-appwrite/file";
 
-const profileDetailsFormSchemaServer = v.objectAsync({
-  fullname: v.pipe(
-    v.string("fullname must be a string"),
-    v.nonEmpty("fullname is required")
-  ),
-  avatarImage: v.pipeAsync(
-    v.file("Please select an image file."),
-    v.mimeType(
-      ["image/jpeg", "image/png", "image/jpg"],
-      "Please select a JPEG or PNG file"
-    ),
-    v.maxSize(2000 * 1024, "Please select a file smaller than 2MB")
-  ),
-});
+import { AppwriteException } from "node-appwrite";
+import { profileDetailsFormSchemaServer } from "@/lib/validationSchemas";
+
+import {
+  BUCKET_ID,
+  APPWRITE_ENDPOINT,
+  DATABASE_ID,
+  USERS_COLLECTION_ID,
+  PROJECT_ID,
+} from "@/lib/appwrite/envConfig";
 
 export default async function completeProfile(data: unknown) {
-  const supabase = createClient();
+  const { user, sessionCookie } = await auth.getUser();
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-
-  if (error) {
-    return error;
-  }
-
-  if (!user) {
+  if (!user || !sessionCookie) {
     redirect("/login");
   }
 
@@ -58,6 +48,7 @@ export default async function completeProfile(data: unknown) {
     profileDetailsFormSchemaServer,
     formData
   );
+
   if (result.success) {
     const { avatarImage, fullname } = result.output;
 
@@ -65,29 +56,44 @@ export default async function completeProfile(data: unknown) {
     const sharpImage = sharp(Buffer.from(imageBuffer));
     const resizedAvatarImage = await sharpImage.resize(256, 256).toBuffer();
 
-    const { error: storageError } = await supabase.storage
-      .from("avatars")
-      .upload(`${user.id}/avatarImage.jpeg`, resizedAvatarImage);
+    const { storage, databases, account } = await createSessionClient(
+      sessionCookie.value
+    );
 
-    if (storageError) {
-      return {
-        m: storageError.message,
-      };
+    const FILE_ID = ID.unique();
+
+    try {
+      await storage.createFile(
+        BUCKET_ID,
+        FILE_ID,
+        InputFile.fromBuffer(resizedAvatarImage, `${user.$id}`),
+        ["read('any')"]
+      );
+    } catch (e) {
+      const err = e as AppwriteException;
+      return { status: "server_error", error: err.message };
     }
 
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from("avatars").getPublicUrl(avatarImage.name);
+    const fileUrl = `${APPWRITE_ENDPOINT}/storage/buckets/${BUCKET_ID}/files/${FILE_ID}/view?project=${PROJECT_ID}`;
 
-    const { data, error } = await supabase.auth.updateUser({
-      data: {
-        avatar_image: publicUrl,
-        full_name: fullname,
-      },
-    });
+    try {
+      await databases.createDocument(
+        DATABASE_ID,
+        USERS_COLLECTION_ID,
+        user.$id,
+        { avatar_image: fileUrl },
+        ["read('any')"]
+      );
+    } catch (e) {
+      const err = e as AppwriteException;
+      return { status: "server_error", error: err.message };
+    }
 
-    if (error) {
-      return { error: error.message };
+    try {
+      await account.updateName(fullname);
+    } catch (e) {
+      const err = e as AppwriteException;
+      return { status: "server_error", error: err.message };
     }
 
     return { status: "success" };
