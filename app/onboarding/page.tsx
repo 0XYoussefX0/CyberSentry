@@ -11,7 +11,6 @@ import VerifyPhoneNumber from "@/components/_onboardingSteps/VerifyPhoneNumber";
 
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { isValidPhoneNumber } from "libphonenumber-js";
 
 import { auth } from "@/lib/firebase/config";
 import { OnboardingSteos } from "@/lib/types";

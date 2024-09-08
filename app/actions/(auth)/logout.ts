@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import auth from "@/lib/auth";
 import { SessionCookie, LogOutResponse } from "@/lib/types";
-import { createSessionClient } from "@/lib/appwrite/config";
+import { createSessionClient } from "@/lib/appwrite/serverConfig";
 import { AppwriteException } from "node-appwrite";
 
 export default async function logout(): Promise<LogOutResponse> {

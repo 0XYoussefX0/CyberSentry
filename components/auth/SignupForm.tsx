@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import PasswordStrengthChecker from "@/components/PasswordStrengthChecker";
 import { passwordStrength } from "check-password-strength";
-import { SignUpSchemaType, SignUpSchema } from "@/lib/types";
+import { SignUpSchemaType } from "@/lib/types";
+import { SignUpSchema } from "@/lib/validationSchemas";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { valibotResolver } from "@hookform/resolvers/valibot";
 

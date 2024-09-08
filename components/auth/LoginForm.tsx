@@ -20,7 +20,9 @@ import { Toaster } from "@/components/ui/toaster";
 import Logo from "@/components/Logo";
 
 import RememberMeCheckbox from "@/components/RememberMeCheckbox";
-import { LoginSchema, LoginSchemaType } from "@/lib/types";
+import { LoginSchemaType } from "@/lib/types";
+
+import { LoginSchema } from "@/lib/validationSchemas";
 
 export default function LoginForm() {
   const [revealPassword, setRevealPassword] = useState(false);

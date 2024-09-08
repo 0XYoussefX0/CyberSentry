@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { valibotResolver } from "@hookform/resolvers/valibot";
 
-import { EmailSchema, EmailSchemaType } from "@/lib/types";
+import { EmailSchemaType } from "@/lib/types";
 
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
@@ -18,6 +18,7 @@ import CheckEmailModal from "@/components/CheckEmailModal";
 
 import { useState } from "react";
 import forgotPassword from "@/app/actions/(auth)/forgotPassword";
+import { EmailSchema } from "@/lib/validationSchemas";
 
 export default function ForgotPassword() {
   const [confirmEmailModal, setConfirmEmailModal] = useState({

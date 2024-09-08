@@ -9,12 +9,12 @@ import { Label } from "@/components/ui/Label";
 
 import * as v from "valibot";
 
+import { onCropCompleteType, croppedArea } from "@/lib/types";
+
 import {
   fullNameSchema,
   avatarImageSchemaClient,
-  onCropCompleteType,
-  croppedArea,
-} from "@/lib/types";
+} from "@/lib/validationSchemas";
 
 import {
   Dialog,

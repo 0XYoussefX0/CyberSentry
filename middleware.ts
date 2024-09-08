@@ -3,18 +3,18 @@ import type { NextRequest } from "next/server";
 
 import auth from "@/lib/auth";
 
-const publicPaths = ["/signup", "/login", "/forgotpassword"];
+const publicPaths = ["/signup", "/login", "/forgotpassword", "/resetpassword"];
 
 export async function middleware(request: NextRequest) {
-  const user = await auth.getUser();
+  const { user } = await auth.getUser();
 
   const currentRoute = request.nextUrl.pathname;
 
-  if (!user && !publicPaths.some((route) => currentRoute.startsWith(route))) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
-  }
+  // if (!user && !publicPaths.some((route) => currentRoute.startsWith(route))) {
+  //   const url = request.nextUrl.clone();
+  //   url.pathname = "/login";
+  //   return NextResponse.redirect(url);
+  // }
 
   return NextResponse.next();
 }

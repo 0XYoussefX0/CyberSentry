@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { createSessionClient } from "@/lib/appwrite/config";
+import { createSessionClient } from "@/lib/appwrite/serverConfig";
 import { Auth, SessionCookie } from "@/lib/types";
 
 const auth: Auth = {

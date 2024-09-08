@@ -32,7 +32,8 @@ function CheckEmailModal({
               Check your email
             </DialogTitle>
             <DialogDescription className="font-normal text-center text-base leading-6 text-gray-600">
-              {message + " "} <span className="font-medium">{email}</span>
+              {message}
+              <br /> <span className="font-medium">{email}</span>
             </DialogDescription>
           </DialogHeader>
         </div>

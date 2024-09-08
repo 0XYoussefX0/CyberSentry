@@ -7,11 +7,9 @@ import { Button } from "@/components/ui/Button";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { valibotResolver } from "@hookform/resolvers/valibot";
 
-import {
-  PasswordSchema,
-  PasswordSchemaType,
-  ResetPasswordFormProps,
-} from "@/lib/types";
+import { PasswordSchemaType, ResetPasswordFormProps } from "@/lib/types";
+
+import { PasswordSchema } from "@/lib/validationSchemas";
 
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
@@ -28,11 +26,13 @@ import { passwordStrength } from "check-password-strength";
 import PasswordContaintsChecker from "@/components/PasswordContaintsChecker";
 import PasswordStrengthChecker from "@/components/PasswordStrengthChecker";
 import resetPassword from "@/app/actions/(auth)/resetPassword";
+import { useRouter } from "next/navigation";
 
 export default function ResetPasswordForm({
   userId,
   secret,
 }: ResetPasswordFormProps) {
+  const [exit, setExit] = useState(false);
   const [revealPassword, setRevealPassword] = useState(false);
   const {
     register,
@@ -47,6 +47,8 @@ export default function ResetPasswordForm({
 
   const password = watch("password");
 
+  const router = useRouter();
+
   const passwordStrengthResult = passwordStrength(password);
 
   const handlePasswordResetting: SubmitHandler<PasswordSchemaType> = async (
@@ -58,9 +60,11 @@ export default function ResetPasswordForm({
       case "success":
         toast({
           title: "Password has been resetted Successfully",
-          description: "You can go now and log in with your new password.",
+          description:
+            "You're all set! You can now log in using your new password.",
           toastType: "successful",
         });
+        setExit(true);
         break;
       case "validation_error":
         for (const error of response.errors) {
@@ -85,7 +89,16 @@ export default function ResetPasswordForm({
   return (
     <motion.div
       initial={{ scale: 0.8, opacity: 0 }}
-      animate={{ y: 0, scale: 1, opacity: 1 }}
+      animate={
+        exit
+          ? { y: -50, scale: 0.8, opacity: 0 }
+          : { y: 0, scale: 1, opacity: 1 }
+      }
+      onAnimationComplete={() => {
+        if (exit) {
+          router.push("/login");
+        }
+      }}
       transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
       className="relative lp:max-w-[420px] lp:w-full"
     >
@@ -103,7 +116,7 @@ export default function ResetPasswordForm({
             </h1>
             <p className="text-center font-normal leading-6 text-base text-gray-600">
               {
-                "You’re just a step away from creating a new password. Please enter and confirm your new password below."
+                "You're just a step away from creating a new password. Please enter and confirm your new password below."
               }
             </p>
           </div>
@@ -147,7 +160,7 @@ export default function ResetPasswordForm({
             />
           </div>
           <Button className="mt-1" disabled={isSubmitting}>
-            Send Reset Link
+            Reset
           </Button>
         </form>
       </div>

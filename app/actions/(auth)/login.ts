@@ -1,9 +1,10 @@
 "use server";
 
 import * as v from "valibot";
-import { LoginSchema, LoginResponse } from "@/lib/types";
+import { LoginResponse } from "@/lib/types";
+import { LoginSchema } from "@/lib/validationSchemas";
 import { cookies } from "next/headers";
-import { createAdminClient } from "@/lib/appwrite/config";
+import { createAdminClient } from "@/lib/appwrite/serverConfig";
 import { AppwriteException } from "node-appwrite";
 import { redirect } from "next/navigation";
 
@@ -27,10 +28,11 @@ export default async function login(data: unknown): Promise<LoginResponse> {
       path: "/",
       ...(rememberMe ? { expires: new Date(session.expire) } : {}),
     });
-
-    redirect("/");
   } catch (e) {
     const err = e as AppwriteException;
+
     return { status: "server_error", error: err.message };
   }
+
+  redirect("/");
 }

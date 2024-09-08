@@ -1,12 +1,12 @@
 "use server";
 
-import { PasswordSchema } from "@/lib/types";
 import { redirect } from "next/navigation";
 import * as v from "valibot";
 import { ResetPasswordResponse } from "@/lib/types";
-import { createAdminClient } from "@/lib/appwrite/config";
+import { createAdminClient } from "@/lib/appwrite/serverConfig";
 
 import { AppwriteException } from "node-appwrite";
+import { PasswordSchema } from "@/lib/validationSchemas";
 
 export default async function resetPassword(
   data: unknown,

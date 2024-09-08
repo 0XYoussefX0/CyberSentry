@@ -1,8 +1,9 @@
 "use server";
 
 import * as v from "valibot";
-import { EmailSchema, ForgotPasswordResponse } from "@/lib/types";
-import { createAdminClient } from "@/lib/appwrite/config";
+import { ForgotPasswordResponse } from "@/lib/types";
+import { EmailSchema } from "@/lib/validationSchemas";
+import { createAdminClient } from "@/lib/appwrite/serverConfig";
 import { AppwriteException } from "node-appwrite";
 
 export default async function forgotPassword(
