@@ -23,7 +23,7 @@ export default async function login(data: unknown): Promise<LoginResponse> {
 
     cookies().set("session", session.secret, {
       httpOnly: true,
-      sameSite: "strict",
+      sameSite: "lax",
       secure: true,
       path: "/",
       ...(rememberMe ? { expires: new Date(session.expire) } : {}),

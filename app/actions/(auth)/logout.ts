@@ -11,7 +11,6 @@ export default async function logout(): Promise<LogOutResponse> {
   const session = cookies().get("session");
   auth.sessionCookie = session ? (session as SessionCookie) : null;
 
-  console.log(auth);
   if (auth.sessionCookie) {
     try {
       const { account } = await createSessionClient(auth.sessionCookie.value);
@@ -25,6 +24,5 @@ export default async function logout(): Promise<LogOutResponse> {
   cookies().delete("session");
   auth.user = null;
   auth.sessionCookie = null;
-  console.log(auth);
   redirect("/login");
 }

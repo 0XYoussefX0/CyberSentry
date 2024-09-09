@@ -9,12 +9,13 @@ import { Label } from "@/components/ui/Label";
 
 import * as v from "valibot";
 
-import { onCropCompleteType, croppedArea } from "@/lib/types";
-
 import {
-  fullNameSchema,
-  avatarImageSchemaClient,
-} from "@/lib/validationSchemas";
+  onCropCompleteType,
+  croppedArea,
+  CompleteProfileResponse,
+} from "@/lib/types";
+
+import { fullNameSchema, avatarImageSchema } from "@/lib/validationSchemas";
 
 import {
   Dialog,
@@ -37,9 +38,16 @@ import {
 } from "@/components/ui/ToolTip";
 
 import questionIcon from "@/assets/questionIcon.svg";
-import completeProfile from "@/app/actions/(auth)/completeProfile";
+import completeProfile from "@/app/actions/completeProfile";
 
 import { motion } from "framer-motion";
+import { toast } from "@/hooks/use-toast";
+import { Toaster } from "../ui/toaster";
+
+type FormErrors = {
+  avatarImage: string[];
+  fullname: string[];
+};
 
 export default function ProfileDetails({ nextStep }: { nextStep: () => void }) {
   const [exit, setExit] = useState(false);
@@ -55,10 +63,7 @@ export default function ProfileDetails({ nextStep }: { nextStep: () => void }) {
 
   const [avatarImage, setAvatarImage] = useState<string | undefined>();
 
-  const [formErrors, setFormErrors] = useState<{
-    avatarImage: string[];
-    fullname: string[];
-  }>({
+  const [formErrors, setFormErrors] = useState<FormErrors>({
     avatarImage: [],
     fullname: [],
   });
@@ -73,35 +78,84 @@ export default function ProfileDetails({ nextStep }: { nextStep: () => void }) {
 
     const fullname = formData.get("fullname");
 
-    // const result = v.safeParse(fullNameSchema, { fullname });
-    // if (result.success) {
-    //   return result.output.fullname;
-    // } else {
-    //   console.log(result.issues);
-    //   // setFormErrors((prev) => ({
-    //   //   ...prev,
-    //   //   fullname: result.issues,
-    //   // }));
-    // }
+    const result = v.safeParse(fullNameSchema, { fullname });
 
-    if (fullname && croppedImage) {
-      // const file = new File([croppedImage], "avatar.jpeg", {
-      //   type: croppedImage.type,
-      // });
-      formData.set("avatarImage", croppedImage);
-      console.log(formData);
-      const response = await completeProfile(formData);
+    if (!result.success) {
+      const errorMessages: string[] = [];
+
+      result.issues.forEach((issue) => {
+        errorMessages.push(issue.message);
+      });
+
+      setFormErrors((prev) => ({
+        ...prev,
+        fullname: errorMessages,
+      }));
 
       setLoading(false);
-      setExit(true);
+      return;
     }
+
+    if (!croppedImage) {
+      setFormErrors((prev) => ({
+        ...prev,
+        avatarImage: [...prev.avatarImage, "Please crop the image"],
+      }));
+      setLoading(false);
+      return;
+    }
+
+    const file = new File([croppedImage], "avatar.jpeg", {
+      type: croppedImage.type,
+    });
+
+    formData.set("avatarImage", file);
+
+    const res = await fetch("/completeProfile", {
+      method: "POST",
+      body: formData,
+    });
+
+    const response: CompleteProfileResponse = await res.json();
+
+    if (!response) return;
+
+    switch (response.status) {
+      case "success":
+        setExit(true);
+        break;
+      case "server_error":
+        toast({
+          title: "Server Error",
+          description: response.error,
+          toastType: "destructive",
+        });
+        break;
+      case "validation_error":
+        const errorMessages: FormErrors = {
+          fullname: [],
+          avatarImage: [],
+        };
+
+        response.errors.forEach((error) => {
+          if (error.path && error.path[0].key === "fullname") {
+            errorMessages.fullname.push(error.message);
+          } else {
+            errorMessages.avatarImage.push(error.message);
+          }
+        });
+
+        setFormErrors(errorMessages);
+        break;
+    }
+
     setLoading(false);
   };
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const result = await v.safeParseAsync(avatarImageSchemaClient, {
+      const result = await v.safeParseAsync(avatarImageSchema, {
         avatarImage: file,
       });
       if (result.success) {
@@ -109,7 +163,16 @@ export default function ProfileDetails({ nextStep }: { nextStep: () => void }) {
         setAvatarImage(dataUrl);
         setOpenCropModal(true);
       } else {
-        console.log(result.issues);
+        const errorMessages: string[] = [];
+
+        result.issues.forEach((issue) => {
+          errorMessages.push(issue.message);
+        });
+
+        setFormErrors((prev) => ({
+          ...prev,
+          avatarImage: errorMessages,
+        }));
       }
     }
   };
@@ -194,7 +257,6 @@ export default function ProfileDetails({ nextStep }: { nextStep: () => void }) {
         }
         onAnimationComplete={() => {
           if (exit) {
-            console.log("alo");
             nextStep();
           }
         }}
@@ -219,34 +281,39 @@ export default function ProfileDetails({ nextStep }: { nextStep: () => void }) {
             </div>
           </div>
           <form className="flex flex-col gap-5" onSubmit={submitProfileData}>
-            <div className="flex items-center pt-[3px] gap-4">
-              <label htmlFor="avatarImage" className="cursor-pointer">
-                <img
-                  src={croppedImageUrl ?? addAvatarIcon.src}
-                  alt=""
-                  className="object-cover w-20 h-20 rounded-full"
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center pt-[3px] gap-4">
+                <label htmlFor="avatarImage" className="cursor-pointer">
+                  <img
+                    src={croppedImageUrl ?? addAvatarIcon.src}
+                    alt=""
+                    className="object-cover w-20 h-20 rounded-full"
+                  />
+                  <span className="sr-only">Select an avatar image</span>
+                </label>
+                <input
+                  type="file"
+                  onChange={handleFileChange}
+                  aria-describedby="avatar-description"
+                  id="avatarImage"
+                  name="avatarImage"
+                  multiple={false}
+                  accept=".jpg, .jpeg, .png"
+                  className="sr-only"
                 />
-                <span className="sr-only">Select an avatar image</span>
-              </label>
-              <input
-                type="file"
-                onChange={handleFileChange}
-                aria-describedby="avatar-description"
-                id="avatarImage"
-                name="avatarImage"
-                multiple={false}
-                accept=".jpg, .jpeg, .png"
-                className="sr-only"
-              />
-              <div className="flex-1">
-                <span>Avatar Image</span>
-                <p
-                  id="avatar-description"
-                  className="text-sm font-medium leading-5 text-gray-400"
-                >
-                  JPG or PNG, max 2MB and 5000x5000px
-                </p>
+                <div className="flex-1">
+                  <span>Avatar Image</span>
+                  <p
+                    id="avatar-description"
+                    className="text-sm font-medium leading-5 text-gray-400"
+                  >
+                    JPG or PNG, max 2MB and 5000x5000px
+                  </p>
+                </div>
               </div>
+              {formErrors.avatarImage.map((error) => (
+                <p className="text-red-500 text-sm font-normal">{error}</p>
+              ))}
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="fullname">Full Name</Label>
@@ -256,6 +323,9 @@ export default function ProfileDetails({ nextStep }: { nextStep: () => void }) {
                 name="fullname"
                 placeholder="Enter your name"
               />
+              {formErrors.fullname.map((error) => (
+                <p className="text-red-500 text-sm font-normal">{error}</p>
+              ))}
             </div>
             <Button className="mt-1" disabled={loading}>
               {loading ? "Submitting..." : "Continue"}
@@ -263,6 +333,7 @@ export default function ProfileDetails({ nextStep }: { nextStep: () => void }) {
           </form>
         </div>
       </motion.div>
+      <Toaster />
     </>
   );
 }

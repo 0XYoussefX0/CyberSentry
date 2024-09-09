@@ -10,11 +10,12 @@ export async function middleware(request: NextRequest) {
 
   const currentRoute = request.nextUrl.pathname;
 
-  // if (!user && !publicPaths.some((route) => currentRoute.startsWith(route))) {
-  //   const url = request.nextUrl.clone();
-  //   url.pathname = "/login";
-  //   return NextResponse.redirect(url);
-  // }
+  console.log(currentRoute, user);
+  if (!user && !publicPaths.some((route) => currentRoute === route)) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
 
   return NextResponse.next();
 }

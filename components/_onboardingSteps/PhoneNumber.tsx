@@ -17,6 +17,7 @@ import CountriesSelect from "@/components/CountriesSelect";
 import { motion } from "framer-motion";
 
 import { createClient } from "@/lib/appwrite/clientConfig";
+import { isCountryCode } from "@/lib/utils";
 
 export default function PhoneNumber({
   nextStep,
@@ -39,8 +40,12 @@ export default function PhoneNumber({
 
       try {
         const result = await locale.get();
+
         const { countryCode } = result;
-        setSelectedCountry(countryCode as CountryCode);
+
+        if (isCountryCode(countryCode)) {
+          setSelectedCountry(countryCode);
+        }
       } catch (e) {
         // ignore the error
       }

@@ -93,7 +93,6 @@ export default function VerifyPhoneNumber({
       setSentOTP(true);
       setLoading(false);
     } catch (error: any) {
-      console.log(error);
       setLoading(false);
       setAttemptsNumber((prev) => prev + 1);
       // @ts-expect-error
@@ -114,7 +113,6 @@ export default function VerifyPhoneNumber({
     setLoading(true);
     try {
       const result = await confirmationResult.confirm(data.otp);
-      console.log(result);
       await deleteUser(result.user);
 
       setExit(true);

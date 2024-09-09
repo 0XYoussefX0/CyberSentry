@@ -17,8 +17,8 @@ import auth from "@/lib/auth";
 
 const REDIRECT_URL =
   process.env.NODE_ENV === "production"
-    ? "https://cybersentry.tech/auth/confirm"
-    : "http://localhost:3000/auth/confirm";
+    ? "https://cybersentry.tech/confirmEmail"
+    : "http://localhost:3000/confirmEmail";
 
 export default async function signup(data: unknown): Promise<SignUpResponse> {
   const formData = v.safeParse(SignUpSchema, data);
@@ -35,7 +35,7 @@ export default async function signup(data: unknown): Promise<SignUpResponse> {
     const session = await account.createEmailPasswordSession(email, password);
     cookieStore.set("session", session.secret, {
       httpOnly: true,
-      sameSite: "strict",
+      sameSite: "lax",
       secure: true,
       expires: new Date(session.expire),
       path: "/",

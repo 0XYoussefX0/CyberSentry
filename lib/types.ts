@@ -7,7 +7,7 @@ import {
   SignUpSchema,
   LoginSchema,
   PasswordSchema,
-  profileDetailsFormSchemaClient,
+  profileDetailsFormSchema,
   OTPSchema,
 } from "@/lib/validationSchemas";
 
@@ -19,6 +19,7 @@ import { InferIssue } from "valibot";
 import { Models } from "node-appwrite";
 
 import { Dispatch, SetStateAction } from "react";
+import { NextResponse } from "next/server";
 
 type Constraints = "length" | "symbol" | "uppercase" | "number";
 
@@ -35,8 +36,8 @@ export type SignUpSchemaType = v.InferOutput<typeof SignUpSchema>;
 
 export type LoginSchemaType = v.InferOutput<typeof LoginSchema>;
 
-export type ProfileDetailsFormSchemaClientType = v.InferOutput<
-  typeof profileDetailsFormSchemaClient
+export type ProfileDetailsFormSchemaType = v.InferOutput<
+  typeof profileDetailsFormSchema
 >;
 
 export type croppedArea = {
@@ -149,3 +150,31 @@ export type ResetPasswordFormProps = {
   userId: string;
   secret: string;
 };
+
+export type OnBoardingWrapperProps = {
+  initialStep: number;
+};
+
+export type APICompleteProfileResponse =
+  | undefined
+  | NextResponse<{ status: "success" }>
+  | NextResponse<{ status: "server_error"; error: string }>
+  | NextResponse<{
+      status: "validation_error";
+      errors: [
+        InferIssue<typeof profileDetailsFormSchema>,
+        ...InferIssue<typeof profileDetailsFormSchema>[]
+      ];
+    }>;
+
+export type CompleteProfileResponse =
+  | undefined
+  | { status: "success" }
+  | { status: "server_error"; error: string }
+  | {
+      status: "validation_error";
+      errors: [
+        InferIssue<typeof profileDetailsFormSchema>,
+        ...InferIssue<typeof profileDetailsFormSchema>[]
+      ];
+    };

@@ -31,5 +31,5 @@ export default async function confirmEmail({
       return <div>Error: {err.message}, Please try again.</div>;
     }
   }
-  redirect("/error");
+  return <div>k</div>;
 }
