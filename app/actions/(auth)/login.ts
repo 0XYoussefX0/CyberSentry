@@ -4,7 +4,7 @@ import * as v from "valibot";
 import { LoginResponse } from "@/lib/types";
 import { LoginSchema } from "@/lib/validationSchemas";
 import { cookies } from "next/headers";
-import { createAdminClient } from "@/lib/appwrite/serverConfig";
+import { createAdminClient } from "@/lib/appwrite/server";
 import { AppwriteException } from "node-appwrite";
 import { redirect } from "next/navigation";
 

@@ -1,4 +1,5 @@
 import { Client, Databases, Account, Storage } from "node-appwrite";
+import { cookies } from "next/headers";
 
 const createAdminClient = async () => {
   const client = new Client()
@@ -21,13 +22,15 @@ const createAdminClient = async () => {
   };
 };
 
-const createSessionClient = async (session: string) => {
+const createSessionClient = async () => {
+  const session = cookies().get("session");
+
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
     .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!);
 
   if (session) {
-    client.setSession(session);
+    client.setSession(session.value);
   }
 
   return {

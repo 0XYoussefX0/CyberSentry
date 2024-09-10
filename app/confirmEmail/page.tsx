@@ -1,8 +1,4 @@
-import { createSessionClient } from "@/lib/appwrite/serverConfig";
-import { cookies } from "next/headers";
-import auth from "@/lib/auth";
-import { SessionCookie } from "@/lib/types";
-import { redirect } from "next/navigation";
+import { createSessionClient } from "@/lib/appwrite/server";
 import { AppwriteException } from "node-appwrite";
 import EmailVerified from "@/components/EmailVerified";
 
@@ -13,15 +9,9 @@ export default async function confirmEmail({
 }) {
   const userId = searchParams.userId;
   const secret = searchParams.secret;
-  const session = cookies().get("session");
-  auth.sessionCookie = session ? (session as SessionCookie) : null;
 
-  if (
-    typeof userId === "string" &&
-    typeof secret === "string" &&
-    auth.sessionCookie
-  ) {
-    const { account } = await createSessionClient(auth.sessionCookie.value);
+  if (typeof userId === "string" && typeof secret === "string") {
+    const { account } = await createSessionClient();
     try {
       await account.updateVerification(userId, secret);
 
@@ -31,5 +21,6 @@ export default async function confirmEmail({
       return <div>Error: {err.message}, Please try again.</div>;
     }
   }
-  return <div>k</div>;
+
+  // this component need to be tested
 }

@@ -9,15 +9,12 @@ import ProfileDetails from "@/components/_onboardingSteps/ProfileDetails";
 import PhoneNumber from "@/components/_onboardingSteps/PhoneNumber";
 import VerifyPhoneNumber from "@/components/_onboardingSteps/VerifyPhoneNumber";
 
-import { useEffect, useState, useMemo, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useMemo, useRef } from "react";
 
 import { auth } from "@/lib/firebase/config";
 import { OnboardingSteos } from "@/lib/types";
 
 import StepIndicator from "@/components/StepIndicator";
-import { createClient } from "@/lib/appwrite/clientConfig";
-import { DATABASE_ID, USERS_COLLECTION_ID } from "@/lib/appwrite/envConfig";
 import { OnBoardingWrapperProps } from "@/lib/types";
 auth.useDeviceLanguage();
 

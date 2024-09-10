@@ -3,7 +3,7 @@
 import * as v from "valibot";
 import { ForgotPasswordResponse } from "@/lib/types";
 import { EmailSchema } from "@/lib/validationSchemas";
-import { createAdminClient } from "@/lib/appwrite/serverConfig";
+import { createAdminClient } from "@/lib/appwrite/server";
 import { AppwriteException } from "node-appwrite";
 
 export default async function forgotPassword(

@@ -1,20 +1,58 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import auth from "@/lib/auth";
+import { createSessionClient } from "./lib/appwrite/server";
+import { getUser } from "@/lib/appwrite/utils";
+
+import { DATABASE_ID, USERS_COLLECTION_ID } from "@/lib/env";
 
 const publicPaths = ["/signup", "/login", "/forgotpassword", "/resetpassword"];
 
 export async function middleware(request: NextRequest) {
-  const { user } = await auth.getUser();
+  const { account, databases } = await createSessionClient();
+  const user = await getUser(account);
 
   const currentRoute = request.nextUrl.pathname;
 
-  console.log(currentRoute, user);
-  if (!user && !publicPaths.some((route) => currentRoute === route)) {
+  const currentRouteIsPublic = publicPaths.some(
+    (route) => currentRoute === route
+  );
+
+  if (!user && !currentRouteIsPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
+  }
+
+  if (user && currentRouteIsPublic) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
+  }
+
+  if (
+    user &&
+    !currentRouteIsPublic &&
+    currentRoute !== "/onboarding" &&
+    currentRoute !== "/confirmEmail"
+  ) {
+    try {
+      const { completed_onboarding } = await databases.getDocument(
+        DATABASE_ID,
+        USERS_COLLECTION_ID,
+        user.$id
+      );
+
+      if (!completed_onboarding) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/onboarding";
+        return NextResponse.redirect(url);
+      }
+    } catch (e) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/error";
+      return NextResponse.redirect(url);
+    }
   }
 
   return NextResponse.next();

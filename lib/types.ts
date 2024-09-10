@@ -92,14 +92,6 @@ export type LogOutResponse =
     }
   | undefined;
 
-export type SessionCookie = { name: "session"; value: string };
-
-export type Auth = {
-  user: null | Models.User<Models.Preferences>;
-  sessionCookie: SessionCookie | null;
-  getUser: () => Promise<Omit<Auth, "getUser">>;
-};
-
 export type LoginResponse =
   | undefined
   | {
@@ -154,18 +146,6 @@ export type ResetPasswordFormProps = {
 export type OnBoardingWrapperProps = {
   initialStep: number;
 };
-
-export type APICompleteProfileResponse =
-  | undefined
-  | NextResponse<{ status: "success" }>
-  | NextResponse<{ status: "server_error"; error: string }>
-  | NextResponse<{
-      status: "validation_error";
-      errors: [
-        InferIssue<typeof profileDetailsFormSchema>,
-        ...InferIssue<typeof profileDetailsFormSchema>[]
-      ];
-    }>;
 
 export type CompleteProfileResponse =
   | undefined

@@ -4,16 +4,9 @@ import * as v from "valibot";
 import { SignUpResponse } from "@/lib/types";
 
 import { cookies } from "next/headers";
-import {
-  createAdminClient,
-  createSessionClient,
-} from "@/lib/appwrite/serverConfig";
+import { createAdminClient, createSessionClient } from "@/lib/appwrite/server";
 import { AppwriteException, ID } from "node-appwrite";
 import { SignUpSchema } from "@/lib/validationSchemas";
-
-import { SessionCookie } from "@/lib/types";
-
-import auth from "@/lib/auth";
 
 const REDIRECT_URL =
   process.env.NODE_ENV === "production"
@@ -45,12 +38,9 @@ export default async function signup(data: unknown): Promise<SignUpResponse> {
     return { status: "server_error", error: err.message };
   }
 
-  const session = cookieStore.get("session") as SessionCookie;
-  auth.sessionCookie = session;
-
   // the bellow code is for sending a confirmation email
   try {
-    const { account } = await createSessionClient(auth.sessionCookie.value);
+    const { account } = await createSessionClient();
     await account.createVerification(REDIRECT_URL);
     return { status: "success" };
   } catch (e) {

@@ -16,7 +16,7 @@ import parsePhoneNumber from "libphonenumber-js";
 import CountriesSelect from "@/components/CountriesSelect";
 import { motion } from "framer-motion";
 
-import { createClient } from "@/lib/appwrite/clientConfig";
+import { createClient } from "@/lib/appwrite/client";
 import { isCountryCode } from "@/lib/utils";
 
 export default function PhoneNumber({

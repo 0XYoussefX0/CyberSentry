@@ -8,15 +8,17 @@ import {
   SelectValue,
 } from "@/components/ui/Select";
 
-import countriesData from "@/public/assets/countriesData/data.json";
-import { Dispatch, SetStateAction, useState, useRef, useEffect } from "react";
+import countriesData from "@/lib/countriesData/data.json";
+
+import { Dispatch, SetStateAction, useState } from "react";
 
 import { CountryCode } from "libphonenumber-js";
 
 import dropDownIcon from "@/assets/dropDownIcon.svg";
 
-import { useVirtualizer } from "@tanstack/react-virtual";
 import { FixedSizeList } from "react-window";
+
+import { flagIcons } from "@/lib/countriesData/countriesFlags";
 
 type CoutriesSelectProps = {
   selectedCountry: CountryCode;
@@ -31,8 +33,9 @@ function CountriesSelect({
 }: CoutriesSelectProps) {
   const [selectIsOpen, setSelectIsOpen] = useState(false);
 
-  const [{ icon: selectedCountryIcon, country: selectedCountryName }] =
-    countriesData.filter(({ alpha2 }) => alpha2 === selectedCountry);
+  const { country: selectedCountryName } = countriesData.find(
+    ({ alpha2 }) => alpha2 === selectedCountry
+  )!;
 
   return (
     <Select
@@ -47,7 +50,7 @@ function CountriesSelect({
       <SelectTrigger className="w-fit shrink-0 caret-transparent countryTrigger flex items-center px-3 h-[46px] gap-1 border border-solid border-gray-300 rounded-lg rounded-r-none border-r-0">
         <SelectValue aria-label={selectedCountryName} placeholder="Theme">
           <img
-            src={`/assets/countriesData/countriesFlags/${selectedCountryIcon}`}
+            src={flagIcons[selectedCountry].src}
             alt=""
             width={21}
             height={15}
@@ -70,7 +73,7 @@ function CountriesSelect({
           overscanCount={20}
         >
           {({ index, style }) => {
-            const { code, country, icon, alpha2 } = countriesData[index];
+            const { code, country, alpha2 } = countriesData[index];
             return (
               <SelectItem
                 style={{
@@ -82,7 +85,7 @@ function CountriesSelect({
               >
                 <div className="flex w-full items-center gap-3 ">
                   <img
-                    src={`/assets/countriesData/countriesFlags/${icon}`}
+                    src={flagIcons[alpha2].src}
                     alt=""
                     width={21}
                     height={15}

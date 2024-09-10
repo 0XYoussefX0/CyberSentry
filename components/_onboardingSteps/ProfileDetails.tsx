@@ -38,7 +38,6 @@ import {
 } from "@/components/ui/ToolTip";
 
 import questionIcon from "@/assets/questionIcon.svg";
-import completeProfile from "@/app/actions/completeProfile";
 
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
@@ -111,7 +110,7 @@ export default function ProfileDetails({ nextStep }: { nextStep: () => void }) {
 
     formData.set("avatarImage", file);
 
-    const res = await fetch("/completeProfile", {
+    const res = await fetch("/api/completeProfile", {
       method: "POST",
       body: formData,
     });

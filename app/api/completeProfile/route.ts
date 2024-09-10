@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import auth from "@/lib/auth";
+import { getUser } from "@/lib/appwrite/utils";
 import * as v from "valibot";
 import sharp from "sharp";
 import { redirect } from "next/navigation";
-import { createSessionClient } from "@/lib/appwrite/serverConfig";
+import { createSessionClient } from "@/lib/appwrite/server";
 import { ID } from "node-appwrite";
 import { InputFile } from "node-appwrite/file";
 
@@ -16,18 +16,16 @@ import {
   DATABASE_ID,
   USERS_COLLECTION_ID,
   PROJECT_ID,
-} from "@/lib/appwrite/envConfig";
+} from "@/lib/env";
 
-import { APICompleteProfileResponse } from "@/lib/types";
-
-export async function POST(
-  request: NextRequest
-): Promise<APICompleteProfileResponse> {
+export async function POST(request: NextRequest) {
   const data = await request.formData();
 
-  const { user, sessionCookie } = await auth.getUser();
+  const { account, databases, storage } = await createSessionClient();
 
-  if (!user || !sessionCookie) redirect("/login");
+  const user = await getUser(account);
+
+  if (!user) redirect("/login");
 
   const result = await v.safeParseAsync(profileDetailsFormSchema, {
     avatarImage: data.get("avatarImage"),
@@ -46,10 +44,6 @@ export async function POST(
   const imageBuffer = await avatarImage.arrayBuffer();
   const sharpImage = sharp(Buffer.from(imageBuffer));
   const resizedAvatarImage = await sharpImage.resize(256, 256).toBuffer();
-
-  const { storage, databases, account } = await createSessionClient(
-    sessionCookie.value
-  );
 
   const FILE_ID = ID.unique();
 

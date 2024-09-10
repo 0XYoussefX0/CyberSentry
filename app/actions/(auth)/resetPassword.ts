@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import * as v from "valibot";
 import { ResetPasswordResponse } from "@/lib/types";
-import { createAdminClient } from "@/lib/appwrite/serverConfig";
+import { createAdminClient } from "@/lib/appwrite/server";
 
 import { AppwriteException } from "node-appwrite";
 import { PasswordSchema } from "@/lib/validationSchemas";

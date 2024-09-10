@@ -34,11 +34,11 @@ import { Toaster } from "@/components/ui/toaster";
 import useRecaptchaVerifier from "@/hooks/useRecaptchaVerifier";
 
 import { motion } from "framer-motion";
-import { createClient } from "@/lib/appwrite/clientConfig";
+import { createClient } from "@/lib/appwrite/client";
 
-import { AppwriteException } from "appwrite";
+import { AppwriteException, Permission, Role } from "appwrite";
 
-import { DATABASE_ID, USERS_COLLECTION_ID } from "@/lib/appwrite/envConfig";
+import { DATABASE_ID, USERS_COLLECTION_ID } from "@/lib/env";
 
 export default function VerifyPhoneNumber({
   goback,
@@ -128,12 +128,12 @@ export default function VerifyPhoneNumber({
       const { databases, account } = await createClient();
       const user = await account.get();
 
-      await databases.createDocument(
+      await databases.updateDocument(
         DATABASE_ID,
         USERS_COLLECTION_ID,
         user.$id,
-        { phone_number: phoneNumber },
-        ["read('any')"]
+        { phone_number: phoneNumber, completed_onboarding: true },
+        [Permission.read(Role.users()), Permission.write(Role.user(user.$id))]
       );
     } catch (e) {
       const err = e as AppwriteException;
