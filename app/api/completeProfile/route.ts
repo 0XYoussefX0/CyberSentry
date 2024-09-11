@@ -54,7 +54,11 @@ export async function POST(request: NextRequest) {
       BUCKET_ID,
       FILE_ID,
       InputFile.fromBuffer(resizedAvatarImage, `${user.$id}`),
-      [Permission.read(Role.users()), Permission.write(Role.user(user.$id))]
+      [
+        Permission.read(Role.users()),
+        // Permission.read(Role.user(user.$id)),
+        Permission.write(Role.user(user.$id)),
+      ]
     );
   } catch (e) {
     const err = e as AppwriteException;
@@ -69,7 +73,11 @@ export async function POST(request: NextRequest) {
       USERS_COLLECTION_ID,
       user.$id,
       { avatar_image: fileUrl },
-      [Permission.read(Role.users()), Permission.write(Role.user(user.$id))]
+      [
+        Permission.read(Role.users()),
+        // Permission.read(Role.user(user.$id)),
+        Permission.write(Role.user(user.$id)),
+      ]
     );
   } catch (e) {
     const err = e as AppwriteException;

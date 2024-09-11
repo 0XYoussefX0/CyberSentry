@@ -2,7 +2,7 @@
 
 import logout from "@/app/actions/(auth)/logout";
 import { toast } from "@/hooks/use-toast";
-import { Toaster } from "./ui/toaster";
+import logoutIcon from "@/assets/logoutIcon.svg";
 
 function LogOutButton() {
   const handleLogOut = async () => {
@@ -18,9 +18,8 @@ function LogOutButton() {
 
   return (
     <>
-      <Toaster />
-      <button onClick={() => handleLogOut()} className="text-red-400">
-        Log out
+      <button aria-label="Log out" onClick={() => handleLogOut()}>
+        <img src={logoutIcon.src} alt="" />
       </button>
     </>
   );

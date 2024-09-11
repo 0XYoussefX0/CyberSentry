@@ -373,3 +373,22 @@ const countryCodes = [
 export function isCountryCode(value: any): value is CountryCode {
   return countryCodes.includes(value);
 }
+
+export function getImageMimeType(arrayBuffer: ArrayBuffer) {
+  const byteArray = new Uint8Array(arrayBuffer);
+
+  // Check for JPEG/JPG (magic number: FF D8)
+  if (byteArray[0] === 0xff && byteArray[1] === 0xd8) {
+    return "image/jpeg"; // Covers both image/jpeg and image/jpg
+  }
+
+  // Check for PNG (magic number: 89 50 4E 47)
+  if (
+    byteArray[0] === 0x89 &&
+    byteArray[1] === 0x50 &&
+    byteArray[2] === 0x4e &&
+    byteArray[3] === 0x47
+  ) {
+    return "image/png";
+  }
+}
