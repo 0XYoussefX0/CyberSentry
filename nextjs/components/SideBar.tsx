@@ -15,7 +15,7 @@ import Link from "next/link";
 import { getImageMimeType } from "@/lib/utils";
 
 import { SideBarProps } from "@/lib/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 const NavigationLink = ({
@@ -91,14 +91,26 @@ export default function SideBar({
   username,
   userEmail,
 }: SideBarProps) {
-  const [openSideBar, setOpenSideBar] = useState(true);
+  const [openSideBar, setOpenSideBar] = useState(false);
+
+  useEffect(() => {
+    const body = document.body;
+
+    if (openSideBar) {
+      body.classList.add("md:ml-[312px]");
+    } else {
+      body.classList.remove("md:ml-[312px]");
+    }
+
+    body.style.transitionDuration = openSideBar ? "0.5s" : "0.3s";
+  }, [openSideBar]);
 
   return (
     <>
       <button
         aria-label={openSideBar ? "Close the sidebar" : "Open the sidebar"}
         onClick={() => setOpenSideBar((prev) => !prev)}
-        className="absolute left-0 top-0 z-20 text-black md:hidden"
+        className="absolute left-0 top-0 z-20 text-white"
       >
         {openSideBar ? "Close" : "Open"}
       </button>
@@ -110,7 +122,7 @@ export default function SideBar({
           ></div>
           <nav
             data-state={openSideBar ? "open" : "closed"}
-            className="fixed inset-y-0 left-0 z-10 flex min-h-screen w-screen flex-col justify-between border-r border-solid border-r-gray-200 bg-white px-4 py-8 transition ease-in-out fill-mode-forwards data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-[312px] md:sticky md:w-full"
+            className="fixed inset-y-0 left-0 z-10 flex min-h-screen w-screen flex-col justify-between border-r border-solid border-r-gray-200 bg-white px-4 py-8 transition ease-in-out fill-mode-forwards data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-[312px] md:w-full"
           >
             <div className="flex flex-col gap-6">
               {/* change the logo to use the font instead of the way you are currently using it and expirement with diffferent font sizes and font weights */}

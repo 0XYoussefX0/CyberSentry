@@ -49,16 +49,20 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en">
-      <body className="flex min-h-screen w-screen bg-white">
-        <Toaster />
-        <SideBar
-          avatar_image={avatar_image}
-          username={user.name}
-          userEmail={user.email}
-        />
-        {children}
-      </body>
-    </html>
+    <div
+      className="flex h-full min-h-screen bg-white transition"
+      style={{
+        transitionProperty: "margin-left",
+        transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
+      }}
+    >
+      <Toaster />
+      <SideBar
+        avatar_image={avatar_image}
+        username={user.name}
+        userEmail={user.email}
+      />
+      {children}
+    </div>
   );
 }

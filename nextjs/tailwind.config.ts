@@ -8,6 +8,11 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      boxShadow: {
+        xs: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
+        "skeumorphic-inner": "0px -2px 0px 0px rgba(16, 24, 40, 0.05)",
+        "skeumorphic-inner-border": "0px 0px 0px 1px rgba(16, 24, 40, 0.18)",
+      },
       screens: {
         lp: "960px",
       },
@@ -34,6 +39,7 @@ const config: Config = {
           800: "#53389E",
           700: "#6941C6",
           600: "#7F56D9",
+          500: "#9E77ED",
           300: "#D6BBFB",
           100: "#F4EBFF",
           50: "#F9F5FF",
@@ -41,6 +47,7 @@ const config: Config = {
         green: {
           400: "#32D583",
         },
+        success: "#17B26A",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
