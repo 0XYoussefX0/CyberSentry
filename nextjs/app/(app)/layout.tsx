@@ -5,7 +5,6 @@ import { AppwriteException } from "node-appwrite";
 import { createSessionClient } from "@/lib/appwrite/server";
 import { getUser } from "@/lib/appwrite/utils";
 import { DATABASE_ID, USERS_COLLECTION_ID } from "@/lib/env";
-
 import { Toaster } from "@/components/ui/toaster";
 import SideBar from "@/components/SideBar";
 
@@ -49,20 +48,22 @@ export default async function RootLayout({
   }
 
   return (
-    <div
-      className="flex h-full min-h-screen bg-white transition"
-      style={{
-        transitionProperty: "margin-left",
-        transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
-      }}
-    >
-      <Toaster />
+    <>
       <SideBar
         avatar_image={avatar_image}
         username={user.name}
         userEmail={user.email}
       />
-      {children}
-    </div>
+      <div
+        className=" bg-white transition"
+        style={{
+          transitionProperty: "margin-left",
+          transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
+      >
+        <Toaster />
+        {children}
+      </div>
+    </>
   );
 }
