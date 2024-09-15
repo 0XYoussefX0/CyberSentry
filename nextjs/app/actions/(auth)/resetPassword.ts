@@ -1,17 +1,17 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import * as v from "valibot";
-import { ResetPasswordResponse } from "@/lib/types";
-import { createAdminClient } from "@/lib/appwrite/server";
-
 import { AppwriteException } from "node-appwrite";
+import * as v from "valibot";
+
+import { createAdminClient } from "@/lib/appwrite/server";
+import { ResetPasswordResponse } from "@/lib/types";
 import { PasswordSchema } from "@/lib/validationSchemas";
 
 export default async function resetPassword(
   data: unknown,
   userId: unknown,
-  secret: unknown
+  secret: unknown,
 ): Promise<ResetPasswordResponse> {
   if (typeof userId !== "string" || typeof secret !== "string") {
     redirect("/forgotpassword");

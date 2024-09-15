@@ -1,5 +1,4 @@
 import { Dispatch, SetStateAction } from "react";
-
 import { AnimatePresence, motion } from "framer-motion";
 
 type RevealButtonProps = {

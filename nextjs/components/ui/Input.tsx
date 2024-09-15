@@ -1,7 +1,7 @@
+import { forwardRef } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
-import { forwardRef } from "react";
 
 const inputVariants = cva(
   "bg-white border border-solid border-gray-300 rounded-lg py-2.5 px-3.5 leading-6 font-normal placeholder:text-gray-500",
@@ -18,7 +18,7 @@ const inputVariants = cva(
       variant: "default",
       Size: "default",
     },
-  }
+  },
 );
 
 interface InputProps
@@ -34,7 +34,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 Input.displayName = "Input";

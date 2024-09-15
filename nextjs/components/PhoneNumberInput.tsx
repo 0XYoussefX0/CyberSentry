@@ -1,20 +1,18 @@
 "use client";
 
-import { Input } from "@/components/ui/Input";
-
 import {
-  useMemo,
-  useState,
   Dispatch,
+  MutableRefObject,
   SetStateAction,
   useEffect,
-  MutableRefObject,
+  useMemo,
+  useState,
 } from "react";
-
-import { CountryCode } from "libphonenumber-js";
-import parsePhoneNumber from "libphonenumber-js";
+import parsePhoneNumber, { CountryCode } from "libphonenumber-js";
 
 import { generatePlaceholder } from "@/lib/utils";
+
+import { Input } from "@/components/ui/Input";
 
 type PhoneNumberProps = {
   selectedCountry: CountryCode;
@@ -60,7 +58,7 @@ function PhoneNumberInput({
   }
   let placeholder = useMemo(
     () => generatePlaceholder(selectedCountry),
-    [selectedCountry]
+    [selectedCountry],
   );
   return (
     <Input

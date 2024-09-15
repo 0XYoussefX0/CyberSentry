@@ -1,28 +1,22 @@
 "use client";
 
-import Link from "next/link";
-import { Label } from "@/components/ui/Label";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
-
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { valibotResolver } from "@hookform/resolvers/valibot";
-
 import { useState } from "react";
+import Link from "next/link";
+import { valibotResolver } from "@hookform/resolvers/valibot";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 
-import RevealButton from "@/components/ui/RevealButton";
-
+import { LoginSchemaType } from "@/lib/types";
+import { LoginSchema } from "@/lib/validationSchemas";
+import { useToast } from "@/hooks/use-toast";
 import login from "@/app/actions/(auth)/login";
 
-import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Label } from "@/components/ui/Label";
+import RevealButton from "@/components/ui/RevealButton";
 import { Toaster } from "@/components/ui/toaster";
-
 import Logo from "@/components/Logo";
-
 import RememberMeCheckbox from "@/components/RememberMeCheckbox";
-import { LoginSchemaType } from "@/lib/types";
-
-import { LoginSchema } from "@/lib/validationSchemas";
 
 export default function LoginForm() {
   const [revealPassword, setRevealPassword] = useState(false);

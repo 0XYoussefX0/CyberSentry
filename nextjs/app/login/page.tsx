@@ -1,10 +1,9 @@
 import Link from "next/link";
 
+import LoginForm from "@/components/auth/LoginForm";
 import Logo from "@/components/Logo";
 
 import emailIcon from "@/assets/emailIcon.svg";
-
-import LoginForm from "@/components/auth/LoginForm";
 
 export default async function Login() {
   return (

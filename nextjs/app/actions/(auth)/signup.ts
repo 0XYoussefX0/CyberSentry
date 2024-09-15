@@ -1,11 +1,11 @@
 "use server";
 
-import * as v from "valibot";
-import { SignUpResponse } from "@/lib/types";
-
 import { cookies } from "next/headers";
-import { createAdminClient, createSessionClient } from "@/lib/appwrite/server";
 import { AppwriteException, ID } from "node-appwrite";
+import * as v from "valibot";
+
+import { createAdminClient, createSessionClient } from "@/lib/appwrite/server";
+import { SignUpResponse } from "@/lib/types";
 import { SignUpSchema } from "@/lib/validationSchemas";
 
 const REDIRECT_URL =

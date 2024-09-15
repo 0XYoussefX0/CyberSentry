@@ -1,11 +1,12 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { getUser } from "@/lib/appwrite/utils";
-import { SessionCookie, LogOutResponse } from "@/lib/types";
-import { createSessionClient } from "@/lib/appwrite/server";
+import { redirect } from "next/navigation";
 import { AppwriteException } from "node-appwrite";
+
+import { createSessionClient } from "@/lib/appwrite/server";
+import { getUser } from "@/lib/appwrite/utils";
+import { LogOutResponse, SessionCookie } from "@/lib/types";
 
 export default async function logout(): Promise<LogOutResponse> {
   const { account } = await createSessionClient();

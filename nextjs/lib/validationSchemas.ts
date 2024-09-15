@@ -1,11 +1,11 @@
-import * as v from "valibot";
 import type shrp from "sharp";
+import * as v from "valibot";
 
 export const EmailSchema = v.object({
   email: v.pipe(
     v.string(),
     v.nonEmpty("Email is required"),
-    v.email("Invalid email address")
+    v.email("Invalid email address"),
   ),
 });
 
@@ -19,8 +19,8 @@ export const PasswordSchema = v.object({
     v.regex(/[0-9]/, "Your password must contain a number."),
     v.regex(
       /(?=.[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~])/,
-      "Your password must contain a special character."
-    )
+      "Your password must contain a special character.",
+    ),
   ),
 });
 
@@ -88,20 +88,20 @@ export const avatarImageSchema = v.objectAsync({
     v.file("Please select an image file."),
     v.mimeType(
       ["image/jpeg", "image/png", "image/jpg"],
-      "Please select a JPEG or PNG file"
+      "Please select a JPEG or PNG file",
     ),
     v.maxSize(2000 * 1024, "Please select a file smaller than 2MB"),
     v.checkAsync(
       imageDimensionValidator,
-      "Image must be between 256x256px and 5000x5000px"
-    )
+      "Image must be between 256x256px and 5000x5000px",
+    ),
   ),
 });
 
 export const fullNameSchema = v.object({
   fullname: v.pipe(
     v.string("fullname must be a string"),
-    v.nonEmpty("fullname is required")
+    v.nonEmpty("fullname is required"),
   ),
 });
 

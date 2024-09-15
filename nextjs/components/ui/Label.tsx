@@ -1,7 +1,7 @@
+import { forwardRef } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
-import { forwardRef } from "react";
 
 const labelVariants = cva("font-medium text-sm leading-5 text-gray-700", {
   variants: {
@@ -33,7 +33,7 @@ const Label = forwardRef<HTMLLabelElement, LabelProps>(
         {children}
       </label>
     );
-  }
+  },
 );
 
 Label.displayName = "Label";

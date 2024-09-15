@@ -1,7 +1,7 @@
+import { forwardRef } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
-import { forwardRef } from "react";
 
 const buttonVariants = cva(
   "font-semibold text-base leading-6 rounded-lg py-2.5 ",
@@ -22,7 +22,7 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 interface ButtonProps
@@ -40,7 +40,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {children}
       </button>
     );
-  }
+  },
 );
 
 Button.displayName = "Button";

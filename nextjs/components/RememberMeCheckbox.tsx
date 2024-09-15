@@ -1,11 +1,9 @@
 "use client";
 
-import { Checkbox } from "react-aria-components";
-
-import { motion } from "framer-motion";
-import { Noop } from "react-hook-form";
-
 import { forwardRef } from "react";
+import { motion } from "framer-motion";
+import { Checkbox } from "react-aria-components";
+import { Noop } from "react-hook-form";
 
 type RememeberMeCheckBoxProps = {
   onChange: (isSelected: boolean) => void;

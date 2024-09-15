@@ -1,4 +1,4 @@
-import { Client, Locale, Databases, Account } from "appwrite";
+import { Account, Client, Databases, Locale } from "appwrite";
 
 export const createClient = async () => {
   const client = new Client()

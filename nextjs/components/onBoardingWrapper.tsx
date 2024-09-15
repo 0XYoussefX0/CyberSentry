@@ -1,21 +1,20 @@
 "use client";
 
-import accountIcon from "@/assets/accountIcon.svg";
-import profileEditIcon from "@/assets/profileEditIcon.svg";
-import phoneNumberIcon from "@/assets/phoneNumberIcon.svg";
-import notificationMessageIcon from "@/assets/notificationMessageIcon.svg";
-
-import ProfileDetails from "@/components/_onboardingSteps/ProfileDetails";
-import PhoneNumber from "@/components/_onboardingSteps/PhoneNumber";
-import VerifyPhoneNumber from "@/components/_onboardingSteps/VerifyPhoneNumber";
-
-import { useState, useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { auth } from "@/lib/firebase/config";
-import { OnboardingSteos } from "@/lib/types";
+import { OnboardingSteos, OnBoardingWrapperProps } from "@/lib/types";
 
+import PhoneNumber from "@/components/_onboardingSteps/PhoneNumber";
+import ProfileDetails from "@/components/_onboardingSteps/ProfileDetails";
+import VerifyPhoneNumber from "@/components/_onboardingSteps/VerifyPhoneNumber";
 import StepIndicator from "@/components/StepIndicator";
-import { OnBoardingWrapperProps } from "@/lib/types";
+
+import accountIcon from "@/assets/accountIcon.svg";
+import notificationMessageIcon from "@/assets/notificationMessageIcon.svg";
+import phoneNumberIcon from "@/assets/phoneNumberIcon.svg";
+import profileEditIcon from "@/assets/profileEditIcon.svg";
+
 auth.useDeviceLanguage();
 
 export default function OnBoardingWrapper({
@@ -68,7 +67,7 @@ export default function OnBoardingWrapper({
         ),
       },
     ],
-    []
+    [],
   );
 
   return (

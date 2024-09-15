@@ -1,12 +1,12 @@
 "use client";
-import verifiedIcon from "@/assets/verifiedIcon.svg";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/Button";
 
-import { useState } from "react";
-
-import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
+import verifiedIcon from "@/assets/verifiedIcon.svg";
 
 export default function EmailVerified() {
   const [exit, setExit] = useState(false);

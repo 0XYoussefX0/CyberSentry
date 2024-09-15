@@ -1,10 +1,9 @@
 import Link from "next/link";
 
-import emailIcon from "@/assets/emailIcon.svg";
-
+import SignupForm from "@/components/auth/SignupForm";
 import Logo from "@/components/Logo";
 
-import SignupForm from "@/components/auth/SignupForm";
+import emailIcon from "@/assets/emailIcon.svg";
 
 export default async function Signup() {
   return (

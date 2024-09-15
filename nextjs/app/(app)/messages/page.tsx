@@ -1,17 +1,15 @@
 import { Button } from "@/components/ui/Button";
-import editIcon from "@/assets/editIcon.svg";
-import searchIcon from "@/assets/searchIcon.svg";
 import { Input } from "@/components/ui/Input";
 import MessageCard from "@/components/MessageCard";
-import user from "@/assets/user.png";
-
-import verified from "@/assets/verified.svg";
+import MessageInput from "@/components/MessageInput";
 import Status from "@/components/Status";
 
 import callIcon from "@/assets/callIcon.svg";
+import editIcon from "@/assets/editIcon.svg";
+import searchIcon from "@/assets/searchIcon.svg";
+import user from "@/assets/user.png";
+import verified from "@/assets/verified.svg";
 import videocallIcon from "@/assets/videocallIcon.svg";
-
-import MessageInput from "@/components/MessageInput";
 
 export default function Messages() {
   return (

@@ -1,12 +1,13 @@
 "use server";
 
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { AppwriteException } from "node-appwrite";
 import * as v from "valibot";
+
+import { createAdminClient } from "@/lib/appwrite/server";
 import { LoginResponse } from "@/lib/types";
 import { LoginSchema } from "@/lib/validationSchemas";
-import { cookies } from "next/headers";
-import { createAdminClient } from "@/lib/appwrite/server";
-import { AppwriteException } from "node-appwrite";
-import { redirect } from "next/navigation";
 
 export default async function login(data: unknown): Promise<LoginResponse> {
   const formData = v.safeParse(LoginSchema, data);

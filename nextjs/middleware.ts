@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { createSessionClient } from "./lib/appwrite/server";
 import { getUser } from "@/lib/appwrite/utils";
-
 import { DATABASE_ID, USERS_COLLECTION_ID } from "@/lib/env";
+
+import { createSessionClient } from "./lib/appwrite/server";
 
 const publicPaths = ["/signup", "/login", "/forgotpassword", "/resetpassword"];
 
@@ -15,7 +15,7 @@ export async function middleware(request: NextRequest) {
   const currentRoute = request.nextUrl.pathname;
 
   const currentRouteIsPublic = publicPaths.some(
-    (route) => currentRoute === route
+    (route) => currentRoute === route,
   );
 
   if (!user && !currentRouteIsPublic) {
@@ -40,7 +40,7 @@ export async function middleware(request: NextRequest) {
       const { completed_onboarding } = await databases.getDocument(
         DATABASE_ID,
         USERS_COLLECTION_ID,
-        user.$id
+        user.$id,
       );
 
       if (!completed_onboarding) {

@@ -1,3 +1,5 @@
+import { CheckEmailModalProps } from "@/lib/types";
+
 import {
   Dialog,
   DialogContent,
@@ -7,7 +9,6 @@ import {
 } from "@/components/ui/Dialog";
 
 import emailIcon from "@/assets/emailIcon.svg";
-import { CheckEmailModalProps } from "@/lib/types";
 
 function CheckEmailModal({
   open,

@@ -1,5 +1,5 @@
 // global.d.ts
-import { RecaptchaVerifier, ConfirmationResult } from "firebase/auth";
+import { ConfirmationResult, RecaptchaVerifier } from "firebase/auth";
 
 declare global {
   interface Window {

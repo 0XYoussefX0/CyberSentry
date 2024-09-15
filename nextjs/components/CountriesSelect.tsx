@@ -1,5 +1,12 @@
 "use client";
 
+import { Dispatch, SetStateAction, useState } from "react";
+import { CountryCode } from "libphonenumber-js";
+import { FixedSizeList } from "react-window";
+
+import { flagIcons } from "@/lib/countriesData/countriesFlags";
+import countriesData from "@/lib/countriesData/data.json";
+
 import {
   Select,
   SelectContent,
@@ -8,17 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/Select";
 
-import countriesData from "@/lib/countriesData/data.json";
-
-import { Dispatch, SetStateAction, useState } from "react";
-
-import { CountryCode } from "libphonenumber-js";
-
 import dropDownIcon from "@/assets/dropDownIcon.svg";
-
-import { FixedSizeList } from "react-window";
-
-import { flagIcons } from "@/lib/countriesData/countriesFlags";
 
 type CoutriesSelectProps = {
   selectedCountry: CountryCode;
@@ -34,7 +31,7 @@ function CountriesSelect({
   const [selectIsOpen, setSelectIsOpen] = useState(false);
 
   const { country: selectedCountryName } = countriesData.find(
-    ({ alpha2 }) => alpha2 === selectedCountry
+    ({ alpha2 }) => alpha2 === selectedCountry,
   )!;
 
   return (

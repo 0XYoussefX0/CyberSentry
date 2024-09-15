@@ -1,7 +1,9 @@
 "use client";
 
-import { OnboardingSteos } from "@/lib/types";
 import { useEffect, useRef, useState } from "react";
+
+import { OnboardingSteos } from "@/lib/types";
+
 import OnBoardingProgressBar from "./OnBoardingProgressBar";
 
 type StepIndicatorProps = {

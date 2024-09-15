@@ -1,44 +1,36 @@
 "use client";
 
-import phoneNumberIcon from "@/assets/phoneNumberIcon.svg";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { valibotResolver } from "@hookform/resolvers/valibot";
+import { AppwriteException, Permission, Role } from "appwrite";
+import {
+  ConfirmationResult,
+  deleteUser,
+  signInWithPhoneNumber,
+} from "firebase/auth";
+import { motion } from "framer-motion";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
+
+import { createClient } from "@/lib/appwrite/client";
+import { DATABASE_ID, USERS_COLLECTION_ID } from "@/lib/env";
+import { auth } from "@/lib/firebase/config";
+import { OTPSchemaType } from "@/lib/types";
+import { OTPSchema } from "@/lib/validationSchemas";
+import { toast } from "@/hooks/use-toast";
+import useRecaptchaVerifier from "@/hooks/useRecaptchaVerifier";
 
 import { Button } from "@/components/ui/Button";
 import { Label } from "@/components/ui/Label";
-
-import { useState, useRef, useEffect, MutableRefObject } from "react";
-
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/OTPInput";
-import { valibotResolver } from "@hookform/resolvers/valibot";
-
-import { OTPSchemaType } from "@/lib/types";
-
-import { OTPSchema } from "@/lib/validationSchemas";
-
-import { SubmitHandler, useForm, Controller } from "react-hook-form";
-import { useRouter } from "next/navigation";
-
-import { auth } from "@/lib/firebase/config";
-
-import {
-  signInWithPhoneNumber,
-  ConfirmationResult,
-  deleteUser,
-} from "firebase/auth";
-import { toast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import useRecaptchaVerifier from "@/hooks/useRecaptchaVerifier";
 
-import { motion } from "framer-motion";
-import { createClient } from "@/lib/appwrite/client";
-
-import { AppwriteException, Permission, Role } from "appwrite";
-
-import { DATABASE_ID, USERS_COLLECTION_ID } from "@/lib/env";
+import phoneNumberIcon from "@/assets/phoneNumberIcon.svg";
 
 export default function VerifyPhoneNumber({
   goback,
@@ -87,7 +79,7 @@ export default function VerifyPhoneNumber({
       const confirmationResult = await signInWithPhoneNumber(
         auth,
         phoneNumber,
-        appVerifier
+        appVerifier,
       );
       setConfirmationResult(confirmationResult);
       setSentOTP(true);
@@ -133,7 +125,7 @@ export default function VerifyPhoneNumber({
         USERS_COLLECTION_ID,
         user.$id,
         { phone_number: phoneNumber, completed_onboarding: true },
-        [Permission.read(Role.users()), Permission.write(Role.user(user.$id))]
+        [Permission.read(Role.users()), Permission.write(Role.user(user.$id))],
       );
     } catch (e) {
       const err = e as AppwriteException;
@@ -227,12 +219,12 @@ export default function VerifyPhoneNumber({
             {loading && !sentOTP && !(attemptsNumber > 1)
               ? "Sending..."
               : loading && sentOTP
-              ? "Verifying..."
-              : !loading && sentOTP
-              ? "Verify OTP"
-              : !loading && attemptsNumber > 1
-              ? "Resend"
-              : "Send OTP"}
+                ? "Verifying..."
+                : !loading && sentOTP
+                  ? "Verify OTP"
+                  : !loading && attemptsNumber > 1
+                    ? "Resend"
+                    : "Send OTP"}
           </Button>
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <div className="mx-auto" id="recaptcha-container"></div>

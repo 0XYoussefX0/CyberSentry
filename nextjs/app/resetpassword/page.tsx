@@ -1,5 +1,6 @@
-import ResetPasswordForm from "@/components/auth/ResetPasswordForm";
 import { redirect } from "next/navigation";
+
+import ResetPasswordForm from "@/components/auth/ResetPasswordForm";
 
 export default function ResetPassword({
   searchParams,

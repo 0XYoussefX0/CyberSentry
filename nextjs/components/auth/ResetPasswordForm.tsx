@@ -1,32 +1,26 @@
 "use client";
-import { motion } from "framer-motion";
-import { Toaster } from "@/components/ui/toaster";
-
-import { Button } from "@/components/ui/Button";
-
-import { SubmitHandler, useForm } from "react-hook-form";
-import { valibotResolver } from "@hookform/resolvers/valibot";
-
-import { PasswordSchemaType, ResetPasswordFormProps } from "@/lib/types";
-
-import { PasswordSchema } from "@/lib/validationSchemas";
-
-import { Input } from "@/components/ui/Input";
-import { Label } from "@/components/ui/Label";
-
-import keyIcon from "@/assets/keyIcon.svg";
-import { toast } from "@/hooks/use-toast";
 
 import { useState } from "react";
-
-import RevealButton from "@/components/ui/RevealButton";
-
+import { useRouter } from "next/navigation";
+import { valibotResolver } from "@hookform/resolvers/valibot";
 import { passwordStrength } from "check-password-strength";
+import { motion } from "framer-motion";
+import { SubmitHandler, useForm } from "react-hook-form";
 
+import { PasswordSchemaType, ResetPasswordFormProps } from "@/lib/types";
+import { PasswordSchema } from "@/lib/validationSchemas";
+import { toast } from "@/hooks/use-toast";
+import resetPassword from "@/app/actions/(auth)/resetPassword";
+
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Label } from "@/components/ui/Label";
+import RevealButton from "@/components/ui/RevealButton";
+import { Toaster } from "@/components/ui/toaster";
 import PasswordContaintsChecker from "@/components/PasswordContaintsChecker";
 import PasswordStrengthChecker from "@/components/PasswordStrengthChecker";
-import resetPassword from "@/app/actions/(auth)/resetPassword";
-import { useRouter } from "next/navigation";
+
+import keyIcon from "@/assets/keyIcon.svg";
 
 export default function ResetPasswordForm({
   userId,
@@ -52,7 +46,7 @@ export default function ResetPasswordForm({
   const passwordStrengthResult = passwordStrength(password);
 
   const handlePasswordResetting: SubmitHandler<PasswordSchemaType> = async (
-    data
+    data,
   ) => {
     const response = await resetPassword(data, userId, secret);
     if (!response) return;

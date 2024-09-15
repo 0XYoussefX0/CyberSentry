@@ -1,24 +1,22 @@
 "use client";
-import { motion } from "framer-motion";
-import { Toaster } from "@/components/ui/toaster";
-
-import { Button } from "@/components/ui/Button";
-
-import { SubmitHandler, useForm } from "react-hook-form";
-import { valibotResolver } from "@hookform/resolvers/valibot";
-
-import { EmailSchemaType } from "@/lib/types";
-
-import { Input } from "@/components/ui/Input";
-import { Label } from "@/components/ui/Label";
-
-import keyIcon from "@/assets/keyIcon.svg";
-import { toast } from "@/hooks/use-toast";
-import CheckEmailModal from "@/components/CheckEmailModal";
 
 import { useState } from "react";
-import forgotPassword from "@/app/actions/(auth)/forgotPassword";
+import { valibotResolver } from "@hookform/resolvers/valibot";
+import { motion } from "framer-motion";
+import { SubmitHandler, useForm } from "react-hook-form";
+
+import { EmailSchemaType } from "@/lib/types";
 import { EmailSchema } from "@/lib/validationSchemas";
+import { toast } from "@/hooks/use-toast";
+import forgotPassword from "@/app/actions/(auth)/forgotPassword";
+
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Label } from "@/components/ui/Label";
+import { Toaster } from "@/components/ui/toaster";
+import CheckEmailModal from "@/components/CheckEmailModal";
+
+import keyIcon from "@/assets/keyIcon.svg";
 
 export default function ForgotPassword() {
   const [confirmEmailModal, setConfirmEmailModal] = useState({
@@ -35,7 +33,7 @@ export default function ForgotPassword() {
   });
 
   const sendResetPasswordEmail: SubmitHandler<EmailSchemaType> = async (
-    data
+    data,
   ) => {
     const response = await forgotPassword(data);
     switch (response.status) {

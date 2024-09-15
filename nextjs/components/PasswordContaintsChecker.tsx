@@ -1,9 +1,10 @@
 "use client";
 
-import CheckMark from "@/components/ui/CheckMark";
+import { Result } from "check-password-strength";
 
 import { PasswordConstraints } from "@/lib/types";
-import { Result } from "check-password-strength";
+
+import CheckMark from "@/components/ui/CheckMark";
 
 const passwordConstraints: PasswordConstraints = [
   {

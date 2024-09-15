@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-
-import SideBar from "@/components/SideBar";
-import { Toaster } from "@/components/ui/toaster";
+import { redirect } from "next/navigation";
+import { AppwriteException } from "node-appwrite";
 
 import { createSessionClient } from "@/lib/appwrite/server";
 import { getUser } from "@/lib/appwrite/utils";
-import { redirect } from "next/navigation";
 import { DATABASE_ID, USERS_COLLECTION_ID } from "@/lib/env";
-import { AppwriteException } from "node-appwrite";
+
+import { Toaster } from "@/components/ui/toaster";
+import SideBar from "@/components/SideBar";
 
 export const metadata: Metadata = {
   title: "Create Next App",

@@ -1,25 +1,18 @@
-// seperate your schemas from your types
-
+import { Dispatch, ReactNode, SetStateAction } from "react";
+import { NextResponse } from "next/server";
+import { RecaptchaVerifier } from "firebase/auth";
+import { Models } from "node-appwrite";
 import * as v from "valibot";
+import { InferIssue } from "valibot";
 
 import {
   EmailSchema,
-  SignUpSchema,
   LoginSchema,
+  OTPSchema,
   PasswordSchema,
   profileDetailsFormSchema,
-  OTPSchema,
+  SignUpSchema,
 } from "@/lib/validationSchemas";
-
-import { RecaptchaVerifier } from "firebase/auth";
-
-import { ReactNode } from "react";
-
-import { InferIssue } from "valibot";
-import { Models } from "node-appwrite";
-
-import { Dispatch, SetStateAction } from "react";
-import { NextResponse } from "next/server";
 
 type Constraints = "length" | "symbol" | "uppercase" | "number";
 
@@ -49,14 +42,14 @@ export type croppedArea = {
 
 export type onCropCompleteType = (
   croppedArea: croppedArea,
-  croppedAreaPixels: croppedArea
+  croppedAreaPixels: croppedArea,
 ) => void;
 
 export type getCroppedImgType = (
   imageSrc: string,
   pixelCrop: croppedArea,
   rotation: number,
-  flip?: { horizontal: boolean; vertical: boolean }
+  flip?: { horizontal: boolean; vertical: boolean },
 ) => Promise<Blob | null>;
 
 export type OTPSchemaType = v.InferOutput<typeof OTPSchema>;
@@ -80,7 +73,7 @@ export type SignUpResponse =
       status: "validation_error";
       errors: [
         InferIssue<typeof SignUpSchema>,
-        ...InferIssue<typeof SignUpSchema>[]
+        ...InferIssue<typeof SignUpSchema>[],
       ];
     }
   | { status: "server_error"; error: string };
@@ -98,7 +91,7 @@ export type LoginResponse =
       status: "validation_error";
       errors: [
         InferIssue<typeof LoginSchema>,
-        ...InferIssue<typeof LoginSchema>[]
+        ...InferIssue<typeof LoginSchema>[],
       ];
     }
   | { status: "server_error"; error: string };
@@ -109,7 +102,7 @@ export type ForgotPasswordResponse =
       status: "validation_error";
       errors: [
         InferIssue<typeof EmailSchema>,
-        ...InferIssue<typeof EmailSchema>[]
+        ...InferIssue<typeof EmailSchema>[],
       ];
     }
   | { status: "server_error"; error: string };
@@ -121,7 +114,7 @@ export type ResetPasswordResponse =
       status: "validation_error";
       errors: [
         InferIssue<typeof PasswordSchema>,
-        ...InferIssue<typeof PasswordSchema>[]
+        ...InferIssue<typeof PasswordSchema>[],
       ];
     }
   | { status: "server_error"; error: string };
@@ -155,7 +148,7 @@ export type CompleteProfileResponse =
       status: "validation_error";
       errors: [
         InferIssue<typeof profileDetailsFormSchema>,
-        ...InferIssue<typeof profileDetailsFormSchema>[]
+        ...InferIssue<typeof profileDetailsFormSchema>[],
       ];
     };
 

@@ -1,10 +1,11 @@
 "use client";
 
-import micIcon from "@/assets/micIcon.svg";
+import { Dispatch, SetStateAction, useRef, useState } from "react";
+import WaveSurfer from "wavesurfer.js";
+
 import { toast } from "@/hooks/use-toast";
 
-import { useState, useRef, Dispatch, SetStateAction } from "react";
-import WaveSurfer from "wavesurfer.js";
+import micIcon from "@/assets/micIcon.svg";
 
 function MicInput({
   isRecording,

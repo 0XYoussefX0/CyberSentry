@@ -1,29 +1,25 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { Label } from "@/components/ui/Label";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
-import PasswordStrengthChecker from "@/components/PasswordStrengthChecker";
+import { valibotResolver } from "@hookform/resolvers/valibot";
 import { passwordStrength } from "check-password-strength";
+import { SubmitHandler, useForm } from "react-hook-form";
+
 import { SignUpSchemaType } from "@/lib/types";
 import { SignUpSchema } from "@/lib/validationSchemas";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { valibotResolver } from "@hookform/resolvers/valibot";
-
-import { useState } from "react";
-
-import RevealButton from "@/components/ui/RevealButton";
-
+import { useToast } from "@/hooks/use-toast";
 import signup from "@/app/actions/(auth)/signup";
 
-import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Label } from "@/components/ui/Label";
+import RevealButton from "@/components/ui/RevealButton";
 import { Toaster } from "@/components/ui/toaster";
-
 import CheckEmailModal from "@/components/CheckEmailModal";
-
 import Logo from "@/components/Logo";
 import PasswordContaintsChecker from "@/components/PasswordContaintsChecker";
+import PasswordStrengthChecker from "@/components/PasswordStrengthChecker";
 
 export default function SignupForm() {
   const [revealPassword, setRevealPassword] = useState(false);

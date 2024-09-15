@@ -1,23 +1,19 @@
 "use client";
 
-import phoneNumberIcon from "@/assets/phoneNumberIcon.svg";
-
-import { Button } from "@/components/ui/Button";
-import { Label } from "@/components/ui/Label";
-
-import { useEffect, useState, MutableRefObject, FormEvent } from "react";
-
-import { CountryCode } from "libphonenumber-js";
-
-import PhoneNumberInput from "../PhoneNumberInput";
-
-import parsePhoneNumber from "libphonenumber-js";
-
-import CountriesSelect from "@/components/CountriesSelect";
+import { FormEvent, MutableRefObject, useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import parsePhoneNumber, { CountryCode } from "libphonenumber-js";
 
 import { createClient } from "@/lib/appwrite/client";
 import { isCountryCode } from "@/lib/utils";
+
+import { Button } from "@/components/ui/Button";
+import { Label } from "@/components/ui/Label";
+import CountriesSelect from "@/components/CountriesSelect";
+
+import phoneNumberIcon from "@/assets/phoneNumberIcon.svg";
+
+import PhoneNumberInput from "../PhoneNumberInput";
 
 export default function PhoneNumber({
   nextStep,

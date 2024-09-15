@@ -1,5 +1,7 @@
-import { createSessionClient } from "@/lib/appwrite/server";
 import { AppwriteException } from "node-appwrite";
+
+import { createSessionClient } from "@/lib/appwrite/server";
+
 import EmailVerified from "@/components/EmailVerified";
 
 export default async function confirmEmail({

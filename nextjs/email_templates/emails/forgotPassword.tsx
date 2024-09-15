@@ -1,7 +1,9 @@
+import * as React from "react";
 import {
   Body,
-  Container,
+  Button,
   Column,
+  Container,
   Head,
   Html,
   Img,
@@ -10,9 +12,7 @@ import {
   Row,
   Section,
   Text,
-  Button,
 } from "@react-email/components";
-import * as React from "react";
 
 export const ForgotPassword = () => {
   return (

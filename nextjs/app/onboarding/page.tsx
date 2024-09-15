@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation";
-
-import { DATABASE_ID, USERS_COLLECTION_ID } from "@/lib/env";
-import OnBoardingWrapper from "@/components/onBoardingWrapper";
-import { createSessionClient } from "@/lib/appwrite/server";
 import { AppwriteException } from "node-appwrite";
+
+import { createSessionClient } from "@/lib/appwrite/server";
 import { getUser } from "@/lib/appwrite/utils";
+import { DATABASE_ID, USERS_COLLECTION_ID } from "@/lib/env";
+
+import OnBoardingWrapper from "@/components/onBoardingWrapper";
 
 export default async function Onboarding() {
   let initialStep: number | null = null;
@@ -18,7 +19,7 @@ export default async function Onboarding() {
     const { phone_number } = await databases.getDocument(
       DATABASE_ID,
       USERS_COLLECTION_ID,
-      user.$id
+      user.$id,
     );
 
     if (!user.name) {

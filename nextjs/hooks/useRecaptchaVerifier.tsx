@@ -1,11 +1,10 @@
 "use client";
-import { useState, useEffect } from "react";
 
-import { CaptchaDataType } from "@/lib/types";
-
+import { useEffect, useState } from "react";
 import { RecaptchaVerifier } from "firebase/auth";
 
 import { auth } from "@/lib/firebase/config";
+import { CaptchaDataType } from "@/lib/types";
 
 export default function useRecaptchaVerifier(containerID: string) {
   const [captchaData, setCaptchaData] = useState<CaptchaDataType>({

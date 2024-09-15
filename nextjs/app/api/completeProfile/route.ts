@@ -1,22 +1,20 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getUser } from "@/lib/appwrite/utils";
-import * as v from "valibot";
-import sharp from "sharp";
 import { redirect } from "next/navigation";
-import { createSessionClient } from "@/lib/appwrite/server";
-import { ID } from "node-appwrite";
+import { NextRequest, NextResponse } from "next/server";
+import { AppwriteException, ID, Permission, Role } from "node-appwrite";
 import { InputFile } from "node-appwrite/file";
+import sharp from "sharp";
+import * as v from "valibot";
 
-import { AppwriteException, Permission, Role } from "node-appwrite";
-import { profileDetailsFormSchema } from "@/lib/validationSchemas";
-
+import { createSessionClient } from "@/lib/appwrite/server";
+import { getUser } from "@/lib/appwrite/utils";
 import {
-  BUCKET_ID,
   APPWRITE_ENDPOINT,
+  BUCKET_ID,
   DATABASE_ID,
-  USERS_COLLECTION_ID,
   PROJECT_ID,
+  USERS_COLLECTION_ID,
 } from "@/lib/env";
+import { profileDetailsFormSchema } from "@/lib/validationSchemas";
 
 export async function POST(request: NextRequest) {
   const data = await request.formData();
@@ -58,7 +56,7 @@ export async function POST(request: NextRequest) {
         Permission.read(Role.users()),
         // Permission.read(Role.user(user.$id)),
         Permission.write(Role.user(user.$id)),
-      ]
+      ],
     );
   } catch (e) {
     const err = e as AppwriteException;
@@ -77,7 +75,7 @@ export async function POST(request: NextRequest) {
         Permission.read(Role.users()),
         // Permission.read(Role.user(user.$id)),
         Permission.write(Role.user(user.$id)),
-      ]
+      ],
     );
   } catch (e) {
     const err = e as AppwriteException;

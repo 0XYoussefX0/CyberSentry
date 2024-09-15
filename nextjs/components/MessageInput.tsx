@@ -1,12 +1,14 @@
 "use client";
 
-import { useRef, MouseEvent, useState, useEffect } from "react";
-
-import emojiIcon from "@/assets/emojiIcon.svg";
-
+import { MouseEvent, useEffect, useRef, useState } from "react";
 import EmojiPicker, { EmojiClickData, EmojiStyle } from "emoji-picker-react";
 
+import { startCounter, stopCounter } from "@/lib/utils";
+
+import CancelIcon from "@/components/CancelIcon";
 import MicInput from "@/components/MicInput";
+
+import emojiIcon from "@/assets/emojiIcon.svg";
 
 import AudioVisualizer from "./AudioVisualizer";
 import { Button } from "./ui/Button";
@@ -91,13 +93,16 @@ function MessageInput() {
     // add clean up function
   }, []);
 
+  const [timer, setTimer] = useState("00:00");
+
+  const counterId = useRef<NodeJS.Timeout>();
   const startRecording = async () => {
     if (!mediaRecorderRef.current) return;
     // check if you already have permission
-    try {
-    } catch (e) {}
+
     audioRef.current = [];
     mediaRecorderRef.current.start();
+    counterId.current = startCounter(setTimer);
     setIsRecording(true);
   };
 
@@ -106,11 +111,11 @@ function MessageInput() {
 
     mediaRecorderRef.current.stop();
     setIsRecording(false);
+    stopCounter(counterId.current!);
+    setTimer("00:00");
   };
 
   const sendRecording = () => {};
-
-  const timer = "00:00";
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -126,6 +131,7 @@ function MessageInput() {
           <div>{timer}</div>
           <div ref={containerRef} className="flex-1">
             <AudioVisualizer
+              isRecording={isRecording}
               analyser={analyserRef.current}
               bufferLength={bufferLength.current}
               dataArray={dataArrayRef.current}
@@ -137,7 +143,7 @@ function MessageInput() {
           <button onClick={cancelRecording} aria-label="Cancel recording">
             <CancelIcon />
           </button>
-          <Button className="px-3">send</Button>
+          <Button className="px-3.5 text-sm">Send</Button>
         </div>
       </div>
 
@@ -164,9 +170,12 @@ function MessageInput() {
             setIsRecording={setIsRecording}
             isRecording={isRecording}
           />
-          <button onClick={() => setOpenEmojiPicker((prev) => !prev)}>
+          <button
+            className="relative"
+            onClick={() => setOpenEmojiPicker((prev) => !prev)}
+          >
             <img src={emojiIcon.src} alt="" />
-            <div className="absolute bottom-10 right-[66px]">
+            <div className="absolute bottom-full right-0 mb-2">
               {/* test this component in production and see if it still lagging, if it is then render the component as soon as the page loads, so that the emojis load */}
               <EmojiPicker
                 onEmojiClick={handleEmojiClick}
@@ -176,7 +185,7 @@ function MessageInput() {
               />
             </div>
           </button>
-          <button>send</button>
+          <Button className="px-3.5 text-sm">Send</Button>
         </div>
       </div>
     </div>
@@ -184,24 +193,3 @@ function MessageInput() {
 }
 
 export default MessageInput;
-
-const CancelIcon = () => {
-  return (
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className="group"
-    >
-      <path
-        d="M16 6V5.2C16 4.0799 16 3.51984 15.782 3.09202C15.5903 2.71569 15.2843 2.40973 14.908 2.21799C14.4802 2 13.9201 2 12.8 2H11.2C10.0799 2 9.51984 2 9.09202 2.21799C8.71569 2.40973 8.40973 2.71569 8.21799 3.09202C8 3.51984 8 4.0799 8 5.2V6M10 11.5V16.5M14 11.5V16.5M3 6H21M19 6V17.2C19 18.8802 19 19.7202 18.673 20.362C18.3854 20.9265 17.9265 21.3854 17.362 21.673C16.7202 22 15.8802 22 14.2 22H9.8C8.11984 22 7.27976 22 6.63803 21.673C6.07354 21.3854 5.6146 20.9265 5.32698 20.362C5 19.7202 5 18.8802 5 17.2V6"
-        className="stroke-black transition-colors group-hover:stroke-red-500"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
-    </svg>
-  );
-};

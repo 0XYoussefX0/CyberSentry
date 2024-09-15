@@ -1,22 +1,20 @@
 "use client";
 
-import profileEditIcon from "@/assets/profileEditIcon.svg";
-import addAvatarIcon from "@/assets/addAvatarIcon.svg";
-
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Label } from "@/components/ui/Label";
-
+import { ChangeEvent, FormEvent, useState } from "react";
+import { motion } from "framer-motion";
+import Cropper from "react-easy-crop";
 import * as v from "valibot";
 
 import {
-  onCropCompleteType,
-  croppedArea,
   CompleteProfileResponse,
+  croppedArea,
+  onCropCompleteType,
 } from "@/lib/types";
+import { getCroppedImg } from "@/lib/utils";
+import { avatarImageSchema, fullNameSchema } from "@/lib/validationSchemas";
+import { toast } from "@/hooks/use-toast";
 
-import { fullNameSchema, avatarImageSchema } from "@/lib/validationSchemas";
-
+import { Button } from "@/components/ui/Button";
 import {
   Dialog,
   DialogContent,
@@ -24,12 +22,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/Dialog";
-
-import { useState, ChangeEvent, FormEvent } from "react";
-import { getCroppedImg } from "@/lib/utils";
-
-import Cropper from "react-easy-crop";
-
+import { Input } from "@/components/ui/Input";
+import { Label } from "@/components/ui/Label";
 import {
   Tooltip,
   TooltipContent,
@@ -37,10 +31,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/ToolTip";
 
+import addAvatarIcon from "@/assets/addAvatarIcon.svg";
+import profileEditIcon from "@/assets/profileEditIcon.svg";
 import questionIcon from "@/assets/questionIcon.svg";
 
-import { motion } from "framer-motion";
-import { toast } from "@/hooks/use-toast";
 import { Toaster } from "../ui/toaster";
 
 type FormErrors = {
@@ -186,7 +180,7 @@ export default function ProfileDetails({ nextStep }: { nextStep: () => void }) {
       const croppedImage = await getCroppedImg(
         avatarImage,
         croppedAreaPixels,
-        rotation
+        rotation,
       );
       setCroppedImage(croppedImage);
       setOpenCropModal(false);

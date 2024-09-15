@@ -1,7 +1,8 @@
 "use client";
 
-import logout from "@/app/actions/(auth)/logout";
 import { toast } from "@/hooks/use-toast";
+import logout from "@/app/actions/(auth)/logout";
+
 import logoutIcon from "@/assets/logoutIcon.svg";
 
 function LogOutButton() {

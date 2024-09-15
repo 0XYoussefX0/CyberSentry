@@ -1,17 +1,18 @@
+import { Dispatch, SetStateAction } from "react";
 import { ClassValue, clsx } from "clsx";
+import { format } from "date-fns";
+import { CountryCode, getExampleNumber } from "libphonenumber-js";
+import examples from "libphonenumber-js/mobile/examples";
 import { twMerge } from "tailwind-merge";
 
 import { getCroppedImgType } from "./types";
-
-import examples from "libphonenumber-js/mobile/examples";
-import { CountryCode, getExampleNumber } from "libphonenumber-js";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 export const createImage: (
-  url: string
+  url: string,
 ) => Promise<HTMLImageElement | ErrorEvent> = (url: string) =>
   new Promise((resolve, reject) => {
     const image = new Image();
@@ -46,7 +47,7 @@ export const getCroppedImg: getCroppedImgType = async (
   imageSrc,
   pixelCrop,
   rotation = 0,
-  flip = { horizontal: false, vertical: false }
+  flip = { horizontal: false, vertical: false },
 ) => {
   const image = await createImage(imageSrc);
   const canvas = document.createElement("canvas");
@@ -62,7 +63,7 @@ export const getCroppedImg: getCroppedImgType = async (
   const { width: bBoxWidth, height: bBoxHeight } = rotateSize(
     image.width,
     image.height,
-    rotation
+    rotation,
   );
 
   // set canvas size to match the bounding box
@@ -100,7 +101,7 @@ export const getCroppedImg: getCroppedImgType = async (
     0,
     0,
     pixelCrop.width,
-    pixelCrop.height
+    pixelCrop.height,
   );
 
   // As Base64 string
@@ -392,3 +393,25 @@ export function getImageMimeType(arrayBuffer: ArrayBuffer) {
     return "image/png";
   }
 }
+
+export const startCounter = (setTimer: Dispatch<SetStateAction<string>>) => {
+  const startTime = Date.now();
+
+  const counterId = setInterval(() => {
+    const elapsedTimeInSeconds = Math.floor((Date.now() - startTime) / 1000); // Calculate elapsed time
+
+    // Convert elapsedTimeInSeconds to a Date object (epoch time + elapsed seconds)
+    const date = new Date(0);
+    const time = new Date(date.setSeconds(elapsedTimeInSeconds));
+
+    // Format the time into mm:ss
+    const formattedTime = format(time, "mm:ss");
+    setTimer(formattedTime);
+  }, 1000); // Update every second, but calculate real time passed
+
+  return counterId;
+};
+
+export const stopCounter = (counterId: NodeJS.Timeout) => {
+  clearInterval(counterId);
+};
