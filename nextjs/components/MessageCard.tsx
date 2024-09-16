@@ -1,8 +1,13 @@
+import Link from "next/link";
+
 import user from "@/assets/user.png";
 
 function MessageCard() {
   return (
-    <div className="border-b border-solid border-gray-200">
+    <Link
+      href={`/messages?roomID=sa9azo`}
+      className="border-b border-solid border-gray-200"
+    >
       <div className="flex w-full flex-col gap-4 p-4">
         <div className="flex justify-between">
           <div className="flex items-center gap-3">
@@ -30,7 +35,7 @@ function MessageCard() {
           zeazeaeazeazeza e azeaz eazeazeza
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
