@@ -1,6 +1,6 @@
-import { Account, Client, Databases, Locale } from "appwrite";
+import { Account, Client, Databases, Locale, Models } from "appwrite";
 
-export const createClient = async () => {
+export const createClient = () => {
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
     .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!);
@@ -16,4 +16,14 @@ export const createClient = async () => {
       return new Account(client);
     },
   };
+};
+
+export const getUser = async (account: Account) => {
+  let user: Models.User<Models.Preferences> | null;
+  try {
+    user = await account.get();
+  } catch {
+    user = null;
+  }
+  return user;
 };

@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import RevealButton from "@/components/ui/RevealButton";
 import { Toaster } from "@/components/ui/toaster";
-import Logo from "@/components/Logo";
+import Logo from "@/components/icons/Logo";
 import RememberMeCheckbox from "@/components/RememberMeCheckbox";
 
 export default function LoginForm() {

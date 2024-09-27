@@ -2,6 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+
+import { SideBarProps } from "@/lib/types";
+import { getImageMimeType } from "@/lib/utils";
+
+import Logo from "@/components/icons/Logo";
+import LogOutButton from "@/components/LogOutButton";
+
 import dashboardIcon from "@/assets/dashboardIcon.svg";
 import homeIcon from "@/assets/homeIcon.svg";
 import messagesIcon from "@/assets/messagesIcon.svg";
@@ -11,12 +18,7 @@ import settingsIcon from "@/assets/settingsIcon.svg";
 import supportIcon from "@/assets/supportIcon.svg";
 import tasksIcon from "@/assets/tasksIcon.svg";
 
-import { SideBarProps } from "@/lib/types";
-import { getImageMimeType } from "@/lib/utils";
-import Logo from "@/components/Logo";
-import LogOutButton from "@/components/LogOutButton";
-
-import HamburgerIcon from "./HamburgerIcon";
+import HamburgerIcon from "./icons/HamburgerIcon";
 
 const NavigationLink = ({
   label,

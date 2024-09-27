@@ -44,10 +44,8 @@ function MessagesLayout({
       >
         {conversationList}
       </div>
-      <div
-        className={` h-screen ${widthGT1280 ? "w-2/3" : "w-full"} ${roomID ? "" : "hidden"}`}
-      >
-        {conversationContent}
+      <div className={` h-screen ${widthGT1280 ? "w-2/3" : "w-full"} `}>
+        {roomID && conversationContent}
       </div>
     </div>
   );

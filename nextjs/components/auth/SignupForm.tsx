@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/Label";
 import RevealButton from "@/components/ui/RevealButton";
 import { Toaster } from "@/components/ui/toaster";
 import CheckEmailModal from "@/components/CheckEmailModal";
-import Logo from "@/components/Logo";
+import Logo from "@/components/icons/Logo";
 import PasswordContaintsChecker from "@/components/PasswordContaintsChecker";
 import PasswordStrengthChecker from "@/components/PasswordStrengthChecker";
 

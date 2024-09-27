@@ -15,7 +15,7 @@ export default function Messages({
   return (
     <MessagesLayout
       conversationList={<ConversationList />}
-      conversationContent={<ConversationContent />}
+      conversationContent={<ConversationContent roomID={roomID} />}
       roomID={roomID}
     />
   );

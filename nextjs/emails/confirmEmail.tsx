@@ -24,7 +24,7 @@ export const ConfirmEmail = () => {
           <Section style={logo}>
             <Img
               width={150}
-              src="https://kyymsekbpdnvwmnhozrv.supabase.co/storage/v1/object/public/Email_assets/logo.png"
+              src="http://localhost/v1/storage/buckets/66f05e0e001e13410008/files/66f05ec20035bec76102/view?project=66d9edab001522e8390b&project=66d9edab001522e8390b&mode=admin"
             />
           </Section>
           <Section style={sectionsBorders}>
@@ -70,7 +70,7 @@ export const ConfirmEmail = () => {
               <Link href="https://www.facebook.com">
                 <Img
                   style={{ width: 20, height: 20 }}
-                  src="https://kyymsekbpdnvwmnhozrv.supabase.co/storage/v1/object/public/Email_assets/Facebook_Logo_Primary.png"
+                  src="http://localhost/v1/storage/buckets/66f05e0e001e13410008/files/66f05eac0013bd86d929/view?project=66d9edab001522e8390b&project=66d9edab001522e8390b&mode=admin"
                 />
               </Link>
             </Column>
@@ -78,7 +78,7 @@ export const ConfirmEmail = () => {
               <Link href="https://www.instagram.com">
                 <Img
                   style={{ width: 20, height: 20 }}
-                  src="https://kyymsekbpdnvwmnhozrv.supabase.co/storage/v1/object/public/Email_assets/Instagram_Glyph_Gradient.png"
+                  src="http://localhost/v1/storage/buckets/66f05e0e001e13410008/files/66f05eba0021325fd1b9/view?project=66d9edab001522e8390b&project=66d9edab001522e8390b&mode=admin"
                 />
               </Link>
             </Column>
@@ -86,7 +86,7 @@ export const ConfirmEmail = () => {
               <Link href="https://x.com">
                 <Img
                   style={{ width: 20, height: 20 }}
-                  src="https://kyymsekbpdnvwmnhozrv.supabase.co/storage/v1/object/public/Email_assets/logo-black.png?t=2024-08-25T11%3A16%3A27.242Z"
+                  src="http://localhost/v1/storage/buckets/66f05e0e001e13410008/files/66f05eca000438a28670/view?project=66d9edab001522e8390b&project=66d9edab001522e8390b&mode=admin"
                 />
               </Link>
             </Column>

@@ -1,0 +1,9 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.USER_CONVERSATIONS_COLLECTION_ID = exports.CONVERSATIONS_COLLECTION_ID = exports.USERS_COLLECTION_ID = exports.DATABASE_ID = exports.APPWRITE_PROJECT_ID = exports.APPWRITE_ENDPOINT = void 0;
+exports.APPWRITE_ENDPOINT = process.env.APPWRITE_ENDPOINT;
+exports.APPWRITE_PROJECT_ID = process.env.APPWRITE_PROJECT_ID;
+exports.DATABASE_ID = process.env.DATABASE_ID;
+exports.USERS_COLLECTION_ID = process.env.USERS_COLLECTION_ID;
+exports.CONVERSATIONS_COLLECTION_ID = process.env.CONVERSATIONS_COLLECTION_ID;
+exports.USER_CONVERSATIONS_COLLECTION_ID = process.env.USER_CONVERSATIONS_COLLECTION_ID;

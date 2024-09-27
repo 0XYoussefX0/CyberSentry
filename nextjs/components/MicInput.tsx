@@ -17,7 +17,11 @@ function MicInput({
   startRecording: () => void;
 }) {
   return (
-    <button onClick={startRecording} aria-label="Record a voice message">
+    <button
+      type="button"
+      onClick={startRecording}
+      aria-label="Record a voice message"
+    >
       <img src={micIcon.src} alt="" />
     </button>
   );

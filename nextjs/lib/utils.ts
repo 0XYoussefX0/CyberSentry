@@ -415,3 +415,74 @@ export const startCounter = (setTimer: Dispatch<SetStateAction<string>>) => {
 export const stopCounter = (counterId: NodeJS.Timeout) => {
   clearInterval(counterId);
 };
+
+export const debounce = (fn: (...args: any[]) => void, delay: number) => {
+  let timer: NodeJS.Timeout | number;
+  return (...args: any[]) => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    timer = setTimeout(() => {
+      fn(...args);
+    }, delay);
+  };
+};
+
+export function capitalizeFirstLetter(string: string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+export function randomColor() {
+  const coolColors = [
+    "#475569",
+    "#4b5563",
+    "#52525b",
+    "#525252",
+    "#57534e",
+    "#dc2626",
+    "#2563eb",
+    "#4f46e5",
+    "#7c3aed",
+    "#9333ea",
+    "#c026d3",
+    "#db2777",
+    "#e11d48",
+  ];
+  return coolColors;
+}
+
+export const checkCameraAvailability = () => {
+  return navigator.mediaDevices
+    .enumerateDevices()
+    .then((devices) => {
+      let cameraAvailability = {
+        hasFrontCamera: false,
+        hasBackCamera: false,
+      };
+
+      devices.forEach((device) => {
+        if (device.kind === "videoinput") {
+          // Check for front camera
+          if (
+            device.label.toLowerCase().includes("front") ||
+            device.label.toLowerCase().includes("user")
+          ) {
+            cameraAvailability.hasFrontCamera = true;
+          }
+          // Check for back camera
+          if (
+            device.label.toLowerCase().includes("back") ||
+            device.label.toLowerCase().includes("environment")
+          ) {
+            cameraAvailability.hasBackCamera = true;
+          }
+        }
+      });
+
+      return cameraAvailability;
+    })
+    .catch((err) => {
+      console.error("Error accessing media devices:", err);
+      return null; // Return null in case of an error
+    });
+};

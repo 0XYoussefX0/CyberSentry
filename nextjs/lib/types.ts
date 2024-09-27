@@ -1,7 +1,11 @@
-import { Dispatch, ReactNode, SetStateAction } from "react";
-import { NextResponse } from "next/server";
-import { RecaptchaVerifier } from "firebase/auth";
-import { Models } from "node-appwrite";
+import {
+  Dispatch,
+  KeyboardEvent,
+  MutableRefObject,
+  ReactNode,
+  SetStateAction,
+} from "react";
+import { RecaptchaVerifier, User } from "firebase/auth";
 import * as v from "valibot";
 import { InferIssue } from "valibot";
 
@@ -156,4 +160,38 @@ export type SideBarProps = {
   avatar_image: string;
   username: string;
   userEmail: string;
+};
+
+export type UserInfo = {
+  avatar_image: string;
+  name: string;
+  user_id: string;
+};
+
+export type UserTagProps = {
+  name: string;
+  index: number;
+  avatar_image: string;
+  deselectUser: (index: number) => void;
+};
+
+export type SuggestionsPopOverProps = {
+  suggestions: UserInfo[];
+  showSuggestions: boolean;
+  setShowSuggestions: Dispatch<SetStateAction<boolean>>;
+  addSelectedUser: (index: number) => void;
+  suggestionsRef: {
+    suggestionsContainer: MutableRefObject<HTMLDivElement | null>;
+    suggestionsFirstItem: MutableRefObject<HTMLDivElement | null>;
+  };
+};
+
+export type MentionInputProps = {
+  clearInput: boolean;
+  selectedUsers: UserInfo[];
+  showSuggestions: boolean;
+  setClearInput: Dispatch<SetStateAction<boolean>>;
+  setShowSuggestions: Dispatch<SetStateAction<boolean>>;
+  debounceFetchUsers: (query: string) => void;
+  deletePreviousSelectedUser: (e: KeyboardEvent<HTMLInputElement>) => void;
 };

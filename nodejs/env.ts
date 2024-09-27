@@ -1,0 +1,9 @@
+export const APPWRITE_ENDPOINT = process.env.APPWRITE_ENDPOINT!;
+export const APPWRITE_PROJECT_ID = process.env.APPWRITE_PROJECT_ID!;
+
+export const DATABASE_ID = process.env.DATABASE_ID!;
+export const USERS_COLLECTION_ID = process.env.USERS_COLLECTION_ID!;
+export const CONVERSATIONS_COLLECTION_ID =
+  process.env.CONVERSATIONS_COLLECTION_ID!;
+export const USER_CONVERSATIONS_COLLECTION_ID =
+  process.env.USER_CONVERSATIONS_COLLECTION_ID!;

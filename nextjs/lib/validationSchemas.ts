@@ -113,3 +113,8 @@ export const profileDetailsFormSchema = v.objectAsync({
 export const OTPSchema = v.object({
   otp: v.pipe(v.string(), v.length(6, "OTP must be 6 characters long")),
 });
+
+export const SelectedUsersIdsSchema = v.array(
+  v.string(),
+  "An array of user Ids is required.",
+);

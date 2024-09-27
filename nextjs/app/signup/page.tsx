@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import SignupForm from "@/components/auth/SignupForm";
-import Logo from "@/components/Logo";
+import Logo from "@/components/icons/Logo";
 
 import emailIcon from "@/assets/emailIcon.svg";
 

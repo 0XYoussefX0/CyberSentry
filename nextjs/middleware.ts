@@ -1,12 +1,18 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { getUser } from "@/lib/appwrite/utils";
+import { getUser } from "@/lib/appwrite/server";
 import { DATABASE_ID, USERS_COLLECTION_ID } from "@/lib/env";
 
 import { createSessionClient } from "./lib/appwrite/server";
 
-const publicPaths = ["/signup", "/login", "/forgotpassword", "/resetpassword"];
+const publicPaths = [
+  "/signup",
+  "/login",
+  "/forgotpassword",
+  "/resetpassword",
+  "/error",
+];
 
 export async function middleware(request: NextRequest) {
   const { account, databases } = await createSessionClient();

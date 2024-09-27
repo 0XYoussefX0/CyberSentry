@@ -24,7 +24,7 @@ export const ForgotPassword = () => {
           <Section style={logo}>
             <Img
               width={150}
-              src="https://kyymsekbpdnvwmnhozrv.supabase.co/storage/v1/object/public/Email_assets/logo.png"
+              src="http://localhost/v1/storage/buckets/66f05e0e001e13410008/files/66f05ec20035bec76102/view?project=66d9edab001522e8390b&project=66d9edab001522e8390b&mode=admin"
             />
           </Section>
           <Section style={sectionsBorders}>
@@ -35,11 +35,7 @@ export const ForgotPassword = () => {
             </Row>
           </Section>
           <Section style={content}>
-            {/* the next paragraph is replaced by the following code in production: 
-  <p style="font-size:14px;line-height:1.5;margin:16px 0">
-  {{ if .Data.full_name }}Hi {{ .Data.full_name }} 👋,{{ else }}Hi There 👋,{{ end }}
-</p> */}
-            <Text style={paragraph}>Hi X,</Text>
+            <Text style={paragraph}>Hi There 👋,</Text>
             <Text style={paragraph}>
               We received a request to reset the password for your CyberSentry
               account. No worries—it's easy to get back on track!
@@ -77,7 +73,7 @@ export const ForgotPassword = () => {
               <Link href="https://www.facebook.com">
                 <Img
                   style={{ width: 20, height: 20 }}
-                  src="https://kyymsekbpdnvwmnhozrv.supabase.co/storage/v1/object/public/Email_assets/Facebook_Logo_Primary.png"
+                  src="http://localhost/v1/storage/buckets/66f05e0e001e13410008/files/66f05eac0013bd86d929/view?project=66d9edab001522e8390b&project=66d9edab001522e8390b&mode=admin"
                 />
               </Link>
             </Column>
@@ -85,7 +81,7 @@ export const ForgotPassword = () => {
               <Link href="https://www.instagram.com">
                 <Img
                   style={{ width: 20, height: 20 }}
-                  src="https://kyymsekbpdnvwmnhozrv.supabase.co/storage/v1/object/public/Email_assets/Instagram_Glyph_Gradient.png"
+                  src="http://localhost/v1/storage/buckets/66f05e0e001e13410008/files/66f05eba0021325fd1b9/view?project=66d9edab001522e8390b&project=66d9edab001522e8390b&mode=admin"
                 />
               </Link>
             </Column>
@@ -93,7 +89,7 @@ export const ForgotPassword = () => {
               <Link href="https://x.com">
                 <Img
                   style={{ width: 20, height: 20 }}
-                  src="https://kyymsekbpdnvwmnhozrv.supabase.co/storage/v1/object/public/Email_assets/logo-black.png?t=2024-08-25T11%3A16%3A27.242Z"
+                  src="http://localhost/v1/storage/buckets/66f05e0e001e13410008/files/66f05eca000438a28670/view?project=66d9edab001522e8390b&project=66d9edab001522e8390b&mode=admin"
                 />
               </Link>
             </Column>

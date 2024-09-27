@@ -1,11 +1,21 @@
 "use client";
 
-import { MouseEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, MouseEvent, useEffect, useRef, useState } from "react";
+import { ID } from "appwrite";
 import EmojiPicker, { EmojiClickData, EmojiStyle } from "emoji-picker-react";
 
+import { createClient } from "@/lib/appwrite/client";
+import {
+  CONVERSATIONS_COLLECTION_ID,
+  DATABASE_ID,
+  MESSAGES_COLLECTION_ID,
+  USER_CONVERSATIONS_COLLECTION_ID,
+} from "@/lib/env";
 import { startCounter, stopCounter } from "@/lib/utils";
+import useSocketStore from "@/lib/zustand/socketStore";
+import useMessagesStore from "@/lib/zustand/useMessagesStore";
 
-import CancelIcon from "@/components/CancelIcon";
+import CancelIcon from "@/components/icons/CancelIcon";
 import MicInput from "@/components/MicInput";
 
 import emojiIcon from "@/assets/emojiIcon.svg";
@@ -13,11 +23,15 @@ import emojiIcon from "@/assets/emojiIcon.svg";
 import AudioVisualizer from "./AudioVisualizer";
 import { Button } from "./ui/Button";
 
-function MessageInput() {
+function MessageInput({ roomID, userID }: { roomID: string; userID: string }) {
   const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
 
-  const messageInputContainer = useRef<HTMLDivElement>(null);
+  const [inputValue, setInputValue] = useState("");
+
+  const socket = useSocketStore((state) => state.socket);
+
+  const messageInputContainer = useRef<HTMLFormElement>(null);
   const messageInput = useRef<HTMLTextAreaElement>(null);
 
   const handleFocus = () => {
@@ -43,7 +57,7 @@ function MessageInput() {
   const handleEmojiClick = (emojiData: EmojiClickData) => {
     if (messageInput.current) {
       messageInput.current.focus();
-      messageInput.current.value += emojiData.emoji;
+      setInputValue((prev) => prev + emojiData.emoji);
     }
   };
 
@@ -89,8 +103,6 @@ function MessageInput() {
         alert("Error accessing the microphone");
       }
     })();
-
-    // add clean up function
   }, []);
 
   const [timer, setTimer] = useState("00:00");
@@ -115,7 +127,70 @@ function MessageInput() {
     setTimer("00:00");
   };
 
-  const sendRecording = () => {};
+  const setMessages = useMessagesStore((state) => state.setMessages);
+  const updateStatus = useMessagesStore((state) => state.updateStatus);
+
+  const sendMessage = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!socket) return;
+
+    const message = inputValue;
+    const message_id = ID.unique();
+
+    setMessages(
+      {
+        content: message,
+        sender_id: userID,
+        timestamp: String(new Date()),
+        status: undefined,
+      },
+      message_id,
+    );
+
+    socket.emit("message", { roomID, message, message_id }, () => {
+      updateStatus(message_id, "sent");
+    });
+
+    setInputValue("");
+
+    // await databases.createDocument(
+    //   DATABASE_ID,
+    //   MESSAGES_COLLECTION_ID,
+    //   message_id,
+    //   {
+    //     message_id,
+    //     sender_id: userID,
+    //     content: message,
+    //     read_by: [],
+    //     conversation_id: roomID,
+    //   },
+    // );
+
+    // await databases.updateDocument(
+    //   DATABASE_ID,
+    //   CONVERSATIONS_COLLECTION_ID,
+    //   roomID,
+    //   {
+    //     last_message_info: message_id,
+    //   },
+    // );
+
+    // await databases.listDocuments(
+    //   DATABASE_ID,
+    //   USER_CONVERSATIONS_COLLECTION_ID,
+    // );
+
+    // await databases.updateDocument(
+    //   DATABASE_ID,
+    //   USER_CONVERSATIONS_COLLECTION_ID,
+    //   roomID,
+    //   {
+    //     unread_count: 1,
+    //   },
+    // );
+  };
+
+  const sendAudio = () => {};
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -143,11 +218,14 @@ function MessageInput() {
           <button onClick={cancelRecording} aria-label="Cancel recording">
             <CancelIcon />
           </button>
-          <Button className="px-3.5 text-sm">Send</Button>
+          <Button className="px-3.5 text-sm" onClick={() => sendAudio()}>
+            Send
+          </Button>
         </div>
       </div>
 
-      <div
+      <form
+        onSubmit={sendMessage}
         style={{
           transform: isRecording ? "translateY(120%)" : "translateY(0%)",
         }}
@@ -155,6 +233,8 @@ function MessageInput() {
         className="cursor-text rounded-lg outline outline-1 outline-transparent transition-all"
       >
         <textarea
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
           ref={messageInput}
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -171,12 +251,12 @@ function MessageInput() {
             isRecording={isRecording}
           />
           <button
+            type="button"
             className="relative"
             onClick={() => setOpenEmojiPicker((prev) => !prev)}
           >
             <img src={emojiIcon.src} alt="" />
             <div className="absolute bottom-full right-0 mb-2">
-              {/* test this component in production and see if it still lagging, if it is then render the component as soon as the page loads, so that the emojis load */}
               <EmojiPicker
                 onEmojiClick={handleEmojiClick}
                 open={openEmojiPicker}
@@ -187,7 +267,7 @@ function MessageInput() {
           </button>
           <Button className="px-3.5 text-sm">Send</Button>
         </div>
-      </div>
+      </form>
     </div>
   );
 }

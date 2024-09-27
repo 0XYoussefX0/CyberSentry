@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import { AppwriteException } from "node-appwrite";
 
-import { createSessionClient } from "@/lib/appwrite/server";
-import { getUser } from "@/lib/appwrite/utils";
+import { createSessionClient, getUser } from "@/lib/appwrite/server";
 import { DATABASE_ID, USERS_COLLECTION_ID } from "@/lib/env";
 
 import OnBoardingWrapper from "@/components/onBoardingWrapper";

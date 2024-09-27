@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AppwriteException } from "node-appwrite";
 
-import { createSessionClient } from "@/lib/appwrite/server";
-import { getUser } from "@/lib/appwrite/utils";
+import { createSessionClient, getUser } from "@/lib/appwrite/server";
 import { DATABASE_ID, USERS_COLLECTION_ID } from "@/lib/env";
+
 import { Toaster } from "@/components/ui/toaster";
+import ConnectToSocket from "@/components/ConnectToSocket";
 import SideBar from "@/components/SideBar";
 
 export const metadata: Metadata = {
@@ -49,6 +50,7 @@ export default async function RootLayout({
 
   return (
     <>
+      <ConnectToSocket />
       <SideBar
         avatar_image={avatar_image}
         username={user.name}
