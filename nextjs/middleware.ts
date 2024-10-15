@@ -12,54 +12,55 @@ const publicPaths = [
   "/forgotpassword",
   "/resetpassword",
   "/error",
+  "/home",
 ];
 
 export async function middleware(request: NextRequest) {
-  const { account, databases } = await createSessionClient();
-  const user = await getUser(account);
+  // const { account, databases } = await createSessionClient();
+  // const user = await getUser(account);
 
-  const currentRoute = request.nextUrl.pathname;
+  // const currentRoute = request.nextUrl.pathname;
 
-  const currentRouteIsPublic = publicPaths.some(
-    (route) => currentRoute === route,
-  );
+  // const currentRouteIsPublic = publicPaths.some(
+  //   (route) => currentRoute === route,
+  // );
 
-  if (!user && !currentRouteIsPublic) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
-  }
+  // if (!user && !currentRouteIsPublic) {
+  //   const url = request.nextUrl.clone();
+  //   url.pathname = "/login";
+  //   return NextResponse.redirect(url);
+  // }
 
-  if (user && currentRouteIsPublic) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/";
-    return NextResponse.redirect(url);
-  }
+  // if (user && currentRouteIsPublic) {
+  //   const url = request.nextUrl.clone();
+  //   url.pathname = "/";
+  //   return NextResponse.redirect(url);
+  // }
 
-  if (
-    user &&
-    !currentRouteIsPublic &&
-    currentRoute !== "/onboarding" &&
-    currentRoute !== "/confirmEmail"
-  ) {
-    try {
-      const { completed_onboarding } = await databases.getDocument(
-        DATABASE_ID,
-        USERS_COLLECTION_ID,
-        user.$id,
-      );
+  // if (
+  //   user &&
+  //   !currentRouteIsPublic &&
+  //   currentRoute !== "/onboarding" &&
+  //   currentRoute !== "/confirmEmail"
+  // ) {
+  //   try {
+  //     const { completed_onboarding } = await databases.getDocument(
+  //       DATABASE_ID,
+  //       USERS_COLLECTION_ID,
+  //       user.$id,
+  //     );
 
-      if (!completed_onboarding) {
-        const url = request.nextUrl.clone();
-        url.pathname = "/onboarding";
-        return NextResponse.redirect(url);
-      }
-    } catch (e) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/error";
-      return NextResponse.redirect(url);
-    }
-  }
+  //     if (!completed_onboarding) {
+  //       const url = request.nextUrl.clone();
+  //       url.pathname = "/onboarding";
+  //       return NextResponse.redirect(url);
+  //     }
+  //   } catch (e) {
+  //     const url = request.nextUrl.clone();
+  //     url.pathname = "/error";
+  //     return NextResponse.redirect(url);
+  //   }
+  // }
 
   return NextResponse.next();
 }

@@ -1,5 +1,6 @@
 export const APPWRITE_ENDPOINT = process.env.APPWRITE_ENDPOINT!;
 export const APPWRITE_PROJECT_ID = process.env.APPWRITE_PROJECT_ID!;
+export const APPWRITE_API_KEY = process.env.APPWRITE_API_KEY!;
 
 export const DATABASE_ID = process.env.DATABASE_ID!;
 export const USERS_COLLECTION_ID = process.env.USERS_COLLECTION_ID!;

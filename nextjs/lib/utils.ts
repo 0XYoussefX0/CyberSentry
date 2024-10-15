@@ -412,10 +412,6 @@ export const startCounter = (setTimer: Dispatch<SetStateAction<string>>) => {
   return counterId;
 };
 
-export const stopCounter = (counterId: NodeJS.Timeout) => {
-  clearInterval(counterId);
-};
-
 export const debounce = (fn: (...args: any[]) => void, delay: number) => {
   let timer: NodeJS.Timeout | number;
   return (...args: any[]) => {

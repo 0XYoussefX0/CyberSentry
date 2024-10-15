@@ -17,6 +17,7 @@ import useMessagesStore from "@/lib/zustand/useMessagesStore";
 
 import CancelIcon from "@/components/icons/CancelIcon";
 import MicInput from "@/components/MicInput";
+import Timer from "@/components/Timer";
 
 import emojiIcon from "@/assets/emojiIcon.svg";
 
@@ -88,58 +89,47 @@ function MessageInput({ roomID, userID }: { roomID: string; userID: string }) {
         mediaRecorderRef.current.addEventListener("dataavailable", (e) => {
           audioRef.current.push(e.data);
         });
-
-        mediaRecorderRef.current.addEventListener("stop", (e) => {
-          const blob = new Blob(audioRef.current, {
-            type: "audio/wav; codecs=opus",
-          });
-
-          const file = new File([blob], "audio.wav", {
-            type: "audio/wav",
-            lastModified: new Date().getTime(),
-          });
-        });
       } catch (e) {
         alert("Error accessing the microphone");
       }
     })();
   }, []);
 
-  const [timer, setTimer] = useState("00:00");
+  const [startCounting, setStartCounting] = useState(false);
 
-  const counterId = useRef<NodeJS.Timeout>();
   const startRecording = async () => {
     if (!mediaRecorderRef.current) return;
     // check if you already have permission
 
     audioRef.current = [];
     mediaRecorderRef.current.start();
-    counterId.current = startCounter(setTimer);
+    setStartCounting(true);
     setIsRecording(true);
   };
 
   const cancelRecording = () => {
     if (!mediaRecorderRef.current) return;
 
+    audioRef.current = [];
     mediaRecorderRef.current.stop();
     setIsRecording(false);
-    stopCounter(counterId.current!);
-    setTimer("00:00");
+    setStartCounting(false);
   };
 
   const setMessages = useMessagesStore((state) => state.setMessages);
-  const updateStatus = useMessagesStore((state) => state.updateStatus);
 
   const sendMessage = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!socket) return;
 
-    const message = inputValue;
+    const messageContent = inputValue;
     const message_id = ID.unique();
+    const type = "text";
 
     setMessages(
       {
-        content: message,
+        type,
+        content: messageContent,
         sender_id: userID,
         timestamp: String(new Date()),
         status: undefined,
@@ -147,9 +137,7 @@ function MessageInput({ roomID, userID }: { roomID: string; userID: string }) {
       message_id,
     );
 
-    socket.emit("message", { roomID, message, message_id }, () => {
-      updateStatus(message_id, "sent");
-    });
+    socket.emit("message", { roomID, messageContent, message_id, type });
 
     setInputValue("");
 
@@ -190,7 +178,41 @@ function MessageInput({ roomID, userID }: { roomID: string; userID: string }) {
     // );
   };
 
-  const sendAudio = () => {};
+  const sendAudio = () => {
+    if (!mediaRecorderRef.current || !socket) return;
+
+    mediaRecorderRef.current.stop();
+    setStartCounting(false);
+
+    const blob = new Blob(audioRef.current, {
+      type: "audio/wav; codecs=opus",
+    });
+
+    const file = new File([blob], "audio.wav", {
+      type: "audio/wav",
+      lastModified: new Date().getTime(),
+    });
+
+    const message_id = ID.unique();
+    const messageContent = file;
+    const type = "audio";
+
+    setMessages(
+      {
+        type,
+        content: messageContent,
+        sender_id: userID,
+        timestamp: String(new Date()),
+        status: undefined,
+      },
+      message_id,
+    );
+
+    socket.emit("message", { roomID, messageContent, message_id, type });
+
+    setIsRecording(false);
+    audioRef.current = [];
+  };
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -203,7 +225,7 @@ function MessageInput({ roomID, userID }: { roomID: string; userID: string }) {
         className="flex flex-col transition-transform"
       >
         <div className="flex w-full items-center gap-2">
-          <div>{timer}</div>
+          <Timer startCounting={startCounting} />
           <div ref={containerRef} className="flex-1">
             <AudioVisualizer
               isRecording={isRecording}

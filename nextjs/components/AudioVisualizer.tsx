@@ -15,6 +15,7 @@ function AudioVisualizer({
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  console.log("rerender");
   useEffect(() => {
     if (
       !canvasRef.current ||

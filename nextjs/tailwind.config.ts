@@ -14,6 +14,7 @@ const config: Config = {
         "skeumorphic-inner-border": "0px 0px 0px 1px rgba(16, 24, 40, 0.18)",
       },
       screens: {
+        smx: "420px",
         lp: "960px",
       },
       keyframes: {
