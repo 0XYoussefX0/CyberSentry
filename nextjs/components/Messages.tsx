@@ -21,6 +21,7 @@ function Messages({ userID }: { userID: string }) {
 
         return (
           <div
+            key={message_id}
             className={`flex gap-1.5 flex-col ${messageIsMine ? "items-end" : "items-start"}`}
           >
             <div

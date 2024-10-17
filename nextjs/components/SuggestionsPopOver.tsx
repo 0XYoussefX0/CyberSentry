@@ -41,6 +41,7 @@ const SuggestionsPopOver = ({
           {suggestions &&
             suggestions.map(({ avatar_image, name }, index) => (
               <ListBoxItem
+                key={index}
                 {...(index === 0 ? { ref: suggestionsFirstItem } : {})}
                 onAction={() => addSelectedUser(index)}
                 className="py-2.5 hover:bg-gray-200 bg-transparent transition-colors rounded-md cursor-pointer px-2 flex items-center gap-2"

@@ -198,6 +198,7 @@ function CreateRoomModal() {
             {selectedUsers &&
               selectedUsers.map(({ name, avatar_image }, index) => (
                 <UserTag
+                  key={name}
                   name={name}
                   avatar_image={avatar_image}
                   index={index}

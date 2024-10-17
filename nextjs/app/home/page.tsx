@@ -406,7 +406,7 @@ const tools = [
   },
 ];
 
-export default function page() {
+export default function Page() {
   useEffect(() => {
     const lenis = new Lenis();
 
@@ -496,7 +496,7 @@ export default function page() {
             <div className="flex justify-between h-full flex-col">
               <ul className="flex flex-col gap-2">
                 {navigationLinks.map((link) => (
-                  <li className="py-2 flex items-center gap-2 px-2">
+                  <li key={link} className="py-2 flex items-center gap-2 px-2">
                     <a
                       onClick={() => setOpenHamburgerMenu(false)}
                       href={`#${link}_section`}
@@ -591,7 +591,7 @@ export default function page() {
             </p>
             <div className="grid grid-cols-1 gap-4 mt-8">
               {tools.map(({ colors, ...props }) => (
-                <Card {...props}>
+                <Card key={props.title} {...props}>
                   <CanvasRevealEffect
                     animationSpeed={5.1}
                     containerClassName={"bg-black"}
@@ -654,16 +654,16 @@ const TeamSection = () => {
         </h3>
       </div>
       <p className="mt-1 text-[18px] leading-7 text-gray-600">
-        Our dedicated team of cybersecurity professionals combines expertise in
-        pentesting and innovative technology. With a passion for security, we're
-        committed to providing you with the best tools to protect your business.
+        {
+          " Our dedicated team of cybersecurity professionals combines expertise in pentesting and innovative technology. With a passion for security, we're committed to providing you with the best tools to protect your business."
+        }
       </p>
       <div>
         <Carousel className="cursor-grab active:cursor-grabbing">
           <CarouselContent>
-            {teamMembers.map((teamMember) => {
+            {teamMembers.map((teamMember, index) => {
               return (
-                <CarouselItem className="group">
+                <CarouselItem key={index} className="group">
                   <TeamMemberCard teamMember={teamMember} />
                 </CarouselItem>
               );
@@ -688,7 +688,7 @@ const Footer = () => {
 
       <ul className="grid grid-cols-1 smx:grid-cols-2 gap-3">
         {navigationLinks.map((link) => (
-          <li>
+          <li key={link}>
             <Link href={`#${link}_section`} className="font-semibold ">
               {link}
             </Link>
@@ -716,7 +716,7 @@ const TeamMemberCard = ({ teamMember }: { teamMember: TeamMember }) => {
 
         <ul className="flex gap-5">
           {socials.map(({ name, link, icon }) => (
-            <li>
+            <li key={name}>
               <Link aria-label={`${name} profile link`} href={link}>
                 <img
                   src={icon.src}
@@ -871,7 +871,7 @@ interface TextRevealByWordProps {
   secondText: string;
 }
 
-export const TextRevealByWord2: FC<TextRevealByWordProps> = ({
+const TextRevealByWord2: FC<TextRevealByWordProps> = ({
   firstText,
   secondText,
   className,

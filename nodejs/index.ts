@@ -26,9 +26,9 @@ import {
   WebRtcTransportOptions,
 } from "mediasoup/node/lib/types.js";
 
-const redis = await createClient()
-  .on("error", (err) => console.log("Redis Client Error", err))
-  .connect();
+// const redis = await createClient()
+//   .on("error", (err) => console.log("Redis Client Error", err))
+//   .connect();
 
 const app = express();
 const server = createServer(app);
@@ -171,13 +171,13 @@ io.use(async (socket, next) => {
 io.on("connection", async (socket) => {
   const user = socket.data.user as Models.User<Models.Preferences>;
 
-  redis.SADD(user.$id, socket.id);
+  // redis.SADD(user.$id, socket.id);
 
   io.to("").emit("user_has_connected", () => {});
 
-  socket.on("disconnect", () => {
-    redis.SREM(user.$id, socket.id);
-  });
+  // socket.on("disconnect", () => {
+  //   redis.SREM(user.$id, socket.id);
+  // });
 
   const database = socket.data.database as Databases;
 

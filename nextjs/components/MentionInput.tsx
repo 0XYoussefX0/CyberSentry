@@ -54,4 +54,6 @@ const MentionInput = forwardRef<HTMLInputElement, MentionInputProps>(
   },
 );
 
+MentionInput.displayName = "MentionInput";
+
 export default MentionInput;

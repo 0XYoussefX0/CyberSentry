@@ -304,8 +304,10 @@ export default function ProfileDetails({ nextStep }: { nextStep: () => void }) {
                   </p>
                 </div>
               </div>
-              {formErrors.avatarImage.map((error) => (
-                <p className="text-red-500 text-sm font-normal">{error}</p>
+              {formErrors.avatarImage.map((error, i) => (
+                <p key={i} className="text-red-500 text-sm font-normal">
+                  {error}
+                </p>
               ))}
             </div>
             <div className="flex flex-col gap-1.5">
@@ -316,8 +318,10 @@ export default function ProfileDetails({ nextStep }: { nextStep: () => void }) {
                 name="fullname"
                 placeholder="Enter your name"
               />
-              {formErrors.fullname.map((error) => (
-                <p className="text-red-500 text-sm font-normal">{error}</p>
+              {formErrors.fullname.map((error, i) => (
+                <p key={i} className="text-red-500 text-sm font-normal">
+                  {error}
+                </p>
               ))}
             </div>
             <Button className="mt-1" disabled={loading}>

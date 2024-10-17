@@ -5,10 +5,9 @@ import { createServer } from "http";
 import cookieParser from "cookie-parser";
 import { APPWRITE_API_KEY, APPWRITE_ENDPOINT, APPWRITE_PROJECT_ID, DATABASE_ID, USERS_COLLECTION_ID, } from "./env.js";
 import mediasoup from "mediasoup";
-import { createClient } from "redis";
-const redis = await createClient()
-    .on("error", (err) => console.log("Redis Client Error", err))
-    .connect();
+// const redis = await createClient()
+//   .on("error", (err) => console.log("Redis Client Error", err))
+//   .connect();
 const app = express();
 const server = createServer(app);
 const worker = await mediasoup.createWorker({
@@ -87,11 +86,11 @@ io.use(async (socket, next) => {
 });
 io.on("connection", async (socket) => {
     const user = socket.data.user;
-    redis.SADD(user.$id, socket.id);
+    // redis.SADD(user.$id, socket.id);
     io.to("").emit("user_has_connected", () => { });
-    socket.on("disconnect", () => {
-        redis.SREM(user.$id, socket.id);
-    });
+    // socket.on("disconnect", () => {
+    //   redis.SREM(user.$id, socket.id);
+    // });
     const database = socket.data.database;
     const { conversations } = await database.getDocument(DATABASE_ID, USERS_COLLECTION_ID, user.$id);
     if (conversations.length > 0) {
