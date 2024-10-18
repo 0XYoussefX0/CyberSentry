@@ -579,6 +579,6 @@ io.on("connection", async (socket) => {
 
 // informOtherUsers
 
-server.listen(3001, () => {
-  console.log("listening on *:3001");
+server.listen(4000, () => {
+  console.log("listening on *:4000");
 });
