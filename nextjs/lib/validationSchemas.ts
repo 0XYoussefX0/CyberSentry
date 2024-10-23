@@ -1,4 +1,3 @@
-import type shrp from "sharp";
 import * as v from "valibot";
 
 export const EmailSchema = v.object({
@@ -34,53 +33,29 @@ export const LoginSchema = v.object({
   rememberMe: v.boolean(),
 });
 
-let sharp: typeof shrp;
-
-if (typeof window === "undefined") {
-  const { default: sharpModule } = await import("sharp");
-  sharp = sharpModule;
-}
-
 const imageDimensionValidator = async (input: File): Promise<boolean> => {
-  if (typeof window !== "undefined") {
-    return new Promise((resolve, reject) => {
-      const url = URL.createObjectURL(input);
-      const img = new Image();
-      img.src = url;
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(input);
+    const img = new Image();
+    img.src = url;
 
-      img.onload = () => {
-        if (
-          img.width >= 256 &&
-          img.height >= 256 &&
-          img.width <= 5000 &&
-          img.height <= 5000
-        ) {
-          resolve(true);
-        } else {
-          resolve(false);
-        }
-      };
-
-      img.onerror = () => {
+    img.onload = () => {
+      if (
+        img.width >= 256 &&
+        img.height >= 256 &&
+        img.width <= 5000 &&
+        img.height <= 5000
+      ) {
+        resolve(true);
+      } else {
         resolve(false);
-      };
-    });
-  } else {
-    const { default: sharp } = await import("sharp");
-
-    const arrayBuffer = await input.arrayBuffer();
-    const imageBuffer = Buffer.from(arrayBuffer);
-    try {
-      const { width, height } = await sharp(imageBuffer).metadata();
-      if (!width || !height) return false;
-      if (width >= 256 && width <= 5000 && height >= 256 && height <= 5000) {
-        return true;
       }
-      return false;
-    } catch (e) {
-      return false;
-    }
-  }
+    };
+
+    img.onerror = () => {
+      resolve(false);
+    };
+  });
 };
 
 export const avatarImageSchema = v.objectAsync({

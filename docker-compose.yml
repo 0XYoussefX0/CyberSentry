@@ -3,10 +3,11 @@ services:
     build: ./nextjs
     ports:
       - "3000:3000"
-    # environment:
-    #   - NODE_ENV=production
+    environment:
+      NODE_ENV: ${ENV}
     depends_on:
-      - db
+      api:
+        condition: service_healthy
     networks:
       - my_network
 
@@ -16,6 +17,12 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d database"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
     ports:
       - "5432:5432"
     volumes:
@@ -23,24 +30,91 @@ services:
     networks:
       - my_network
 
+  drizzle-studio:
+    build:
+      context: ./nodejs
+      dockerfile: ./drizzle/Dockerfile
+      target: ${ENV}
+    environment:
+      DATABASE_URL_EXTERNAL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}
+    depends_on:
+      db:
+        condition: service_healthy
+    network_mode: host
+
   redis:
     image: redis/redis-stack-server:latest
     ports:
       - "6379:6379"
+    environment:
+      REDIS_ARGS: "--requirepass ${REDIS_PASSWORD} --appendonly yes"
+    volumes:
+      - redis_cache:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli", "PING"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     networks:
       - my_network
 
   api:
-    build: ./nodejs
+    build:
+      context: ./nodejs
+      dockerfile: Dockerfile
+      target: ${ENV}
     ports:
       - "4000:4000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      s3_storage:
+        condition: service_healthy
     networks:
       - my_network
+    environment:
+      NODE_ENV: ${ENV}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    healthcheck:
+      test: ["CMD-SHELL", "curl http://localhost:4000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  s3_storage:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - s3_storage_data:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    networks:
+      - my_network
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "sh",
+          "-c",
+          "mc alias set myminio http://localhost:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD && mc ready myminio",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
 
 volumes:
   postgres_data:
+  s3_storage_data:
+  redis_cache:
 
 networks:
   my_network:

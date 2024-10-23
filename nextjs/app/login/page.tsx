@@ -17,7 +17,7 @@ export default async function Login() {
   //       <LoginForm />
   //       <div className="justify-between items-center w-full hidden lg:flex">
   //         <div className="font-normal text-sm leading-5 text-gray-600">
-  //           © CyberSentry 2024
+  //           © IMS Technology 2024
   //         </div>
   //         <div className="flex items-center gap-2">
   //           <img src={emailIcon.src} alt="" className="w-4 h-4 mt-[3px]" />

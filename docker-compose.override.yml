@@ -1,0 +1,12 @@
+services:
+  next_app:
+    volumes:
+      - ./nextjs:/nextjs
+
+  drizzle-studio:
+    volumes:
+      - ./nodejs/src/models:/drizzle-studio/models
+
+  api:
+    volumes:
+      - ./nodejs:/nodejs

@@ -7,13 +7,9 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "moduleResolution": "node16",
-    "baseUrl": "./",
-    "paths": {
-      "@/*": ["src/*"]
-    },
     "outDir": "dist",
     "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */
   },
-  "include": ["src/**/*"],
+  "include": ["./**/*"],
   "exclude": ["node_modules"]
 }

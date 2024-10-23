@@ -509,7 +509,7 @@ export default function Page() {
               </ul>
               <div className="flex gap-2">
                 <Button className="w-1/2" variant={"secondary"}>
-                  Signup
+                  Signupf
                 </Button>
                 <Button className="w-1/2">Login</Button>
               </div>

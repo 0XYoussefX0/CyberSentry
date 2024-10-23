@@ -1,21 +1,26 @@
 #!/bin/bash
 
-# Env Vars
-if [ -f "./.env" ]; then
-    export $(grep -v '^#' "./.env" | xargs)
+# Update package list and upgrade existing packages
+sudo apt update && sudo apt upgrade -y
+
+# Get the env variables needed to run the app
+if [ -f .env ]; then
+      echo ".env already exists, skipping download"
 else
-    echo ".env file not found. Exiting."
-    exit 1
+      sudo curl -o .env https://raw.githubusercontent.com/0XYoussefX0/CyberSentry/refs/heads/main/.env.example
+      echo "a .env file has been added in this directory, open it and populate it with the right values before procceding with the deployment."
+      exit 1
 fi
-POSTGRES_PASSWORD=$(openssl rand -base64 12)  # Generate a random 12-character password
+
+# copying .env file to the app directory
+cp .env /$APP_DIR/
 
 # Script Vars
 REPO_URL="https://github.com/0XYoussefX0/CyberSentry"
 APP_DIR=~/myapp
 SWAP_SIZE="1G"  # Swap size of 1GB
-
-# Update package list and upgrade existing packages
-sudo apt update && sudo apt upgrade -y
+DOMAIN_NAME=$(grep '^DOMAIN_NAME=' .env | cut -d '=' -f2-)
+EMAIL=$(grep '^EMAIL=' .env | cut -d '=' -f2-)
 
 # Add Swap Space
 echo "Adding swap space..."
@@ -69,23 +74,6 @@ else
   git clone $REPO_URL $APP_DIR
   cd $APP_DIR
 fi
-
-# For Docker internal communication ("db" is the name of Postgres container)
-DATABASE_URL="postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$POSTGRES_DB"
-
-# For external tools (like Drizzle Studio)
-DATABASE_URL_EXTERNAL="postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/$POSTGRES_DB"
-
-# Create the .env file inside the app directory (~/myapp/.env)
-echo "POSTGRES_USER=$POSTGRES_USER" > "$APP_DIR/.env"
-echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> "$APP_DIR/.env"
-echo "POSTGRES_DB=$POSTGRES_DB" >> "$APP_DIR/.env"
-echo "DATABASE_URL=$DATABASE_URL" >> "$APP_DIR/.env"
-echo "DATABASE_URL_EXTERNAL=$DATABASE_URL_EXTERNAL" >> "$APP_DIR/.env"
-
-# These are just for the demo of env vars
-echo "SECRET_KEY=$SECRET_KEY" >> "$APP_DIR/.env"
-echo "NEXT_PUBLIC_SAFE_KEY=$NEXT_PUBLIC_SAFE_KEY" >> "$APP_DIR/.env"
 
 # Install Nginx
 sudo apt install nginx -y
@@ -168,12 +156,3 @@ fi
 # Output final message
 echo "Deployment complete. Your Next.js app and PostgreSQL database are now running. 
 Next.js is available at https://$DOMAIN_NAME, and the PostgreSQL database is accessible from the web service.
-
-The .env file has been created with the following values:
-- POSTGRES_USER
-- POSTGRES_PASSWORD (randomly generated)
-- POSTGRES_DB
-- DATABASE_URL
-- DATABASE_URL_EXTERNAL
-- SECRET_KEY
-- NEXT_PUBLIC_SAFE_KEY"
