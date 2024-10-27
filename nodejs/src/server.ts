@@ -70,6 +70,7 @@ const checkAuth = async (req: Request, res: Response, next: NextFunction) => {
   }
 
   setSessionTokenCookie(res, token, session.expiresAt, session.rememberMe);
+  next();
 };
 
 app.use(checkAuth);
@@ -168,12 +169,12 @@ const mediaCodecs: RtpCodecCapability[] = [
 const webRtcTransport_options: WebRtcTransportOptions<AppData> = {
   listenIps: [
     {
-      ip: "0.0.0.0",
-      announcedIp: "10.0.0.115",
+      ip: process.env.SERVER_PUBLIC_IP!,
+      announcedIp: process.env.SERVER_PUBLIC_IP!,
     },
   ],
   enableUdp: true,
-  enableTcp: true,
+  enableTcp: false,
   preferUdp: true,
 };
 
