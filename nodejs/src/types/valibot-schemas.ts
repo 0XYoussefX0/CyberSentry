@@ -17,21 +17,23 @@ const imageDimensionValidator = async (input: File): Promise<boolean> => {
 };
 
 export const UserImageShema = v.objectAsync({
-  user_image: v.pipeAsync(
-    v.file("Please select an image file."),
-    v.mimeType(
-      ["image/jpeg", "image/png", "image/jpg"],
-      "Please select a JPEG or PNG file"
-    ),
-    v.maxSize(2000 * 1024, "Please select a file smaller than 2MB"),
-    v.checkAsync(
-      imageDimensionValidator,
-      "Image must be between 256x256px and 5000x5000px"
+  user_image: v.optionalAsync(
+    v.pipeAsync(
+      v.file("Please select an image file."),
+      v.mimeType(
+        ["image/jpeg", "image/png", "image/jpg"],
+        "Please select a JPEG or PNG file"
+      ),
+      v.maxSize(2000 * 1024, "Please select a file smaller than 2MB"),
+      v.checkAsync(
+        imageDimensionValidator,
+        "Image must be between 256x256px and 5000x5000px"
+      )
     )
   ),
 });
 
-export const SignUpSchema = v.objectAsync({
+const EmailPasswordSchemas = v.object({
   email: v.pipe(
     v.string(),
     v.nonEmpty("Email is required"),
@@ -41,16 +43,19 @@ export const SignUpSchema = v.objectAsync({
     v.string(),
     v.nonEmpty("Password is required"),
     v.minLength(8, "Your password is too short."),
-    v.regex(/[a-z]/, "Your password must contain a lowercase letter."),
-    v.regex(/[A-Z]/, "Your password must contain an uppercase letter."),
-    v.regex(/[0-9]/, "Your password must contain a number."),
-    v.regex(
-      /(?=.[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~])/,
-      "Your password must contain a special character."
-    )
+    v.maxLength(64, "Your password exceeds the maximum limit")
   ),
+});
+
+export const SignUpSchema = v.objectAsync({
+  ...EmailPasswordSchemas.entries,
   role: v.pipe(v.string(), v.nonEmpty("Role is required")),
   username: v.pipe(v.string(), v.nonEmpty("Name is required")),
   tag: v.pipe(v.string(), v.nonEmpty("Tag is required")),
   ...UserImageShema.entries,
+});
+
+export const LoginSchema = v.object({
+  ...EmailPasswordSchemas.entries,
+  rememberMe: v.boolean(),
 });

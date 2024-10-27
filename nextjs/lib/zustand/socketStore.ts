@@ -14,7 +14,7 @@ const useSocketStore = create<SocketState>((set, get) => ({
 
   intializeSocket: async () => {
     return new Promise((resolve) => {
-      const socket = io("http://localhost:3001", {
+      const socket = io("http://localhost:3001/ws", {
         withCredentials: true,
       });
 

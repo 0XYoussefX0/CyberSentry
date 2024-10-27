@@ -104,12 +104,18 @@ services:
           "CMD",
           "sh",
           "-c",
-          "mc alias set myminio http://localhost:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD && mc ready myminio",
+          "mc alias set myminio http://localhost:9000 $MINIO_ACCESS_KEY $MINIO_SECRET_KEY && mc ready myminio",
         ]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 40s
+
+  coturn:
+    image: coturn/coturn
+    network_mode: host
+    ports:
+      - ""
 
 volumes:
   postgres_data:

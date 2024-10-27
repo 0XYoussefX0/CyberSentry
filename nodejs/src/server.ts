@@ -1,6 +1,6 @@
 import { Server, Socket } from "socket.io";
 import { Client, Account, Databases, Query, Models } from "node-appwrite";
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import { createServer } from "http";
 import cookieParser from "cookie-parser";
 // import {
@@ -28,6 +28,12 @@ import {
 
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { appRouter, createContext } from "@/trpc/router.js";
+import {
+  deleteSessionTokenCookie,
+  setSessionTokenCookie,
+  signTheAdminUp,
+  validateSessionToken,
+} from "./config/auth.js";
 
 // const redis = await createClient()
 //   .on("error", (err) => console.log("Redis Client Error", err))
@@ -35,13 +41,48 @@ import { appRouter, createContext } from "@/trpc/router.js";
 
 const app = express();
 
+app.use(cookieParser());
+
+const handleRequest = (req: Request, res: Response, next: NextFunction) => {
+  const origin = req.get("Origin");
+
+  if (origin === null || origin !== `https://${process.env.DOMAIN_NAME}`) {
+    return res.status(403).json({ message: "Access forbidden" });
+  }
+
+  next();
+};
+
+if (process.env.ENV === "production") {
+  app.use(handleRequest);
+}
+
+const checkAuth = async (req: Request, res: Response, next: NextFunction) => {
+  const token = req.cookies.session;
+  if (token === null) {
+    return res.status(401).json("Unauthorized access");
+  }
+
+  const { session, user } = await validateSessionToken(token);
+  if (session === null) {
+    deleteSessionTokenCookie(res);
+    return res.status(401).json("Unauthorized access");
+  }
+
+  setSessionTokenCookie(res, token, session.expiresAt, session.rememberMe);
+};
+
+app.use(checkAuth);
+
 app.use("/trpc", createExpressMiddleware({ router: appRouter, createContext }));
 
 const server = createServer(app);
 
+signTheAdminUp();
+
 const worker = await mediasoup.createWorker({
-  rtcMinPort: 2000,
-  rtcMaxPort: 2020,
+  rtcMinPort: 10000,
+  rtcMaxPort: 10100,
 });
 
 worker.on("died", (error) => {
@@ -52,7 +93,10 @@ worker.on("died", (error) => {
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin:
+      process.env.ENV === "production"
+        ? `https://process.env.DOMAIN_NAME`
+        : "http://localhost:3000",
     credentials: true,
   },
 });

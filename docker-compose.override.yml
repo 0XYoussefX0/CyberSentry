@@ -10,3 +10,7 @@ services:
   api:
     volumes:
       - ./nodejs:/nodejs
+
+  coturn:
+    volumes:
+      - ./turnserver.conf:/etc/coturn/turnserver.conf

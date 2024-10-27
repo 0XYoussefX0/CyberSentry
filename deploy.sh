@@ -134,6 +134,9 @@ server {
         proxy_buffering off;
         proxy_set_header X-Accel-Buffering no;
     }
+
+
+
 }
 EOL
 
@@ -154,5 +157,4 @@ if ! sudo docker-compose ps | grep "Up"; then
 fi
 
 # Output final message
-echo "Deployment complete. Your Next.js app and PostgreSQL database are now running. 
-Next.js is available at https://$DOMAIN_NAME, and the PostgreSQL database is accessible from the web service.
+echo "Deployment complete."

@@ -1,4 +1,20 @@
+import { zxcvbn, zxcvbnOptions } from "@zxcvbn-ts/core";
+import * as zxcvbnArPackage from "@zxcvbn-ts/language-ar";
+import * as zxcvbnCommonPackage from "@zxcvbn-ts/language-common";
+import * as zxcvbnEnPackage from "@zxcvbn-ts/language-en";
 import * as v from "valibot";
+
+zxcvbnOptions.setOptions({
+  dictionary: {
+    ...zxcvbnCommonPackage.dictionary,
+    ...zxcvbnEnPackage.dictionary,
+    ...zxcvbnArPackage.dictionary,
+  },
+  graphs: zxcvbnCommonPackage.adjacencyGraphs,
+  useLevenshteinDistance: true,
+  translations: zxcvbnEnPackage.translations,
+  maxLength: 64,
+});
 
 export const EmailSchema = v.object({
   email: v.pipe(
@@ -8,28 +24,32 @@ export const EmailSchema = v.object({
   ),
 });
 
-export const PasswordSchema = v.object({
+export const SignUpSchema = v.object({
+  ...EmailSchema.entries,
   password: v.pipe(
     v.string(),
     v.nonEmpty("Password is required"),
     v.minLength(8, "Your password is too short."),
-    v.regex(/[a-z]/, "Your password must contain a lowercase letter."),
-    v.regex(/[A-Z]/, "Your password must contain an uppercase letter."),
-    v.regex(/[0-9]/, "Your password must contain a number."),
-    v.regex(
-      /(?=.[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~])/,
-      "Your password must contain a special character.",
-    ),
+    v.maxLength(64, "Your password exceeds the maximum limit"),
+    v.check((input) => {
+      const passwordResult = zxcvbn(input);
+      if (passwordResult.score >= 2) {
+        return true;
+      }
+
+      return false;
+    }, "This password would be too easy to guess. Please choose a different password."),
   ),
 });
 
-export const SignUpSchema = v.object({
-  ...EmailSchema.entries,
-  ...PasswordSchema.entries,
-});
-
 export const LoginSchema = v.object({
-  ...SignUpSchema.entries,
+  ...EmailSchema.entries,
+  password: v.pipe(
+    v.string(),
+    v.nonEmpty("Password is required"),
+    v.minLength(8, "Your password is too short."),
+    v.maxLength(64, "Your password exceeds the maximum limit"),
+  ),
   rememberMe: v.boolean(),
 });
 
@@ -59,16 +79,18 @@ const imageDimensionValidator = async (input: File): Promise<boolean> => {
 };
 
 export const avatarImageSchema = v.objectAsync({
-  avatarImage: v.pipeAsync(
-    v.file("Please select an image file."),
-    v.mimeType(
-      ["image/jpeg", "image/png", "image/jpg"],
-      "Please select a JPEG or PNG file",
-    ),
-    v.maxSize(2000 * 1024, "Please select a file smaller than 2MB"),
-    v.checkAsync(
-      imageDimensionValidator,
-      "Image must be between 256x256px and 5000x5000px",
+  avatarImage: v.optionalAsync(
+    v.pipeAsync(
+      v.file("Please select an image file."),
+      v.mimeType(
+        ["image/jpeg", "image/png", "image/jpg"],
+        "Please select a JPEG or PNG file",
+      ),
+      v.maxSize(2000 * 1024, "Please select a file smaller than 2MB"),
+      v.checkAsync(
+        imageDimensionValidator,
+        "Image must be between 256x256px and 5000x5000px",
+      ),
     ),
   ),
 });
