@@ -12,9 +12,6 @@ else
       exit 1
 fi
 
-# copying .env file to the app directory
-cp .env /$APP_DIR/
-
 # Script Vars
 REPO_URL="https://github.com/0XYoussefX0/CyberSentry"
 APP_DIR=~/myapp
@@ -100,7 +97,10 @@ else
   echo "Cloning repository from $REPO_URL..."
   git clone $REPO_URL $APP_DIR
   cd $APP_DIR
+  # copying .env file to the app directory
+  cp ~/.env ./
 fi
+
 
 # Install Nginx
 sudo apt install nginx -y
