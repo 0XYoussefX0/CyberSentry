@@ -1,0 +1,34 @@
+Synchronizing state of docker.service with SysV service script with /usr/lib/systemd/systemd-sysv-install.
+Executing: /usr/lib/systemd/systemd-sysv-install enable docker
+Directory /home/dev/myapp already exists. Pulling latest changes...
+Already up to date.
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+nginx is already the newest version (1.24.0-2ubuntu7.1).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+certbot is already the newest version (2.9.0-1).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Saving debug log to /var/log/letsencrypt/letsencrypt.log
+Unable to register an account with ACME server. The ACME server believes "name@gmail.com" is an invalid email address. Please ensure it is a valid email and attempt registration again.
+Ask for help or search for solutions at https://community.letsencrypt.org. See the logfile /var/log/letsencrypt/letsencrypt.log or re-run Certbot with -v for more details.
+./deploy.sh: line 129: /etc/nginx/sites-available/myapp: Permission denied
+Job for nginx.service failed because the control process exited with error code.
+See "systemctl status nginx.service" and "journalctl -xeu nginx.service" for details.
+Setting up coturn for TURN AND STUN servers
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+coturn is already the newest version (4.6.1-1build4).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+./deploy.sh: line 193: /etc/turnserver.conf: Permission denied
+./deploy.sh: line 228: /etc/security/limits.conf: Permission denied
+./deploy.sh: line 238: /etc/sysctl.conf: Permission denied
+Synchronizing state of coturn.service with SysV service script with /usr/lib/systemd/systemd-sysv-install.
+Executing: /usr/lib/systemd/systemd-sysv-install enable coturn
+no port specified: <empty>
+no port specified: <empty>
+Docker containers failed to start. Check logs with 'docker-compose logs'.

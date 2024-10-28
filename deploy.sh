@@ -14,9 +14,9 @@ fi
 
 # Script Vars
 REPO_URL="https://github.com/0XYoussefX0/CyberSentry"
-APP_DIR=~/myapp
+APP_DIR=./myapp
 SWAP_SIZE="1G"  # Swap size of 1GB
-DOMAIN_NAME=$(grep '^DOMAIN_NAME=' .env | cut -d '=' -f2-)
+DOMAIN_NAME="$(grep '^DOMAIN_NAME=' .env | cut -d '=' -f2-)"
 SERVER_PUBLIC_IP=$(grep '^SERVER_PUBLIC_IP=' .env | cut -d '=' -f2-)
 ENV=$(grep '^ENV=' .env | cut -d '=' -f2-)
 EMAIL=$(grep '^EMAIL=' .env | cut -d '=' -f2-)
@@ -98,7 +98,7 @@ else
   git clone $REPO_URL $APP_DIR
   cd $APP_DIR
   # copying .env file to the app directory
-  cp ~/.env ./
+  cp ../.env ./
 fi
 
 
@@ -114,7 +114,7 @@ sudo systemctl stop nginx
 
 # Obtain SSL certificate using Certbot standalone mode
 sudo apt install certbot -y
-sudo certbot certonly --standalone -d $DOMAIN_NAME --non-interactive --agree-tos -m $EMAIL
+sudo certbot certonly --standalone -d $DOMAIN_NAME --non-interactive --agree-tos -m $EMAIL --debug
 
 # Ensure SSL files exist or generate them
 if [ ! -f /etc/letsencrypt/options-ssl-nginx.conf ]; then
@@ -224,6 +224,17 @@ if [ "$ENV" = "development" ]; then
     echo "verbose" | sudo tee -a /etc/turnserver.conf > /dev/null
 fi
 
+# Have the turnserver running as an automatic system service daemon
+sudo cat > /etc/default/coturn <<EOL
+
+  TURNSERVER_ENABLED=1
+
+EOL
+
+# Enable and start the service
+sudo systemctl enable coturn
+sudo systemctl start coturn
+
 # increasing file descriptor limits
 sudo cat > /etc/security/limits.conf <<EOL
 
@@ -245,10 +256,6 @@ EOL
 
 # Apply sysctl changes
 sudo sysctl -p
-
-# Enable and start the service
-sudo systemctl enable coturn
-sudo systemctl start coturn
 
 if ! systemctl is-active --quiet coturn; then
     echo "Coturn installation has failed."
