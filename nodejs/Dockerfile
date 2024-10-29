@@ -21,11 +21,9 @@ FROM base AS build
 
 RUN npm run build
 
-RUN npm prune --production
+COPY package*.json ./prod/.
 
-COPY package*.json ./prod/
-
-COPY ./dist ./prod/dist/
+RUN mv ./dist ./prod
 
 # Stage 4: Production stage
 FROM node:latest AS production
@@ -34,8 +32,8 @@ WORKDIR /nodejs
 
 COPY --from=build /nodejs/prod ./
 
-RUN npm install
+RUN npm install --omit=dev
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
+CMD npm run start

@@ -1,7 +1,7 @@
 import { adminProcedure, publicProcedure } from "@/trpc/router.js";
 import { LoginSchema, SignUpSchema } from "@/types/valibot-schemas.js";
 import * as v from "valibot";
-import { db } from "@/config/drizzle.js";
+import { db } from "@/db/drizzle.js";
 import { generateIdFromEntropySize } from "lucia";
 import {
   createSession,
@@ -9,7 +9,7 @@ import {
   setSessionTokenCookie,
 } from "@/config/auth.js";
 import { hash, verify } from "@node-rs/argon2";
-import { userTable } from "@/models/user.js";
+import { userTable } from "@/db/models/user.js";
 import { eq } from "drizzle-orm";
 import {
   getPublicUrl,

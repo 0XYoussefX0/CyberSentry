@@ -1,5 +1,5 @@
-import { sessionTable, userTable } from "@/models/user.js";
-import { db } from "@/config/drizzle.js";
+import { sessionTable, userTable } from "@/db/models/user.js";
+import { db } from "@/db/drizzle.js";
 import type { Session, SessionValidationResult } from "@/types/index.js";
 
 import { Response } from "express";
@@ -11,7 +11,6 @@ import {
 import { sha256 } from "@oslojs/crypto/sha2";
 import { eq } from "drizzle-orm";
 import { hash } from "@node-rs/argon2";
-import { randomUUID } from "crypto";
 
 export function generateSessionToken(): string {
   const bytes = new Uint8Array(20);
@@ -22,15 +21,15 @@ export function generateSessionToken(): string {
 
 export async function createSession(
   token: string,
-  userId: string,
-  rememberMe: boolean
+  user_id: string,
+  remember_me: boolean
 ): Promise<Session> {
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
   const month = 1000 * 60 * 60 * 24 * 30;
   const session: Session = {
     id: sessionId,
-    userId,
-    rememberMe,
+    user_id,
+    remember_me,
     expiresAt: new Date(Date.now() + month),
   };
 
@@ -45,7 +44,7 @@ export async function validateSessionToken(
   const result = await db
     .select()
     .from(sessionTable)
-    .innerJoin(userTable, eq(sessionTable.userId, userTable.id))
+    .innerJoin(userTable, eq(sessionTable.user_id, userTable.id))
     .where(eq(sessionTable.id, sessionId));
 
   if (result.length < 1) {
@@ -128,7 +127,7 @@ export async function signTheAdminUp() {
   if (result[0]) {
     await db
       .delete(sessionTable)
-      .where(eq(sessionTable.userId, result[0].userId));
+      .where(eq(sessionTable.user_id, result[0].userId));
 
     await db.delete(userTable).where(eq(userTable.id, result[0].userId));
   }
@@ -140,6 +139,6 @@ export async function signTheAdminUp() {
     user_image: null,
     email,
     password_hash: passwordHash,
-    isAdmin: true,
+    is_admin: true,
   });
 }

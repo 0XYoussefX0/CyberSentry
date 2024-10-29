@@ -1,4 +1,4 @@
-import { sessionTable, userTable } from "@/models/user.js";
+import { sessionTable, userTable } from "@/db/models/user.js";
 import { appRouter } from "@/trpc/router.js";
 import type { InferSelectModel } from "drizzle-orm";
 

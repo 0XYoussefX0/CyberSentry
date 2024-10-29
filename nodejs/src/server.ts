@@ -73,7 +73,7 @@ const checkAuth = async (req: Request, res: Response, next: NextFunction) => {
     return res.status(401).json("Unauthorized access");
   }
 
-  setSessionTokenCookie(res, token, session.expiresAt, session.rememberMe);
+  setSessionTokenCookie(res, token, session.expiresAt, session.remember_me);
   next();
 };
 

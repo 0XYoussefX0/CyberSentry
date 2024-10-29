@@ -15,18 +15,18 @@ export const userTable = pgTable("user", {
   user_image: text("user_image").unique(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   password_hash: varchar("password_hash", { length: 255 }).notNull(),
-  isAdmin: boolean("is_admin").notNull().default(false),
+  is_admin: boolean("is_admin").notNull().default(false),
   createdAt: timestamp().defaultNow().notNull(),
 });
 
 export const sessionTable = pgTable("session", {
   id: text("id").primaryKey(),
-  userId: uuid("user_id")
+  user_id: uuid("user_id")
     .notNull()
     .references(() => userTable.id),
   expiresAt: timestamp("expires_at", {
     withTimezone: true,
     mode: "date",
   }).notNull(),
-  rememberMe: boolean("remember_me").notNull().default(false),
+  remember_me: boolean("remember_me").notNull().default(false),
 });

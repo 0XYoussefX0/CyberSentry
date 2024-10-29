@@ -41,8 +41,9 @@
   "devDependencies": {
     "@types/cookie-parser": "^1.4.7",
     "@types/express": "^4.17.21",
-    "@types/node": "^22.7.7",
+    "@types/node": "^22.8.2",
     "@types/pg": "^8.11.10",
+    "drizzle-kit": "^0.26.2",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tsc-alias": "^1.8.10",
