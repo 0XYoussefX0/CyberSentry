@@ -118,8 +118,6 @@ export async function signTheAdminUp() {
     parallelism: 1,
   });
 
-  const userId = randomUUID();
-
   const result = await db
     .select({
       userId: userTable.id,
@@ -136,7 +134,6 @@ export async function signTheAdminUp() {
   }
 
   await db.insert(userTable).values({
-    id: userId,
     username,
     tag,
     role,

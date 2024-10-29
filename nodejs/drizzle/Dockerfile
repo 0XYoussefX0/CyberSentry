@@ -1,5 +1,5 @@
 # BASE stage
-FROM node:latest as base
+FROM node:latest AS base
 
 WORKDIR /drizzle-studio
 
@@ -11,24 +11,20 @@ COPY ./drizzle .
 COPY ./src/models ./models
 
 # Dev stage
-FROM base as development
+FROM base AS development
 
 RUN npm install pg
 
-RUN chmod +x ./start.sh
-
-CMD ["./start.sh"]
+CMD npx drizzle-kit studio --port 4001
 
 
 # Build stage
-FROM base as build
+FROM base AS build
 
-RUN npx tsc 
-
-COPY ./drizzle/start.sh ./dist/
+RUN npx tsc
 
 # Prod stage
-FROM node:latest as production
+FROM node:latest AS production
 
 WORKDIR /prod
 
@@ -37,6 +33,4 @@ COPY --from=build ./drizzle-studio/dist ./
 RUN npm init -y && \
     npm install drizzle-orm pg drizzle-kit
 
-RUN chmod +x ./start.sh
-
-CMD ["./start.sh"]
+CMD npx drizzle-kit studio --port 4001

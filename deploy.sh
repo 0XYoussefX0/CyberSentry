@@ -7,8 +7,8 @@ sudo apt update && sudo apt upgrade -y
 if [ -f .env ]; then
       echo ".env already exists, skipping download"
 else
-      sudo curl -o .env https://raw.githubusercontent.com/0XYoussefX0/CyberSentry/refs/heads/main/.env.example
-      echo "a .env file has been added in this directory, open it and populate it with the right values before procceding with the deployment."
+      sudo curl -o ./.env https://raw.githubusercontent.com/0XYoussefX0/CyberSentry/refs/heads/main/.env.example
+      echo "a .env file has been added to the current directory, open it and populate it with the right values before procceding with the deployment."
       exit 1
 fi
 
@@ -16,11 +16,9 @@ fi
 REPO_URL="https://github.com/0XYoussefX0/CyberSentry"
 APP_DIR=./myapp
 SWAP_SIZE="1G"  # Swap size of 1GB
-DOMAIN_NAME="$(grep '^DOMAIN_NAME=' .env | cut -d '=' -f2-)"
-SERVER_PUBLIC_IP=$(grep '^SERVER_PUBLIC_IP=' .env | cut -d '=' -f2-)
-ENV=$(grep '^ENV=' .env | cut -d '=' -f2-)
-EMAIL=$(grep '^EMAIL=' .env | cut -d '=' -f2-)
-TURN_SECRET=$(grep '^TURN_SECRET=' .env | cut -d '=' -f2-)
+
+# Loading env variables
+source ./.env
 
 # Enable the firewall and allow ports needed by the application
 sudo ufw enable
@@ -29,19 +27,8 @@ sudo ufw enable
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
 
-# TURN
-sudo ufw allow 5349/tcp
-sudo ufw allow 5349/udp
-
-# STUN
-sudo ufw allow 3478/udp
-sudo ufw allow 3478/tcp
-
 # rtcMinPort/rtcMaxPort
 sudo ufw allow 10000:10100/udp
-
-# port range for relay
-sudo ufw allow 49152:65535/udp
 
 # SSH
 sudo ufw allow ssh
@@ -184,86 +171,7 @@ sudo ln -s /etc/nginx/sites-available/myapp /etc/nginx/sites-enabled/myapp
 # Restart Nginx to apply the new configuration
 sudo systemctl restart nginx
 
-echo 'Setting up coturn for TURN AND STUN servers'
-
-# Installing Coturn for TURN AND STUN Servers
-sudo apt install coturn
-
-# Configuring coturn
-sudo cat > /etc/turnserver.conf <<EOL
-
-    # Basic listening ports for STUN and TURN
-    listening-port=3478
-    tls-listening-port=5349
-    listening-ip=$SERVER_PUBLIC_IP    
-
-    # Authentication and Security
-    fingerprint
-    lt-cred-mech
-    static-auth-secret=$TURN_SECRET  
-    realm=$DOMAIN_NAME                 
-
-    # Relay port range
-    min-port=49152
-    max-port=65535
-
-    # Using Let's Encrypt certificates
-    cert=/etc/letsencrypt/live/$DOMAIN_NAME/fullchain.pem
-    pkey=/etc/letsencrypt/live/$DOMAIN_NAME/privkey.pem
-
-    # Performance Settings
-    max-allocate-lifetime=3600       
-
-    # Logging Configuration
-    log-file=/var/log/turnserver.log
-
-EOL
-
-# Conditionally append the verbose line in dev env
-if [ "$ENV" = "development" ]; then
-    echo "verbose" | sudo tee -a /etc/turnserver.conf > /dev/null
-fi
-
-# Have the turnserver running as an automatic system service daemon
-sudo cat > /etc/default/coturn <<EOL
-
-  TURNSERVER_ENABLED=1
-
-EOL
-
-# Enable and start the service
-sudo systemctl enable coturn
-sudo systemctl start coturn
-
-# increasing file descriptor limits
-sudo cat > /etc/security/limits.conf <<EOL
-
-    * soft nofile 1048576
-    * hard nofile 1048576
-    turnserver soft nofile 1048576
-    turnserver hard nofile 1048576
-
-EOL
-
-# optmizing network performance 
-sudo cat > /etc/sysctl.conf <<EOL
-
-    net.core.rmem_max=8388608
-    net.core.wmem_max=8388608
-    net.ipv4.ip_local_port_range=10000 65000
-
-EOL
-
-# Apply sysctl changes
-sudo sysctl -p
-
-if ! systemctl is-active --quiet coturn; then
-    echo "Coturn installation has failed."
-    exit 1
-fi
-
-# Build and run the Docker containers from the app directory (~/myapp)
-cd $APP_DIR
+# Build and run the Docker containers from the app directory (./myapp)
 sudo docker-compose up --build -d
 
 # Check if Docker Compose started correctly
@@ -273,4 +181,4 @@ if ! sudo docker-compose ps | grep "Up"; then
 fi
 
 # Output final message
-echo "Deployment complete. One thing you should do is add this line of code: renew_hook = systemctl reload nginx && systemctl reload coturn under [renewalparams] inside this file: /etc/letsencrypt/renewal/$DOMAIN_NAME.conf"
+echo "Deployment complete."

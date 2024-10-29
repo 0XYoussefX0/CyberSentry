@@ -41,6 +41,10 @@ import {
 
 const app = express();
 
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "UP" });
+});
+
 app.use(cookieParser());
 
 const handleRequest = (req: Request, res: Response, next: NextFunction) => {
@@ -630,10 +634,6 @@ app.use(cookieParser());
 // });
 
 // informOtherUsers
-
-app.get("/health", (req, res) => {
-  res.status(200).json({ status: "UP" });
-});
 
 server.listen(4000, () => {
   console.log("listening on *:4000");

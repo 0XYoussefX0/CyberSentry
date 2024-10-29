@@ -88,8 +88,6 @@ export const signUserUp = adminProcedure
       parallelism: 1,
     });
 
-    const userId = randomUUID();
-
     const result = await db
       .select({
         userId: userTable.id,
@@ -106,7 +104,7 @@ export const signUserUp = adminProcedure
     let image_url = null;
 
     if (user_image) {
-      const image_file_name = `${userId}.${user_image.type}`;
+      const image_file_name = `${randomUUID()}.${user_image.type}`;
       const user_image_buffer = Buffer.from(await user_image.arrayBuffer());
 
       await minioClient.putObject(
@@ -119,7 +117,6 @@ export const signUserUp = adminProcedure
     }
 
     await db.insert(userTable).values({
-      id: userId,
       username,
       tag,
       role,
