@@ -35,7 +35,7 @@ services:
       context: ./nodejs
       dockerfile: ./Dockerfile.drizzle-studio
     volumes:
-      - ./src/db/migrations:/drizzle-studio/migrations/
+      - ./nodejs/src/db/migrations:/drizzle-studio/migrations/
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}
     depends_on:
@@ -110,7 +110,7 @@ services:
           "CMD",
           "sh",
           "-c",
-          "mc alias set myminio http://localhost:9000 $MINIO_ACCESS_KEY $MINIO_SECRET_KEY && mc ready myminio",
+          "mc alias set myminio http://localhost:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD && mc ready myminio",
         ]
       interval: 10s
       timeout: 5s

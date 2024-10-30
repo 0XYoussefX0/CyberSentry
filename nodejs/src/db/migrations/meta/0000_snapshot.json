@@ -1,5 +1,5 @@
 {
-  "id": "9f682d7c-6b7e-4e03-bab7-31fd9b574202",
+  "id": "1c6ab1f4-68ab-447f-a391-7eb27e893482",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -40,8 +40,12 @@
           "name": "session_user_id_user_id_fk",
           "tableFrom": "session",
           "tableTo": "user",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -119,12 +123,16 @@
         "user_user_image_unique": {
           "name": "user_user_image_unique",
           "nullsNotDistinct": false,
-          "columns": ["user_image"]
+          "columns": [
+            "user_image"
+          ]
         },
         "user_email_unique": {
           "name": "user_email_unique",
           "nullsNotDistinct": false,
-          "columns": ["email"]
+          "columns": [
+            "email"
+          ]
         }
       },
       "checkConstraints": {}

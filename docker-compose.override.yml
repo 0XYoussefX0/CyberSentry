@@ -5,7 +5,7 @@ services:
 
   drizzle-studio:
     volumes:
-      - ./nodejs/src/models:/drizzle-studio/models
+      - ./src/db/migrations:/drizzle-studio/migrations/
 
   api:
     volumes:

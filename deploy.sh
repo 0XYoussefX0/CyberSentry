@@ -52,7 +52,8 @@ sudo apt install docker-ce -y
 
 # Install Docker Compose
 sudo rm -f /usr/local/bin/docker-compose
-sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+LATEST_COMPOSE_VERSION=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep '"tag_name":' | cut -d'"' -f4)
+sudo curl -L "https://github.com/docker/compose/releases/download/$LATEST_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 
 # Wait for the file to be fully downloaded before proceeding
 if [ ! -f /usr/local/bin/docker-compose ]; then
@@ -136,7 +137,7 @@ server {
     # Enable rate limiting
     limit_req zone=mylimit burst=20 nodelay;
 
-    location /frontend {
+    location / {
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
@@ -149,8 +150,8 @@ server {
         proxy_set_header X-Accel-Buffering no;
     }
     
-    location /backend {
-        proxy_pass http://localhost:4000;
+    location /api {
+        proxy_pass http://localhost:4000/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -172,10 +173,10 @@ sudo ln -s /etc/nginx/sites-available/myapp /etc/nginx/sites-enabled/myapp
 sudo systemctl restart nginx
 
 # Build and run the Docker containers from the app directory (./myapp)
-sudo docker-compose up --build -d
+sudo docker compose -f docker-compose.yml up --build -d
 
 # Check if Docker Compose started correctly
-if ! sudo docker-compose ps | grep "Up"; then
+if ! sudo docker compose ps | grep "Up"; then
   echo "Docker containers failed to start. Check logs with 'docker-compose logs'."
   exit 1
 fi

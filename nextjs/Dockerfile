@@ -31,7 +31,6 @@ COPY --from=build /nextjs/public ./public
 COPY --from=build /nextjs/.next/standalone ./
 COPY --from=build /nextjs/.next/static ./.next/static
 
-
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
+CMD ["node", "server.js"]
