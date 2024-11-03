@@ -1,0 +1,21 @@
+{
+  "name": "pentest-app",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "clean": "turbo run clean",
+    "format-and-lint": "biome check .",
+    "format-and-lint:fix": "biome check . --write",
+    "format": "biome format .",
+    "lint": "biome lint ."
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "turbo": "^2.2.3"
+  },
+  "workspaces": ["apps/*", "packages/*"],
+  "packageManager": "npm@10.9.0"
+}

@@ -1,0 +1,22 @@
+{
+  "name": "@pentest-app/schemas",
+  "version": "1.0.0",
+  "private": "true",
+  "exports": {
+    "./global": "./global.mts",
+    "./client": "./client.mts",
+    "./server": "./server.mts"
+  },
+  "dependencies": {
+    "@zxcvbn-ts/core": "^3.0.4",
+    "@zxcvbn-ts/language-ar": "^3.1.0",
+    "@zxcvbn-ts/language-common": "^3.0.4",
+    "@zxcvbn-ts/language-en": "^3.0.2",
+    "@zxcvbn-ts/matcher-pwned": "^3.0.4",
+    "sharp": "^0.33.5",
+    "valibot": "^0.42.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.8.4"
+  }
+}

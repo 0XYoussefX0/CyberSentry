@@ -1,6 +1,6 @@
 services:
-  next_app:
-    build: ./nextjs
+  frontend:
+    build: ./apps/frontend
     ports:
       - "3000:3000"
     environment:
@@ -32,8 +32,8 @@ services:
 
   drizzle-studio:
     build:
-      context: ./nodejs
-      dockerfile: ./Dockerfile.drizzle-studio
+      context: ./packages/db
+      dockerfile: Dockerfile
     volumes:
       - ./nodejs/src/db/migrations:/drizzle-studio/migrations/
     environment:
@@ -60,9 +60,9 @@ services:
     networks:
       - my_network
 
-  api:
+  backend:
     build:
-      context: ./nodejs
+      context: ./apps/backend
       dockerfile: Dockerfile
       target: ${ENV}
     ports:
@@ -78,12 +78,17 @@ services:
       - my_network
     environment:
       NODE_ENV: ${ENV}
+      SERVER_PUBLIC_IP: ${SERVER_PUBLIC_IP}
+      DOMAIN_NAME: ${DOMAIN_NAME}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_HOST_URL: ${MINIO_HOST_URL}
       ADMIN_APP_EMAIL: ${ADMIN_APP_EMAIL}
       ADMIN_APP_PASSWORD: ${ADMIN_APP_PASSWORD}
       ADMIN_APP_ROLE: ${ADMIN_APP_ROLE}
       ADMIN_APP_USERNAME: ${ADMIN_APP_USERNAME}
       ADMIN_APP_TAG: ${ADMIN_APP_TAG}
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
     healthcheck:
       test: ["CMD-SHELL", "curl http://localhost:4000/health"]
       interval: 10s

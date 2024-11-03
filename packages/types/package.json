@@ -1,0 +1,26 @@
+{
+  "name": "@pentest-app/types",
+  "version": "1.0.0",
+  "type": "module",
+  "private": "true",
+  "exports": {
+    "./global": "./global.mts",
+    "./client": "./client.mts",
+    "./server": "./server.mts"
+  },
+  "dependencies": {
+    "@pentest-app/db": "^1.0.0",
+    "@pentest-app/schemas": "^1.0.0",
+    "drizzle-orm": "^0.36.0",
+    "mediasoup": "^3.14.16",
+    "react": "^18.3.1",
+    "socket.io": "^4.8.1",
+    "valibot": "^0.42.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/react": "^18.3.12",
+    "express": "^4.21.1",
+    "minio": "^8.0.2"
+  }
+}

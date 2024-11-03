@@ -1,0 +1,44 @@
+{
+  "name": "backend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./src/server.ts",
+  "scripts": {
+    "dev": "tsx --watch ./src/server.ts ",
+    "build": "tsc && tsc-alias",
+    "start": "node dist/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@pentest-app/auth": "^1.0.0",
+    "@pentest-app/minio": "^1.0.0",
+    "@pentest-app/schemas": "^1.0.0",
+    "@pentest-app/trpc": "^1.0.0",
+    "@pentest-app/db": "^1.0.0",
+    "@trpc/server": "^11.0.0-rc.604",
+    "cookie-parser": "^1.4.7",
+    "drizzle-orm": "^0.35.2",
+    "mediasoup": "^3.14.14",
+    "minio": "^8.0.1",
+    "redis": "^4.7.0",
+    "socket.io": "^4.7.5",
+    "express": "^4.21.1"
+  },
+  "devDependencies": {
+    "@pentest-app/types": "^1.0.0",
+    "@types/cookie-parser": "^1.4.7",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.8.2",
+    "tsc-alias": "^1.8.10",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.8",
+    "utf-8-validate": "^6.0.4"
+  }
+}

@@ -1,5 +1,5 @@
 services:
-  next_app:
+  frontend:
     volumes:
       - ./nextjs:/nextjs
 
@@ -7,6 +7,6 @@ services:
     volumes:
       - ./src/db/migrations:/drizzle-studio/migrations/
 
-  api:
+  backend:
     volumes:
       - ./nodejs:/nodejs

@@ -1,0 +1,16 @@
+{
+  "name": "@pentest-app/trpc",
+  "version": "1.0.0",
+  "private": true,
+  "exports": {
+    "./router": "./router.mts"
+  },
+  "dependencies": {
+    "@pentest-app/auth": "^1.0.0",
+    "@pentest-app/db": "^1.0.0",
+    "@pentest-app/minio": "^1.0.0",
+    "@pentest-app/schemas": "^1.0.0",
+    "@trpc/server": "^11.0.0-rc.604",
+    "drizzle-orm": "^0.36.0"
+  }
+}

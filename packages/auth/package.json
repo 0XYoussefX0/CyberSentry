@@ -1,0 +1,19 @@
+{
+  "name": "@pentest-app/auth",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./index": "./index.mts"
+  },
+  "dependencies": {
+    "@node-rs/argon2": "^2.0.0",
+    "@oslojs/crypto": "^1.0.1",
+    "@oslojs/encoding": "^1.1.0",
+    "@pentest-app/db": "^1.0.0",
+    "drizzle-orm": "^0.36.0"
+  },
+  "devDependencies": {
+    "@pentest-app/types": "^1.0.0"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@pentest-app/minio",
+  "version": "1.0.0",
+  "private": true,
+  "exports": {
+    "./index": "./index.mts"
+  },
+  "dependencies": {
+    "minio": "^8.0.2"
+  }
+}
