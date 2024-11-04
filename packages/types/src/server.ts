@@ -1,5 +1,5 @@
 import type { DB } from "@pentest-app/db/drizzle";
-import type { sessionTable, userTable } from "@pentest-app/db/models/user.mts";
+import type { sessionTable, userTable } from "@pentest-app/db/user";
 import type { InferSelectModel } from "drizzle-orm";
 import type { Client } from "minio";
 

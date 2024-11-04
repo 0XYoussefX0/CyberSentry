@@ -6,7 +6,8 @@
     "ignore": [
       "./apps/frontend/*",
       "./apps/frontend/.next/*",
-      "./apps/backend/dist/*"
+      "./apps/backend/dist/*",
+      "./.turbo/*"
     ]
   },
   "formatter": { "enabled": true, "indentStyle": "space" },

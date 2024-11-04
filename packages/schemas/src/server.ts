@@ -60,9 +60,7 @@ export const LoginSchema = v.object({
   remember_me: v.boolean(),
 });
 
-const domainNameRegex =
-  /(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]/g;
-
+const domainNameRegex = /^(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.[A-Za-z]{2,}$/;
 const DatabaseUrlRegex = /postgresql:\/\/(\w+):(\S+)@([\w\.-]+):(\d+)\/(\w+)/;
 
 export const EnvSchema = v.object({

@@ -2,9 +2,20 @@
   "name": "@pentest-app/db",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
   "exports": {
-    "./drizzle": "./drizzle.mts",
-    "./models/*": "./models/*"
+    "./drizzle": {
+      "import": "./dist/drizzle.js",
+      "types": "./dist/drizzle.d.ts"
+    },
+    "./user": {
+      "import": "./dist/models/user.js",
+      "types": "./dist/models/user.d.ts"
+    }
   },
   "dependencies": {
     "drizzle-orm": "^0.36.0",

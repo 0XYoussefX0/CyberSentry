@@ -41,7 +41,6 @@ const app = express();
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "UP" });
 });
-
 app.use(cookieParser());
 
 const handleRequest = (req: Request, res: Response, next: NextFunction) => {
@@ -58,8 +57,7 @@ if (env.NODE_ENV === "production") {
   app.use(handleRequest);
 }
 
-const db = getDb(env.DATABASE_URL);
-
+const db = await getDb(env.DATABASE_URL);
 const auth = createAuthService(db);
 
 app.use(auth.checkAuth);
@@ -67,7 +65,7 @@ app.use(auth.checkAuth);
 const isProduction = env.NODE_ENV === "production";
 
 const minio = getMinio({
-  endPoint: "s3_storage",
+  endPoint: isProduction ? "s3_storage" : "localhost",
   port: 9000,
   useSSL: isProduction,
   accessKey: env.MINIO_ACCESS_KEY,

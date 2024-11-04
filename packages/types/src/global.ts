@@ -1,6 +1,6 @@
 import type { DB } from "@pentest-app/db/drizzle";
 import type { NextFunction, Request, Response } from "express";
-import type { Session, SessionValidationResult } from "./server.mjs";
+import type { Session, SessionValidationResult } from "./server.js";
 
 type AdminCredentials = {
   email: string;

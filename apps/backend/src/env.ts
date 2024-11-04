@@ -2,6 +2,11 @@ import { EnvSchema } from "@pentest-app/schemas/server";
 import type { Env } from "@pentest-app/types/server";
 import * as v from "valibot";
 
+if (!(process.env.NODE_ENV === "production")) {
+  const dotenv = await import("dotenv");
+  dotenv.config();
+}
+
 function validateEnv(): Env {
   try {
     const env = v.parse(EnvSchema, {

@@ -2,10 +2,24 @@
   "name": "@pentest-app/schemas",
   "version": "1.0.0",
   "private": "true",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
   "exports": {
-    "./global": "./global.mts",
-    "./client": "./client.mts",
-    "./server": "./server.mts"
+    "./global": {
+      "import": "./dist/global.js",
+      "types": "./dist/global.d.ts"
+    },
+    "./client": {
+      "import": "./dist/client.js",
+      "types": "./dist/client.d.ts"
+    },
+    "./server": {
+      "import": "./dist/server.js",
+      "types": "./dist/server.d.ts"
+    }
   },
   "dependencies": {
     "@zxcvbn-ts/core": "^3.0.4",
@@ -17,6 +31,7 @@
     "valibot": "^0.42.1"
   },
   "devDependencies": {
-    "@types/node": "^22.8.4"
+    "@types/node": "^22.8.4",
+    "typescript": "^5.6.3"
   }
 }

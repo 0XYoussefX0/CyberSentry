@@ -2,10 +2,21 @@
   "name": "@pentest-app/minio",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
   "exports": {
-    "./index": "./index.mts"
+    "./index": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
   },
   "dependencies": {
     "minio": "^8.0.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
   }
 }

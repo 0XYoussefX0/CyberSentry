@@ -5,7 +5,6 @@ let minioInstance: Minio.Client | undefined;
 export const getMinio = (config: Minio.ClientOptions) => {
   if (!minioInstance) {
     minioInstance = new Minio.Client(config);
-    return;
   }
   return minioInstance;
 };

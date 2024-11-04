@@ -1,10 +1,10 @@
-import { adminProcedure, publicProcedure } from "../router.mjs";
+import { adminProcedure, publicProcedure } from "../index.js";
 
 import { LoginSchema, SignUpSchema } from "@pentest-app/schemas/server";
 import * as v from "valibot";
 
 import { createAuthService } from "@pentest-app/auth/index";
-import { userTable } from "@pentest-app/db/models/user.mts";
+import { userTable } from "@pentest-app/db/user";
 
 import { hash, verify } from "@node-rs/argon2";
 import { eq } from "drizzle-orm";

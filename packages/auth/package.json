@@ -3,8 +3,15 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
   "exports": {
-    "./index": "./index.mts"
+    "./index": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
   },
   "dependencies": {
     "@node-rs/argon2": "^2.0.0",
@@ -14,6 +21,7 @@
     "drizzle-orm": "^0.36.0"
   },
   "devDependencies": {
-    "@pentest-app/types": "^1.0.0"
+    "@pentest-app/types": "^1.0.0",
+    "typescript": "^5.6.3"
   }
 }

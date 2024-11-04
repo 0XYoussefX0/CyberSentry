@@ -1,39 +1,36 @@
-# Stage 1: Base stage (common dependencies)
 FROM node:latest AS base
 
-WORKDIR /nodejs
+WORKDIR /pentest-app
 
-COPY package*.json ./
-
-RUN npm install
+RUN npm i -g turbo@^2
 
 COPY . .
 
-# Stage 2: Development Stage
-FROM base AS development
+RUN turbo prune backend --docker
 
-EXPOSE 4000
 
-CMD ["npm", "run", "dev"]
+FROM base AS installer
 
-# Stage 3: Production Build Stage
-FROM base AS build
+WORKDIR /pentest-app
 
-RUN npm run build
+COPY --from=base /pentest-app/out/json/ .
 
-COPY package*.json ./prod/.
+RUN npm install
 
-RUN mv ./dist ./prod
+COPY --from=base /pentest-app/out/full/ .
 
-# Stage 4: Production stage
-FROM node:latest AS production
+RUN npx turbo run build --filter=backend...
 
-WORKDIR /nodejs
+RUN npm prune --production
 
-COPY --from=build /nodejs/prod ./
+FROM base AS runner
 
-RUN npm install --omit=dev
+WORKDIR /pentest-app
 
-EXPOSE 3000
+RUN addgroup --system --gid 1001 backend
+RUN adduser --system --uid 1001 backenduser
+USER backenduser
 
-CMD npm run start
+COPY --from=installer /pentest-app .
+
+CMD node pentest-app/backend/dist/server.js

@@ -1,4 +1,4 @@
-import { sessionTable, userTable } from "@pentest-app/db/models/user.mts";
+import { sessionTable, userTable } from "@pentest-app/db/user";
 
 import type { Session } from "@pentest-app/types/server";
 

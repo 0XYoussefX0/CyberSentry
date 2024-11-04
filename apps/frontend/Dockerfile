@@ -1,36 +1,37 @@
-# Stage 1: Base stage (common dependencies)
 FROM node:latest AS base
 
-WORKDIR /nextjs
+WORKDIR /pentest-app
 
-COPY package*.json ./
-
-RUN npm install
+RUN npm i -g turbo@^2
 
 COPY . .
 
-# Stage 2: Development Stage
-FROM base AS development
+RUN turbo prune frontend --docker
 
-EXPOSE 3000
 
-CMD ["npm", "run", "dev"]
+FROM base AS installer
 
-# Stage 3: Production Build Stage
-FROM base AS build
+WORKDIR /pentest-app
 
-RUN npm run build
+COPY --from=base /pentest-app/out/json/ .
 
-# Stage 4: Production stage
-FROM node:latest AS production
+RUN npm install
 
-WORKDIR /nextjs
+COPY --from=base /pentest-app/out/full/ .
 
-ENV NODE_ENV=production
-COPY --from=build /nextjs/public ./public
-COPY --from=build /nextjs/.next/standalone ./
-COPY --from=build /nextjs/.next/static ./.next/static
+RUN npx turbo run build --filter=frontend...
 
-EXPOSE 3000
 
-CMD ["node", "server.js"]
+FROM base AS runner
+
+WORKDIR /pentest-app
+
+RUN addgroup --system --gid 1001 frontend
+RUN adduser --system --uid 1001 frontenduser
+USER frontenduser
+
+COPY --from=installer --chown=frontenduser:frontend /pentest-app/apps/frontend/.next/standalone ./
+COPY --from=installer --chown=frontenduser:frontend /pentest-app/apps/frontend/.next/static ./apps/frontend/.next/static
+COPY --from=installer --chown=frontenduser:frontend /pentest-app/apps/frontend/public ./apps/frontend/public
+
+CMD node apps/frontend/server.js
