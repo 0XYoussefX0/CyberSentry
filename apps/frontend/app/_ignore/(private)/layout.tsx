@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { createSessionClient, getUser } from "@/lib/appwrite/server";
 import { DATABASE_ID, USERS_COLLECTION_ID } from "@/lib/env";
 
 import ConnectToSocket from "@/components/ConnectToSocket";

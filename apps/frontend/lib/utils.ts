@@ -1,9 +1,11 @@
-import { ClassValue, clsx } from "clsx";
+import { type ClassValue, clsx } from "clsx";
 import { format } from "date-fns";
-import { Dispatch, SetStateAction } from "react";
+import type { Dispatch, SetStateAction } from "react";
 import { twMerge } from "tailwind-merge";
 
-import { getCroppedImgType } from "./types";
+import type { getCroppedImgType } from "./types";
+
+import * as v from "valibot";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -191,7 +193,7 @@ export const checkCameraAvailability = () => {
   return navigator.mediaDevices
     .enumerateDevices()
     .then((devices) => {
-      let cameraAvailability = {
+      const cameraAvailability = {
         hasFrontCamera: false,
         hasBackCamera: false,
       };
@@ -222,3 +224,38 @@ export const checkCameraAvailability = () => {
       return null; // Return null in case of an error
     });
 };
+
+export const getIssues = (schema, issues) => {
+  const flattenedIssues = v.flatten<typeof schema>(issues);
+
+  if (flattenedIssues.nested) {
+    const properties = Object.keys(issues.nested);
+    for (const property of properties) {
+      const errMessage = properties[property as keyof typeof properties];
+    }
+  }
+
+  return {
+    fieldname: ["dsdsds"],
+  };
+};
+
+// if (error) {
+//   if (error.data?.valibotError) {
+//     const issues = v.flatten<typeof LoginSchema>(error.data.valibotError);
+//     if (issues.nested) {
+//       const properties = Object.keys(issues.nested);
+//       for (const property of properties) {
+//         type t = typeof issues.nested;
+//         type s = keyof t;
+//         const nameOfInputThatHasError =
+//           property as keyof typeof issues.nested;
+//         const errMessage = issues.nested[nameOfInputThatHasError] as string[];
+//         setError(nameOfInputThatHasError, {
+//           type: "manual",
+//           message: errMessage[0] as string,
+//         });
+//       }
+//     }
+//   }
+// }

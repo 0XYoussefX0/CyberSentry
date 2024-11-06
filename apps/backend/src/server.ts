@@ -32,16 +32,21 @@ import type { CreateExpressContextOptions } from "@trpc/server/adapters/express"
 import { createAuthService } from "@pentest-app/auth/index";
 import { env } from "./env.js";
 
+import cors from "cors";
+
 // const redis = await createClient()
 //   .on("error", (err) => console.log("Redis Client Error", err))
 //   .connect();
 
 const app = express();
 
+app.use(cors({}));
+
+app.use(cookieParser());
+
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "UP" });
 });
-app.use(cookieParser());
 
 const handleRequest = (req: Request, res: Response, next: NextFunction) => {
   const origin = req.get("Origin");
@@ -60,7 +65,7 @@ if (env.NODE_ENV === "production") {
 const db = await getDb(env.DATABASE_URL);
 const auth = createAuthService(db);
 
-app.use(auth.checkAuth);
+// app.use(auth.checkAuth);
 
 const isProduction = env.NODE_ENV === "production";
 
@@ -80,6 +85,7 @@ if (!minio) {
 app.use(
   "/trpc",
   createExpressMiddleware({
+    middleware: cors(),
     router: appRouter,
     createContext: ({ req, res }: CreateExpressContextOptions): Context => {
       return {

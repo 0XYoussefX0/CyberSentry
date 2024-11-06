@@ -3,12 +3,7 @@
   "vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
   "files": {
     "ignoreUnknown": false,
-    "ignore": [
-      "./apps/frontend/*",
-      "./apps/frontend/.next/*",
-      "./apps/backend/dist/*",
-      "./.turbo/*"
-    ]
+    "ignore": ["./apps/frontend/.next/*", "./apps/backend/dist/*", "./.turbo/*"]
   },
   "formatter": { "enabled": true, "indentStyle": "space" },
   "organizeImports": { "enabled": true },
@@ -61,7 +56,7 @@
       }
     },
     {
-      "include": ["./packages/db/drizzle.config.ts"],
+      "include": ["./packages/db/drizzle.config.ts", "./apps/frontend/*"],
       "linter": {
         "rules": {
           "style": {

@@ -1,9 +1,9 @@
 "use client";
 
-import { forwardRef } from "react";
 import { motion } from "framer-motion";
+import { forwardRef } from "react";
 import { Checkbox } from "react-aria-components";
-import { Noop } from "react-hook-form";
+import type { Noop } from "react-hook-form";
 
 type RememeberMeCheckBoxProps = {
   onChange: (isSelected: boolean) => void;
@@ -25,14 +25,14 @@ const RememberMeCheckbox = forwardRef<
       isDisabled={disabled}
       name={name}
       ref={ref}
-      className="flex items-center gap-2  text-gray-700 font-medium text-sm cursor-pointer"
+      className="flex cursor-pointer items-center gap-2 font-medium text-gray-700 text-sm"
     >
       {({ isSelected }) => (
         <>
           <motion.div
             className={`${
-              isSelected ? "bg-brand-50 border-brand-600" : "border-gray-300"
-            } hover:bg-brand-50 hover:border-brand-600 focus-visible:border-brand-300 focus-visible:outline-4 focus-visible:outline-brand-100 focus-visible:outline focus:border-brand-300 focus:outline-4 focus:outline-brand-100 focus:outline transition-colors z-10 border border-solid w-4 h-4 rounded-[4px] flex items-center justify-center`}
+              isSelected ? "border-brand-600 bg-brand-50" : "border-gray-300"
+            } z-10 flex h-4 w-4 items-center justify-center rounded-[4px] border border-solid transition-colors hover:border-brand-600 hover:bg-brand-50 focus:border-brand-300 focus:outline focus:outline-4 focus:outline-brand-100 focus-visible:border-brand-300 focus-visible:outline focus-visible:outline-4 focus-visible:outline-brand-100`}
           >
             <svg
               width="10"
@@ -40,6 +40,7 @@ const RememberMeCheckbox = forwardRef<
               viewBox="0 0 10 8"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
+              role="graphics-symbol"
             >
               <motion.path
                 initial={{

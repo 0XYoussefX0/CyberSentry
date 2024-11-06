@@ -54,7 +54,7 @@ export const LoginSchema = v.object({
     v.minLength(8, "Your password is too short."),
     v.maxLength(64, "Your password exceeds the maximum limit"),
   ),
-  rememberMe: v.boolean(),
+  remember_me: v.boolean(),
 });
 
 const imageDimensionValidator = async (input: File): Promise<boolean> => {

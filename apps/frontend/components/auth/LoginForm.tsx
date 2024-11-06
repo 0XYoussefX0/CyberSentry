@@ -1,25 +1,28 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { valibotResolver } from "@hookform/resolvers/valibot";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
-
-import { LoginSchemaType } from "@/lib/types";
-import { LoginSchema } from "@/lib/validationSchemas";
 import { useToast } from "@/hooks/use-toast";
-import login from "@/app/actions/(auth)/login";
+import { valibotResolver } from "@hookform/resolvers/valibot";
+import { LoginSchema } from "@pentest-app/schemas/client";
+import type { LoginSchemaType } from "@pentest-app/types/client";
+import Link from "next/link";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 
+import RememberMeCheckbox from "@/components/RememberMeCheckbox";
+import Logo from "@/components/icons/Logo";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import RevealButton from "@/components/ui/RevealButton";
 import { Toaster } from "@/components/ui/toaster";
-import Logo from "@/components/icons/Logo";
-import RememberMeCheckbox from "@/components/RememberMeCheckbox";
+import { trpcClient } from "@/lib/trpc";
+import { useRouter } from "next/navigation";
+import * as v from "valibot";
 
 export default function LoginForm() {
   const [revealPassword, setRevealPassword] = useState(false);
+
+  const router = useRouter();
 
   const { toast } = useToast();
 
@@ -28,55 +31,58 @@ export default function LoginForm() {
     control,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<LoginSchemaType>({
     resolver: valibotResolver(LoginSchema),
   });
 
-  const handleLogin: SubmitHandler<LoginSchemaType> = async (data) => {
-    const response = await login(data);
-    if (!response) return;
-    switch (response.status) {
-      case "validation_error":
-        for (const error of response.errors) {
-          if (error.path && error.path[0].key === "email") {
-            setError("email", {
-              type: "manual",
-              message: error.message,
-            });
-          } else if (error.path && error.path[0].key === "password") {
-            setError("password", {
-              type: "manual",
-              message: error.message,
-            });
-          }
-        }
-        break;
+  const login = trpcClient.login.useMutation();
 
-      case "server_error":
-        toast({
-          title: "Server Error",
-          description: response.error,
-          toastType: "destructive",
-        });
-        break;
+  const { data, error, isPending } = login;
+
+  if (data) {
+    router.push("/confirmEmail");
+  }
+
+  if (error) {
+    if (!error.data?.valibotError) {
+      toast({
+        title: "Server Error",
+        description: error.message,
+        toastType: "destructive",
+      });
     }
-  };
+
+    const issues = v.flatten<typeof LoginSchema>(error.data?.valibotError!);
+    if (!issues.nested) return;
+
+    const properties = Object.keys(issues.nested);
+
+    for (const property of properties) {
+      const errMessage = issues.nested[property as keyof typeof issues.nested];
+      if (!errMessage) return;
+
+      setError(property as keyof typeof issues.nested, {
+        type: "manual",
+        message: errMessage[0],
+      });
+    }
+  }
 
   return (
-    <div className="px-4 py-12 lg:py-0 flex flex-col gap-8 lg:px-0 lg:max-w-[380px]">
+    <div className="flex flex-col gap-8 px-4 py-12 lg:max-w-[380px] lg:px-0 lg:py-0">
       <Toaster />
       <div className="flex flex-col gap-6">
         <nav className="lg:hidden">
-          <Link href="/" className="h-fit w-[200px] inline-block">
+          <Link href="/" className="inline-block h-fit w-[200px]">
             <Logo />
           </Link>
         </nav>
-        <div className="flex gap-2 lg:gap-3 flex-col">
-          <h1 className="font-semibold text-2xl lg:text-4xl lg:leading-11 lg:tracking-[-0.72px] leading-8 text-gray-900">
+        <div className="flex flex-col gap-2 lg:gap-3">
+          <h1 className="font-semibold text-2xl text-gray-900 leading-8 lg:text-4xl lg:leading-11 lg:tracking-[-0.72px]">
             Login
           </h1>
-          <p className="font-normal text-base leading-6 text-gray-600">
+          <p className="font-normal text-base text-gray-600 leading-6">
             Welcome back! Log in to access your personalized dashboard, monitor
             your security status, and stay ahead of potential threats. Your
             peace of mind is just a click away.
@@ -85,7 +91,7 @@ export default function LoginForm() {
       </div>
       <form
         className="flex flex-col gap-5"
-        onSubmit={handleSubmit(handleLogin)}
+        onSubmit={handleSubmit((data) => login.mutate(data))}
       >
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="email">Email</Label>
@@ -97,7 +103,7 @@ export default function LoginForm() {
             placeholder="Enter your email"
           />
           {errors.email && (
-            <p className="text-red-500 text-sm font-normal">
+            <p className="font-normal text-red-500 text-sm">
               {errors.email.message}
             </p>
           )}
@@ -121,7 +127,7 @@ export default function LoginForm() {
               />
             </div>
             {errors.password && (
-              <p className="text-red-500 text-sm font-normal">
+              <p className="font-normal text-red-500 text-sm">
                 {errors.password.message}
               </p>
             )}
@@ -133,33 +139,29 @@ export default function LoginForm() {
         <div className="mt-1 flex justify-between">
           <Controller
             control={control}
-            name="rememberMe"
+            name="remember_me"
             defaultValue={false}
             render={({ field }) => <RememberMeCheckbox {...field} />}
           />
           <Link
             href="/forgotpassword"
-            className="font-medium text-sm leading-5 text-brand-700"
+            className="font-medium text-brand-700 text-sm leading-5"
           >
             Forgot your password?
           </Link>
         </div>
-        <Button className="mt-1" disabled={isSubmitting}>
-          {isSubmitting ? "Logging in..." : "Login"}
+        <Button className="mt-1" disabled={isPending}>
+          {isPending ? "Logging in..." : "Login"}
         </Button>
       </form>
-      <p className="font-normal text-sm leading-5 text-gray-600 text-center">
+      <p className="text-center font-normal text-gray-600 text-sm leading-5">
         {"Don't have an account? "}
-        {process.env.NEXT_PUBLIC_APP_ENV === "production" ? (
+        {process.env.NEXT_PUBLIC_APP_ENV === "production" && (
           <Link
-            href="mailto:arib@ims-technology.ma"
+            href={`mailto:${process.env.NEXT_PUBLIC_ADMIN_APP_EMAIL}`}
             className="font-medium text-brand-700"
           >
             Email the admin
-          </Link>
-        ) : (
-          <Link href="/signup" className="font-medium text-brand-700">
-            Sign up
           </Link>
         )}
       </p>

@@ -19,8 +19,9 @@
     "@pentest-app/minio": "^1.0.0",
     "@pentest-app/schemas": "^1.0.0",
     "@pentest-app/trpc": "^1.0.0",
-    "@trpc/server": "^11.0.0-rc.604",
+    "@trpc/server": "npm:@trpc/server@next",
     "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
     "express": "^4.21.1",
     "mediasoup": "^3.14.14",
     "minio": "^8.0.1",
@@ -35,7 +36,8 @@
     "dotenv": "^16.4.5",
     "nodemon": "^3.1.7",
     "tsc-alias": "^1.8.10",
-    "typescript": "^5.6.2"
+    "typescript": "^5.6.2",
+    "wait-on": "^8.0.1"
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8",

@@ -20,6 +20,7 @@ import * as zxcvbnCommonPackage from "@zxcvbn-ts/language-common";
 import * as zxcvbnEnPackage from "@zxcvbn-ts/language-en";
 
 import { randomUUID } from "node:crypto";
+import { TRPCError } from "@trpc/server";
 import { matcherPwnedFactory } from "@zxcvbn-ts/matcher-pwned";
 
 const matcherPwned = matcherPwnedFactory(fetch, zxcvbnOptions);
@@ -157,9 +158,10 @@ export const login = publicProcedure
       const isValid = await verify(user?.password_hash ?? dummyHash, password);
 
       if (!user || !isValid) {
-        return {
-          error: "Invalid email or password. Please try again.",
-        };
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Invalid email or password. Please try again.",
+        });
       }
 
       const auth = createAuthService(db);
@@ -169,11 +171,14 @@ export const login = publicProcedure
       auth.setSessionTokenCookie(res, token, session.expiresAt, remember_me);
 
       return {
-        success: true,
+        data: {
+          access_token: token,
+        },
       };
     } catch (e) {
-      return {
-        error: "An error occurred during login. Please try again.",
-      };
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "An error occurred during login. Please try again.",
+      });
     }
   });
