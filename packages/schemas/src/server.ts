@@ -33,18 +33,22 @@ export const UserImageShema = v.objectAsync({
   ),
 });
 
-const EmailPasswordSchemas = v.object({
-  email: v.pipe(
-    v.string(),
-    v.nonEmpty("Email is required"),
-    v.email("Invalid email address"),
-  ),
+export const PasswordSchema = v.object({
   password: v.pipe(
     v.string(),
     v.nonEmpty("Password is required"),
     v.minLength(8, "Your password is too short."),
     v.maxLength(64, "Your password exceeds the maximum limit"),
   ),
+});
+
+const EmailPasswordSchemas = v.object({
+  email: v.pipe(
+    v.string(),
+    v.nonEmpty("Email is required"),
+    v.email("Invalid email address"),
+  ),
+  ...PasswordSchema.entries,
 });
 
 export const SignUpSchema = v.objectAsync({
@@ -65,16 +69,31 @@ const DatabaseUrlRegex = /postgresql:\/\/(\w+):(\S+)@([\w\.-]+):(\d+)\/(\w+)/;
 
 export const EnvSchema = v.object({
   NODE_ENV: v.picklist(["development", "production"]),
+  ENCRYPTION_KEY: v.pipe(v.string(), v.nonEmpty()),
   DOMAIN_NAME: v.pipe(v.string(), v.nonEmpty(), v.regex(domainNameRegex)),
   ADMIN_APP_EMAIL: v.pipe(v.string(), v.nonEmpty(), v.email()),
   ADMIN_APP_PASSWORD: v.pipe(v.string(), v.nonEmpty()),
   ADMIN_APP_ROLE: v.pipe(v.string(), v.nonEmpty()),
   ADMIN_APP_USERNAME: v.pipe(v.string(), v.nonEmpty()),
   ADMIN_APP_TAG: v.pipe(v.string(), v.nonEmpty()),
-  // not sure about this one
+  RESEND_API_KEY: v.pipe(v.string(), v.nonEmpty()),
   MINIO_HOST_URL: v.pipe(v.string(), v.nonEmpty(), v.regex(domainNameRegex)),
   MINIO_ACCESS_KEY: v.pipe(v.string(), v.nonEmpty()),
   MINIO_SECRET_KEY: v.pipe(v.string(), v.nonEmpty()),
   SERVER_PUBLIC_IP: v.pipe(v.string(), v.ip()),
   DATABASE_URL: v.pipe(v.string(), v.nonEmpty(), v.regex(DatabaseUrlRegex)),
+});
+
+export const EncryptedDataSchema = v.object({
+  iv: v.pipe(v.string(), v.nonEmpty()),
+  encryptedData: v.pipe(v.string(), v.nonEmpty()),
+});
+
+export const ResetURLParamsSchema = v.object({
+  token: v.pipe(v.string(), v.nonEmpty()),
+  userID: v.pipe(v.string(), v.nonEmpty()),
+});
+
+export const TokenSchema = v.object({
+  token: v.pipe(v.string(), v.nonEmpty()),
 });

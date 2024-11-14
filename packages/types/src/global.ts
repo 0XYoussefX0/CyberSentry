@@ -1,5 +1,6 @@
 import type { DB } from "@pentest-app/db/drizzle";
-import type { NextFunction, Request, Response } from "express";
+import type { CookieOptions } from "express";
+import type { Resend } from "resend";
 import type { Session, SessionValidationResult } from "./server.js";
 
 type AdminCredentials = {
@@ -17,21 +18,50 @@ export type AuthService = {
     user_id: string,
     remember_me: boolean,
   ) => Promise<Session>;
-  validateSessionToken: (token: string) => Promise<SessionValidationResult>;
-  invalidateSession: (sessionId: string) => Promise<void>;
+  validateSessionToken: (cookies: Cookies) => Promise<SessionValidationResult>;
+  invalidateSession: (sessionId: string, cookies: Cookies) => Promise<void>;
   setSessionTokenCookie: (
-    res: Response,
     token: string,
     expiresAt: Date,
     rememberMe: boolean,
+    cookies: Cookies,
   ) => void;
-  deleteSessionTokenCookie: (res: Response) => void;
+  deleteSessionTokenCookie: (cookies: Cookies) => void;
   signTheAdminUp: (adminCredentials: AdminCredentials) => Promise<void>;
-  checkAuth: (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => Promise<Response<any, Record<string, any>> | undefined>;
+  sendConfirmationEmail: (
+    resend: Resend,
+    email: string,
+    name: string,
+    sessionID: string,
+  ) => Promise<void>;
+  verifyConfirmationEmailToken: (
+    token: string,
+    sessionID: string,
+  ) => Promise<{ status: "valid" | "invalid" }>;
+  sendResetEmail: (
+    resend: Resend,
+    email: string,
+  ) => Promise<{
+    status: "success";
+  }>;
+  verifyResetEmailToken: (
+    token: string,
+    userID: string,
+  ) => Promise<{ status: "valid" | "invalid" }>;
+  generateLink: ({
+    path,
+    queryParams,
+  }: { path: string; queryParams: string }) => string;
+  verifySession: (sessionID: string) => Promise<void>;
 };
 
-export type CreateAuthServiceFunc = (db: DB) => AuthService;
+export type Cookies = {
+  set: (name: string, value: string, options: CookieOptions) => void;
+  get: (name: string) => string | undefined;
+};
+
+export type CreateAuthServiceArgs = {
+  db: DB;
+  isProduction: boolean;
+  domainName: string;
+};

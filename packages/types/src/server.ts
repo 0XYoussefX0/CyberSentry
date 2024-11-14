@@ -4,7 +4,6 @@ import type { InferSelectModel } from "drizzle-orm";
 import type { Client } from "minio";
 
 import type { EnvSchema } from "@pentest-app/schemas/server";
-import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import type { InferOutput } from "valibot";
 
 import type {
@@ -17,6 +16,9 @@ import type {
 import type { AppData } from "mediasoup/node/lib/types.js";
 
 import type { Socket } from "socket.io";
+
+import type { Resend } from "resend";
+import type { AuthService, Cookies } from "./global.js";
 
 export type User = InferSelectModel<typeof userTable>;
 export type Session = InferSelectModel<typeof sessionTable>;
@@ -33,7 +35,10 @@ export type Context = {
   minioHost: string;
   minio: Client;
   db: DB;
-  res: CreateExpressContextOptions["res"];
+  resend: Resend;
+  auth: AuthService;
+  ENCRYPTION_KEY: Buffer;
+  cookies: Cookies;
 };
 
 export type Env = InferOutput<typeof EnvSchema>;

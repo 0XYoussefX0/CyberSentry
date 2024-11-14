@@ -14,16 +14,13 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import RevealButton from "@/components/ui/RevealButton";
-import { Toaster } from "@/components/ui/toaster";
-import { trpcClient } from "@/lib/trpc";
-import { useRouter } from "next/navigation";
+import { trpcClient } from "@/lib/trpcClient";
 import * as v from "valibot";
+
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
   const [revealPassword, setRevealPassword] = useState(false);
-
-  const router = useRouter();
-
   const { toast } = useToast();
 
   const {
@@ -36,42 +33,44 @@ export default function LoginForm() {
     resolver: valibotResolver(LoginSchema),
   });
 
-  const login = trpcClient.login.useMutation();
+  const router = useRouter();
 
-  const { data, error, isPending } = login;
+  const login = trpcClient.login.useMutation({
+    onSuccess: () => {
+      router.push("/check-email-confirmation");
+    },
+    onError: (error) => {
+      if (!error.data?.valibotError) {
+        toast({
+          title: "Server Error",
+          description: error.message,
+          toastType: "destructive",
+        });
+        return;
+      }
 
-  if (data) {
-    router.push("/confirmEmail");
-  }
+      const issues = v.flatten<typeof LoginSchema>(error.data?.valibotError!);
+      if (!issues.nested) return;
 
-  if (error) {
-    if (!error.data?.valibotError) {
-      toast({
-        title: "Server Error",
-        description: error.message,
-        toastType: "destructive",
-      });
-    }
+      const properties = Object.keys(issues.nested);
 
-    const issues = v.flatten<typeof LoginSchema>(error.data?.valibotError!);
-    if (!issues.nested) return;
+      for (const property of properties) {
+        const errMessage =
+          issues.nested[property as keyof typeof issues.nested];
+        if (!errMessage) return;
 
-    const properties = Object.keys(issues.nested);
+        setError(property as keyof typeof issues.nested, {
+          type: "manual",
+          message: errMessage[0],
+        });
+      }
+    },
+  });
 
-    for (const property of properties) {
-      const errMessage = issues.nested[property as keyof typeof issues.nested];
-      if (!errMessage) return;
-
-      setError(property as keyof typeof issues.nested, {
-        type: "manual",
-        message: errMessage[0],
-      });
-    }
-  }
+  const { isPending } = login;
 
   return (
     <div className="flex flex-col gap-8 px-4 py-12 lg:max-w-[380px] lg:px-0 lg:py-0">
-      <Toaster />
       <div className="flex flex-col gap-6">
         <nav className="lg:hidden">
           <Link href="/" className="inline-block h-fit w-[200px]">
@@ -156,14 +155,12 @@ export default function LoginForm() {
       </form>
       <p className="text-center font-normal text-gray-600 text-sm leading-5">
         {"Don't have an account? "}
-        {process.env.NEXT_PUBLIC_APP_ENV === "production" && (
-          <Link
-            href={`mailto:${process.env.NEXT_PUBLIC_ADMIN_APP_EMAIL}`}
-            className="font-medium text-brand-700"
-          >
-            Email the admin
-          </Link>
-        )}
+        <Link
+          href={`mailto:${process.env.NEXT_PUBLIC_ADMIN_APP_EMAIL!}`}
+          className="font-medium text-brand-700"
+        >
+          Email the admin
+        </Link>
       </p>
     </div>
   );

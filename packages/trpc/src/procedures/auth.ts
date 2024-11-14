@@ -1,10 +1,20 @@
-import { adminProcedure, publicProcedure } from "../index.js";
+import {
+  adminProcedure,
+  privateProcedure,
+  publicProcedure,
+  unverfiedProcedure,
+} from "../index.js";
 
-import { LoginSchema, SignUpSchema } from "@pentest-app/schemas/server";
-import * as v from "valibot";
-
-import { createAuthService } from "@pentest-app/auth/index";
 import { userTable } from "@pentest-app/db/user";
+import {
+  EncryptedDataSchema,
+  LoginSchema,
+  PasswordSchema,
+  ResetURLParamsSchema,
+  SignUpSchema,
+  TokenSchema,
+} from "@pentest-app/schemas/server";
+import * as v from "valibot";
 
 import { hash, verify } from "@node-rs/argon2";
 import { eq } from "drizzle-orm";
@@ -20,8 +30,11 @@ import * as zxcvbnCommonPackage from "@zxcvbn-ts/language-common";
 import * as zxcvbnEnPackage from "@zxcvbn-ts/language-en";
 
 import { randomUUID } from "node:crypto";
+import { EmailSchema } from "@pentest-app/schemas/client";
 import { TRPCError } from "@trpc/server";
 import { matcherPwnedFactory } from "@zxcvbn-ts/matcher-pwned";
+
+import crypto from "node:crypto";
 
 const matcherPwned = matcherPwnedFactory(fetch, zxcvbnOptions);
 
@@ -68,6 +81,7 @@ export const signUserUp = adminProcedure
     ]);
 
     if (passwordResult.score < 2) {
+      // throw a trpc error
       throw new Error(
         passwordResult.feedback.warning ||
           "This password would be too easy to guess. Please choose a different password.",
@@ -138,12 +152,13 @@ export const login = publicProcedure
   .input(v.parser(LoginSchema))
   .mutation(async ({ input, ctx }) => {
     const { password, email, remember_me } = input;
-    const { db, res } = ctx;
+    const { db, resend, auth, cookies } = ctx;
 
     const result = await db
       .select({
         id: userTable.id,
         password_hash: userTable.password_hash,
+        name: userTable.username,
       })
       .from(userTable)
       .where(eq(userTable.email, email))
@@ -164,16 +179,18 @@ export const login = publicProcedure
         });
       }
 
-      const auth = createAuthService(db);
-
       const token = auth.generateSessionToken();
       const session = await auth.createSession(token, user.id, remember_me);
-      auth.setSessionTokenCookie(res, token, session.expiresAt, remember_me);
+      auth.setSessionTokenCookie(
+        token,
+        session.expiresAt,
+        remember_me,
+        cookies,
+      );
+      auth.sendConfirmationEmail(resend, email, user.name, session.id);
 
       return {
-        data: {
-          access_token: token,
-        },
+        access_token: token,
       };
     } catch (e) {
       throw new TRPCError({
@@ -181,4 +198,172 @@ export const login = publicProcedure
         message: "An error occurred during login. Please try again.",
       });
     }
+  });
+
+export const resendConfirmationEmail = unverfiedProcedure.mutation(
+  async ({ ctx }) => {
+    const {
+      auth,
+      resend,
+      user: { username, email },
+      session: { id },
+    } = ctx;
+
+    await auth.sendConfirmationEmail(resend, email, username, id);
+
+    return {
+      status: "success",
+    };
+  },
+);
+
+export const sendResetEmail = publicProcedure
+  .input(v.parser(EmailSchema))
+  .mutation(async ({ input, ctx }) => {
+    const { email } = input;
+    const { auth, resend } = ctx;
+
+    return await auth.sendResetEmail(resend, email);
+  });
+
+export const resendResetEmail = publicProcedure
+  .input(v.parser(EmailSchema))
+  .mutation(async ({ input, ctx }) => {
+    const { email } = input;
+    const { auth, resend } = ctx;
+
+    return await auth.sendResetEmail(resend, email);
+  });
+
+export const resetPassword = privateProcedure
+  .input(async (input) => {
+    const result = v.safeParse(PasswordSchema, input);
+
+    if (!result.success) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        // get the error message from the result.issues
+      });
+    }
+
+    return result.output;
+  })
+  .mutation(async ({ input, ctx }) => {
+    const { user, db } = ctx;
+
+    const { password } = input;
+
+    const { username, role, tag, email } = user;
+
+    const passwordResult = await zxcvbnAsync(password, [
+      username,
+      role,
+      tag,
+      email,
+    ]);
+
+    if (passwordResult.score < 2) {
+      // throw a trpc error
+      throw new Error(
+        passwordResult.feedback.warning ||
+          "This password would be too easy to guess. Please choose a different password.",
+      );
+    }
+
+    const passwordHash = await hash(password, {
+      memoryCost: 19456,
+      timeCost: 2,
+      outputLen: 32,
+      parallelism: 1,
+    });
+
+    const result = await db
+      .update(userTable)
+      .set({
+        password_hash: passwordHash,
+      })
+      .where(eq(userTable.email, email));
+
+    return {
+      status: "success",
+    };
+  });
+
+export const logout = privateProcedure.mutation(async ({ ctx }) => {
+  const { auth, session, cookies } = ctx;
+  await auth.invalidateSession(session.id, cookies);
+  return {
+    status: "success",
+  };
+});
+
+const ALGORITHM = "aes-256-cbc";
+
+export const encryptString = publicProcedure
+  .input(v.parser(EmailSchema))
+  .mutation(({ input, ctx }) => {
+    const { ENCRYPTION_KEY } = ctx;
+    const { email } = input;
+
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv(ALGORITHM, ENCRYPTION_KEY, iv);
+    let encrypted = cipher.update(email, "utf8", "hex");
+    encrypted += cipher.final("hex");
+
+    return `${iv}$${encrypted}`;
+  });
+
+export const decryptString = publicProcedure
+  .input(v.parser(EncryptedDataSchema))
+  .mutation(({ input, ctx }) => {
+    const { ENCRYPTION_KEY } = ctx;
+    const { iv, encryptedData } = input;
+
+    const decipher = crypto.createDecipheriv(
+      ALGORITHM,
+      ENCRYPTION_KEY,
+      Buffer.from(iv, "hex"),
+    );
+
+    let decryptedData = decipher.update(encryptedData, "hex", "utf8");
+
+    decryptedData += decipher.final("utf8");
+
+    return {
+      decryptedData,
+    };
+  });
+
+export const verifyResetEmailToken = publicProcedure
+  .input(v.parser(ResetURLParamsSchema))
+  .mutation(async ({ input, ctx }) => {
+    const { token, userID } = input;
+    const { auth, cookies } = ctx;
+
+    const result = await auth.verifyResetEmailToken(token, userID);
+
+    if (result.status === "valid") {
+      const authToken = auth.generateSessionToken();
+      const session = await auth.createSession(authToken, userID, false);
+      auth.setSessionTokenCookie(authToken, session.expiresAt, false, cookies);
+      await auth.verifySession(session.id);
+
+      return {
+        status: "sucess",
+      };
+    }
+
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Invalid Token",
+    });
+  });
+
+export const verifyConfirmationEmailToken = unverfiedProcedure
+  .input(v.parser(TokenSchema))
+  .mutation(async ({ input, ctx }) => {
+    const { token } = input;
+    const { auth, session } = ctx;
+
+    return await auth.verifyConfirmationEmailToken(token, session.id);
   });

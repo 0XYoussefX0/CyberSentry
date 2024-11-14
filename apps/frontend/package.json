@@ -5,11 +5,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "node .next/standalone/server.js",
-    "email": "email dev"
+    "start": "node .next/standalone/server.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
+    "@pentest-app/auth": "^1.0.0",
+    "@pentest-app/db": "^1.0.0",
     "@pentest-app/schemas": "^1.0.0",
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-dropdown-menu": "^2.1.1",
@@ -41,6 +42,7 @@
     "react-easy-crop": "^5.0.8",
     "react-hook-form": "^7.52.2",
     "react-window": "^1.8.10",
+    "server-only": "^0.0.1",
     "sharp": "^0.33.5",
     "socket.io-client": "^4.7.5",
     "superjson": "^2.2.1",

@@ -17,5 +17,5 @@ export const getPublicUrl = (
   host: string,
   protocol: "https" | "http",
 ) => {
-  return `${protocol}//${host}:9000/${bucket_name}/${fileName}`;
+  return `${protocol}://${host}:9000/${bucket_name}/${fileName}`;
 };

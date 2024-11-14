@@ -1,84 +1,77 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { valibotResolver } from "@hookform/resolvers/valibot";
-import { passwordStrength } from "check-password-strength";
 import { motion } from "framer-motion";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 
-import { PasswordSchemaType, ResetPasswordFormProps } from "@/lib/types";
-import { PasswordSchema } from "@/lib/validationSchemas";
 import { toast } from "@/hooks/use-toast";
-import resetPassword from "@/app/actions/(auth)/resetPassword";
+import { PasswordSchema } from "@pentest-app/schemas/client";
+import type { PasswordSchemaType } from "@pentest-app/types/client";
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import RevealButton from "@/components/ui/RevealButton";
-import { Toaster } from "@/components/ui/toaster";
-import PasswordContaintsChecker from "@/components/PasswordContaintsChecker";
-import PasswordStrengthChecker from "@/components/PasswordStrengthChecker";
 
 import keyIcon from "@/assets/keyIcon.svg";
+import { trpcClient } from "@/lib/trpcClient";
+import * as v from "valibot";
 
-export default function ResetPasswordForm({
-  userId,
-  secret,
-}: ResetPasswordFormProps) {
+export default function ResetPasswordForm() {
   const [exit, setExit] = useState(false);
   const [revealPassword, setRevealPassword] = useState(false);
   const {
     register,
     handleSubmit,
     setError,
-    reset,
-    watch,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<PasswordSchemaType>({
     resolver: valibotResolver(PasswordSchema),
   });
 
-  const password = watch("password");
-
   const router = useRouter();
 
-  const passwordStrengthResult = passwordStrength(password);
-
-  const handlePasswordResetting: SubmitHandler<PasswordSchemaType> = async (
-    data,
-  ) => {
-    const response = await resetPassword(data, userId, secret);
-    if (!response) return;
-    switch (response.status) {
-      case "success":
+  const resetPassword = trpcClient.resetPassword.useMutation({
+    onSuccess: () => {
+      toast({
+        title:
+          "Your Password has Changed Successfully. You can now Login in with your new credentials",
+        toastType: "successful",
+      });
+      setExit(true);
+    },
+    onError: (error) => {
+      if (!error.data?.valibotError) {
         toast({
-          title: "Password has been resetted Successfully",
-          description:
-            "You're all set! You can now log in using your new password.",
-          toastType: "successful",
-        });
-        setExit(true);
-        break;
-      case "validation_error":
-        for (const error of response.errors) {
-          if (error.path && error.path[0].key === "password") {
-            setError("password", {
-              type: "manual",
-              message: error.message,
-            });
-          }
-        }
-        break;
-      case "server_error":
-        toast({
-          title: "Error Resetting the Password",
-          description: response.error,
+          title: "Server Error",
+          description: error.message,
           toastType: "destructive",
         });
-        break;
-    }
-  };
+      }
+
+      const issues = v.flatten<typeof PasswordSchema>(
+        error.data?.valibotError!,
+      );
+      if (!issues.nested) return;
+
+      const properties = Object.keys(issues.nested);
+
+      for (const property of properties) {
+        const errMessage =
+          issues.nested[property as keyof typeof issues.nested];
+        if (!errMessage) return;
+
+        setError(property as keyof typeof issues.nested, {
+          type: "manual",
+          message: errMessage[0],
+        });
+      }
+    },
+  });
+
+  const { isPending } = resetPassword;
 
   return (
     <motion.div
@@ -94,21 +87,20 @@ export default function ResetPasswordForm({
         }
       }}
       transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-      className="relative lp:max-w-[420px] lp:w-full"
+      className="relative lp:w-full lp:max-w-[420px]"
     >
-      <Toaster />
-      <div className="mask-2"></div>
-      <div className="gridd-2"></div>
-      <div className="flex flex-col gap-8 h-[484px]">
+      <div className="mask-2" />
+      <div className="gridd-2" />
+      <div className="flex h-[484px] flex-col gap-8">
         <div className="flex flex-col items-center gap-6">
-          <div className="bg-white border border-solid border-gray-200 w-14 h-14 flex items-center justify-center rounded-xl shadows">
-            <img src={keyIcon.src} alt="" className="w-7 h-7" />
+          <div className="shadows flex h-14 w-14 items-center justify-center rounded-xl border border-gray-200 border-solid bg-white">
+            <img src={keyIcon.src} alt="" className="h-7 w-7" />
           </div>
           <div className="flex flex-col gap-2">
-            <h1 className="font-semibold text-center leading-8 text-2xl text-gray-900">
+            <h1 className="text-center font-semibold text-2xl text-gray-900 leading-8">
               Reset Password
             </h1>
-            <p className="text-center font-normal leading-6 text-base text-gray-600">
+            <p className="text-center font-normal text-base text-gray-600 leading-6">
               {
                 "You're just a step away from creating a new password. Please enter and confirm your new password below."
               }
@@ -117,7 +109,9 @@ export default function ResetPasswordForm({
         </div>
         <form
           className="flex flex-col gap-5"
-          onSubmit={handleSubmit(handlePasswordResetting)}
+          onSubmit={handleSubmit(
+            async ({ password }) => await resetPassword.mutate({ password }),
+          )}
         >
           <div className="flex flex-col gap-2">
             <div className="flex flex-col gap-1.5">
@@ -138,23 +132,17 @@ export default function ResetPasswordForm({
                 />
               </div>
               {errors.password && (
-                <p className="text-red-500 text-sm font-normal">
+                <p className="font-normal text-red-500 text-sm">
                   {errors.password.message}
                 </p>
               )}
               <span id="password-help" className="sr-only">
                 {revealPassword ? "Password is visible" : "Password is hidden"}
               </span>
-              <PasswordStrengthChecker
-                passwordStrengthResult={passwordStrengthResult}
-              />
             </div>
-            <PasswordContaintsChecker
-              passwordStrengthResult={passwordStrengthResult}
-            />
           </div>
-          <Button className="mt-1" disabled={isSubmitting}>
-            Reset
+          <Button className="mt-1" disabled={isPending}>
+            {isPending ? "Resetting..." : "Reset"}
           </Button>
         </form>
       </div>

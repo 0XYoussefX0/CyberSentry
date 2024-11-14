@@ -1,68 +1,76 @@
+import type { SessionValidationResult } from "@pentest-app/types/server";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-import { getUser } from "@/lib/appwrite/server";
-import { DATABASE_ID, USERS_COLLECTION_ID } from "@/lib/env";
-
-import { createSessionClient } from "./lib/appwrite/server";
-
-const publicPaths = [
-  "/signup",
-  "/login",
-  "/forgotpassword",
-  "/resetpassword",
+const publicRoutes = [
+  "/",
   "/error",
-  "/home",
+  "/forgot-password",
+  "/login",
+  "/check-email-reset",
+  "/resetpassword",
 ];
 
 export async function middleware(request: NextRequest) {
-  // const { account, databases } = await createSessionClient();
-  // const user = await getUser(account);
+  const path = request.nextUrl.pathname;
 
-  // const currentRoute = request.nextUrl.pathname;
+  const pathIsPublic = publicRoutes.includes(path);
 
-  // const currentRouteIsPublic = publicPaths.some(
-  //   (route) => currentRoute === route,
-  // );
+  const cookie = request.cookies.get("session");
 
-  // if (!user && !currentRouteIsPublic) {
-  //   const url = request.nextUrl.clone();
-  //   url.pathname = "/login";
-  //   return NextResponse.redirect(url);
-  // }
+  let userData: SessionValidationResult = { user: null, session: null };
 
-  // if (user && currentRouteIsPublic) {
-  //   const url = request.nextUrl.clone();
-  //   url.pathname = "/";
-  //   return NextResponse.redirect(url);
-  // }
+  let sessionCookie: undefined | string = undefined;
 
-  // if (
-  //   user &&
-  //   !currentRouteIsPublic &&
-  //   currentRoute !== "/onboarding" &&
-  //   currentRoute !== "/confirmEmail"
-  // ) {
-  //   try {
-  //     const { completed_onboarding } = await databases.getDocument(
-  //       DATABASE_ID,
-  //       USERS_COLLECTION_ID,
-  //       user.$id,
-  //     );
+  if (cookie && typeof cookie.value === "string" && cookie.value.length > 0) {
+    const token = cookie.value;
 
-  //     if (!completed_onboarding) {
-  //       const url = request.nextUrl.clone();
-  //       url.pathname = "/onboarding";
-  //       return NextResponse.redirect(url);
-  //     }
-  //   } catch (e) {
-  //     const url = request.nextUrl.clone();
-  //     url.pathname = "/error";
-  //     return NextResponse.redirect(url);
-  //   }
-  // }
+    const result = await fetch("http://localhost:4000/verifyAuth", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ token }),
+    });
 
-  return NextResponse.next();
+    const cookies = result.headers.getSetCookie();
+
+    sessionCookie = cookies[0];
+
+    userData = await result.json();
+  }
+
+  const { user, session } = userData;
+
+  console.log(userData);
+
+  let response = NextResponse.next();
+
+  if (!user && !pathIsPublic) {
+    response = NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  if (user && session && session.verified && pathIsPublic) {
+    response = NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  if (
+    user &&
+    session &&
+    !session.verified &&
+    !path.startsWith("/check-email-confirmation") &&
+    !path.startsWith("/verifyEmail")
+  ) {
+    response = NextResponse.redirect(
+      new URL("/check-email-confirmation", request.url),
+    );
+  }
+
+  if (sessionCookie) {
+    response.headers.set("Set-Cookie", sessionCookie);
+  }
+
+  return response;
 }
 
 export const config = {
@@ -72,8 +80,8 @@ export const config = {
      * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
-     * - favicon.ico, sitemap.xml, robots.txt (metadata files)
+     * - favicon.ico (favicon file)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
 };

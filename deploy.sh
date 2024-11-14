@@ -182,4 +182,4 @@ if ! sudo docker compose ps | grep "Up"; then
 fi
 
 # Output final message
-echo "Deployment complete."
+echo "Deployment complete. Don't forget to set the access permission of the public-assets and the profile pictures buckets to download using this command: mc anonymous set download ALIAS/BUCKET_NAME"

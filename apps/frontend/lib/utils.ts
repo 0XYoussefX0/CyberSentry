@@ -3,9 +3,8 @@ import { format } from "date-fns";
 import type { Dispatch, SetStateAction } from "react";
 import { twMerge } from "tailwind-merge";
 
-import type { getCroppedImgType } from "./types";
-
-import * as v from "valibot";
+import type { getCroppedImgType } from "@pentest-app/types/client";
+import type { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -198,7 +197,7 @@ export const checkCameraAvailability = () => {
         hasBackCamera: false,
       };
 
-      devices.forEach((device) => {
+      for (const device of devices) {
         if (device.kind === "videoinput") {
           // Check for front camera
           if (
@@ -215,7 +214,7 @@ export const checkCameraAvailability = () => {
             cameraAvailability.hasBackCamera = true;
           }
         }
-      });
+      }
 
       return cameraAvailability;
     })
@@ -225,37 +224,10 @@ export const checkCameraAvailability = () => {
     });
 };
 
-export const getIssues = (schema, issues) => {
-  const flattenedIssues = v.flatten<typeof schema>(issues);
-
-  if (flattenedIssues.nested) {
-    const properties = Object.keys(issues.nested);
-    for (const property of properties) {
-      const errMessage = properties[property as keyof typeof properties];
-    }
+export function formatCookies(cookies: RequestCookie[]) {
+  let cookiesString = "";
+  for (const cookie of cookies) {
+    cookiesString += `${cookie.name}=${cookie.value}; `;
   }
-
-  return {
-    fieldname: ["dsdsds"],
-  };
-};
-
-// if (error) {
-//   if (error.data?.valibotError) {
-//     const issues = v.flatten<typeof LoginSchema>(error.data.valibotError);
-//     if (issues.nested) {
-//       const properties = Object.keys(issues.nested);
-//       for (const property of properties) {
-//         type t = typeof issues.nested;
-//         type s = keyof t;
-//         const nameOfInputThatHasError =
-//           property as keyof typeof issues.nested;
-//         const errMessage = issues.nested[nameOfInputThatHasError] as string[];
-//         setError(nameOfInputThatHasError, {
-//           type: "manual",
-//           message: errMessage[0] as string,
-//         });
-//       }
-//     }
-//   }
-// }
+  return cookiesString;
+}

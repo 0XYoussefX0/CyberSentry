@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   Body,
   Button,
@@ -14,17 +13,36 @@ import {
   Text,
 } from "@react-email/components";
 
-export const ForgotPassword = () => {
+// TODO: pass the minio Host to the function so that it can be used in the getPublicUrl func when the app is in production
+
+const getPublicUrl = (
+  bucket_name: string,
+  fileName: string,
+  host: string,
+  protocol: "https" | "http",
+) => {
+  return `${protocol}://${host}:9000/${bucket_name}/${fileName}`;
+};
+
+export const ResetPassword = ({
+  name,
+  reset_link,
+}: { name: string; reset_link: string }) => {
   return (
     <Html>
       <Head />
-      <Preview>You updated the password for your Twitch account</Preview>
+      <Preview>Reset your IMS Technology account password</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section style={logo}>
             <Img
-              width={150}
-              src="http://localhost/v1/storage/buckets/66f05e0e001e13410008/files/66f05ec20035bec76102/view?project=66d9edab001522e8390b&project=66d9edab001522e8390b&mode=admin"
+              width={100}
+              src={getPublicUrl(
+                "public-assets",
+                "Logo.png",
+                "localhost",
+                "http",
+              )}
             />
           </Section>
           <Section style={sectionsBorders}>
@@ -35,19 +53,16 @@ export const ForgotPassword = () => {
             </Row>
           </Section>
           <Section style={content}>
-            <Text style={paragraph}>Hi There 👋,</Text>
+            <Text style={paragraph}>Hi {name} 👋,</Text>
             <Text style={paragraph}>
-              We received a request to reset the password for your CyberSentry
-              account. No worries—it's easy to get back on track!
+              We received a request to reset the password for your IMS
+              Technology account. No worries—it's easy to get back on track!
             </Text>
             <Text style={paragraph}>
               To reset your password, simply click the button below:
             </Text>
             <Text style={paragraph}>
-              <Button
-                style={button}
-                href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/resetpassword"
-              >
+              <Button style={button} href={reset_link}>
                 Reset Your Password
               </Button>
             </Text>
@@ -62,7 +77,7 @@ export const ForgotPassword = () => {
             <Text style={paragraph}>
               Best,
               <br />
-              CyberSentry Support Team
+              IMS Technology Support Team
             </Text>
           </Section>
         </Container>
@@ -73,7 +88,12 @@ export const ForgotPassword = () => {
               <Link href="https://www.facebook.com">
                 <Img
                   style={{ width: 20, height: 20 }}
-                  src="http://localhost/v1/storage/buckets/66f05e0e001e13410008/files/66f05eac0013bd86d929/view?project=66d9edab001522e8390b&project=66d9edab001522e8390b&mode=admin"
+                  src={getPublicUrl(
+                    "public-assets",
+                    "facebook.png",
+                    "localhost",
+                    "http",
+                  )}
                 />
               </Link>
             </Column>
@@ -81,22 +101,32 @@ export const ForgotPassword = () => {
               <Link href="https://www.instagram.com">
                 <Img
                   style={{ width: 20, height: 20 }}
-                  src="http://localhost/v1/storage/buckets/66f05e0e001e13410008/files/66f05eba0021325fd1b9/view?project=66d9edab001522e8390b&project=66d9edab001522e8390b&mode=admin"
+                  src={getPublicUrl(
+                    "public-assets",
+                    "instagram.png",
+                    "localhost",
+                    "http",
+                  )}
                 />
               </Link>
             </Column>
             <Column align="left" style={{ width: "fit", paddingLeft: "8px" }}>
               <Link href="https://x.com">
                 <Img
-                  style={{ width: 20, height: 20 }}
-                  src="http://localhost/v1/storage/buckets/66f05e0e001e13410008/files/66f05eca000438a28670/view?project=66d9edab001522e8390b&project=66d9edab001522e8390b&mode=admin"
+                  style={{ width: 17, height: 17 }}
+                  src={getPublicUrl(
+                    "public-assets",
+                    "x.png",
+                    "localhost",
+                    "http",
+                  )}
                 />
               </Link>
             </Column>
           </Row>
           <Row>
             <Text style={{ textAlign: "center", color: "#706a7b" }}>
-              © 2022 CyberSentry, All Rights Reserved <br />
+              © 2024 IMS Technology, All Rights Reserved <br />
               123 Boulevard Mohamed VI, 3rd Floor, Casablanca, 20000 - Morocco
             </Text>
           </Row>
@@ -106,7 +136,7 @@ export const ForgotPassword = () => {
   );
 };
 
-export default ForgotPassword;
+export default ResetPassword;
 
 const fontFamily = "HelveticaNeue,Helvetica,Arial,sans-serif";
 
@@ -158,12 +188,12 @@ const sectionBorder = {
 };
 
 const sectionCenter = {
-  borderBottom: "1px solid rgb(145,71,255)",
+  borderBottom: "1px solid #1B2947",
   width: "102px",
 };
 
 const button = {
-  backgroundColor: "#7F56D9",
+  backgroundColor: "#1B2947",
   borderRadius: "5px",
   color: "#fff",
   fontSize: "16px",

@@ -1,4 +1,4 @@
-import type { CheckEmailModalProps } from "@/lib/types";
+import type { CheckEmailModalProps } from "@pentest-app/types/client";
 
 import {
   Dialog,
@@ -9,13 +9,17 @@ import {
 } from "@/components/ui/Dialog";
 
 import emailIcon from "@/assets/emailIcon.svg";
+import { trpcClient } from "@/lib/trpcClient";
+import { Button } from "./ui/Button";
 
 function CheckEmailModal({
   open,
   setOpen,
-  email,
   message,
+  email,
 }: CheckEmailModalProps) {
+  const resend = trpcClient.resendEmail.useMutation();
+
   return (
     <Dialog
       open={open}
@@ -23,8 +27,8 @@ function CheckEmailModal({
     >
       <DialogContent className="rounded-xl bg-white pt-0 pb-0">
         <div className="relative flex flex-col items-center gap-6 pt-12 pb-6">
-          <div className="gridd"></div>
-          <div className="mask"></div>
+          <div className="gridd" />
+          <div className="mask" />
           <div className="shadows flex h-14 w-14 items-center justify-center rounded-xl border border-gray-200 border-solid bg-white">
             <img src={emailIcon.src} alt="" />
           </div>
@@ -34,9 +38,9 @@ function CheckEmailModal({
             </DialogTitle>
             <DialogDescription className="text-center font-normal text-base text-gray-600 leading-6">
               {message}
-              <br /> <span className="font-medium">{email}</span>
             </DialogDescription>
           </DialogHeader>
+          <Button onClick={() => resend.mutate({ email })}>Resend</Button>
         </div>
       </DialogContent>
     </Dialog>

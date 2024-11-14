@@ -114,17 +114,8 @@ export type CheckEmailModalProps = {
       open: boolean;
     }>
   >;
-  email: string;
   message: string;
-};
-
-export type ResetPasswordFormProps = {
-  userId: string;
-  secret: string;
-};
-
-export type OnBoardingWrapperProps = {
-  initialStep: number;
+  email: string;
 };
 
 export type CompleteProfileResponse =

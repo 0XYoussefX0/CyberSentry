@@ -5,7 +5,6 @@ import { DATABASE_ID, USERS_COLLECTION_ID } from "@/lib/env";
 
 import ConnectToSocket from "@/components/ConnectToSocket";
 import SideBar from "@/components/SideBar";
-import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -61,7 +60,6 @@ export default async function RootLayout({
           transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
         }}
       >
-        <Toaster />
         {children}
       </div>
     </>

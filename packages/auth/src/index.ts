@@ -12,175 +12,277 @@ import { eq } from "drizzle-orm";
 
 import type {
   AuthService,
-  CreateAuthServiceFunc,
+  CreateAuthServiceArgs,
 } from "@pentest-app/types/global";
 
-export const createAuthService: CreateAuthServiceFunc = (db) => {
-  const generateSessionToken = () => {
-    const bytes = new Uint8Array(20);
-    crypto.getRandomValues(bytes);
-    const token = encodeBase32LowerCaseNoPadding(bytes);
-    return token;
-  };
+import { ConfirmSession } from "@pentest-app/emailtemplates/ConfirmSession";
+import { ResetPassword } from "@pentest-app/emailtemplates/ResetPassword";
 
-  const createSession: AuthService["createSession"] = async (
-    token,
-    user_id,
-    remember_me,
-  ) => {
-    const sessionId = encodeHexLowerCase(
-      sha256(new TextEncoder().encode(token)),
-    );
-    const month = 1000 * 60 * 60 * 24 * 30;
-    const session: Session = {
-      id: sessionId,
-      user_id,
-      remember_me,
-      expiresAt: new Date(Date.now() + month),
-    };
+export function createAuthService({
+  db,
+  isProduction,
+  domainName,
+}: CreateAuthServiceArgs): AuthService {
+  return {
+    generateSessionToken: () => {
+      const bytes = new Uint8Array(20);
+      crypto.getRandomValues(bytes);
+      const token = encodeBase32LowerCaseNoPadding(bytes);
+      return token;
+    },
+    createSession: async (token, user_id, remember_me) => {
+      const sessionId = encodeHexLowerCase(
+        sha256(new TextEncoder().encode(token)),
+      );
+      const month = 1000 * 60 * 60 * 24 * 30;
+      const session: Session = {
+        id: sessionId,
+        user_id,
+        remember_me,
+        expiresAt: new Date(Date.now() + month),
+        token: null,
+        token_expiration: null,
+        verified: false,
+      };
 
-    await db.insert(sessionTable).values(session);
-    return session;
-  };
+      await db.insert(sessionTable).values(session);
+      return session;
+    },
+    validateSessionToken: async function (cookies) {
+      const token = cookies.get("session");
 
-  const validateSessionToken: AuthService["validateSessionToken"] = async (
-    token,
-  ) => {
-    const sessionId = encodeHexLowerCase(
-      sha256(new TextEncoder().encode(token)),
-    );
-    const result = await db
-      .select()
-      .from(sessionTable)
-      .innerJoin(userTable, eq(sessionTable.user_id, userTable.id))
-      .where(eq(sessionTable.id, sessionId));
+      if (!token || token.length !== 32) {
+        this.deleteSessionTokenCookie(cookies);
+        return { session: null, user: null };
+      }
 
-    if (!result[0]) {
-      return { session: null, user: null };
-    }
+      const sessionId = encodeHexLowerCase(
+        sha256(new TextEncoder().encode(token)),
+      );
 
-    const { user, session } = result[0];
+      const result = await db
+        .select()
+        .from(sessionTable)
+        .innerJoin(userTable, eq(sessionTable.user_id, userTable.id))
+        .where(eq(sessionTable.id, sessionId));
 
-    const sessionExpiry = session.expiresAt.getTime();
-    const month = 1000 * 60 * 60 * 24 * 30;
+      if (!result[0]) {
+        this.deleteSessionTokenCookie(cookies);
+        return { session: null, user: null };
+      }
 
-    if (Date.now() >= sessionExpiry) {
-      await db.delete(sessionTable).where(eq(sessionTable.id, session.id));
-      return { session: null, user: null };
-    }
+      const { user, session } = result[0];
 
-    if (Date.now() > sessionExpiry - month / 2) {
-      session.expiresAt = new Date(Date.now() + month);
+      const sessionExpiry = session.expiresAt.getTime();
+      const month = 1000 * 60 * 60 * 24 * 30;
+
+      if (Date.now() >= sessionExpiry) {
+        this.invalidateSession(session.id, cookies);
+        return { session: null, user: null };
+      }
+
+      if (Date.now() > sessionExpiry - month / 2) {
+        session.expiresAt = new Date(Date.now() + month);
+        await db
+          .update(sessionTable)
+          .set({
+            expiresAt: session.expiresAt,
+          })
+          .where(eq(sessionTable.id, session.id));
+      }
+
+      this.setSessionTokenCookie(
+        token,
+        session.expiresAt,
+        session.remember_me,
+        cookies,
+      );
+      return { session, user };
+    },
+    invalidateSession: async function (sessionId, cookies) {
+      await db.delete(sessionTable).where(eq(sessionTable.id, sessionId));
+      this.deleteSessionTokenCookie(cookies);
+    },
+    setSessionTokenCookie: async (token, expiresAt, rememberMe, cookies) => {
+      cookies.set("session", token, {
+        httpOnly: true,
+        sameSite: isProduction ? "lax" : "none",
+        expires: rememberMe ? expiresAt : undefined,
+        path: "/",
+        secure: true,
+      });
+    },
+    deleteSessionTokenCookie: (cookies) => {
+      cookies.set("session", "", {
+        httpOnly: true,
+        sameSite: isProduction ? "lax" : "none",
+        maxAge: 0,
+        path: "/",
+        secure: true,
+      });
+    },
+    signTheAdminUp: async (adminCredentials) => {
+      if (!adminCredentials) {
+        throw new Error("Admin configuration not provided");
+      }
+
+      const { email, password, role, username, tag } = adminCredentials;
+
+      const passwordHash = await hash(password, {
+        memoryCost: 19456,
+        timeCost: 2,
+        outputLen: 32,
+        parallelism: 1,
+      });
+
+      const result = await db
+        .select({
+          userId: userTable.id,
+        })
+        .from(userTable)
+        .where(eq(userTable.email, email));
+
+      if (result[0]) {
+        await db
+          .delete(sessionTable)
+          .where(eq(sessionTable.user_id, result[0].userId));
+
+        await db.delete(userTable).where(eq(userTable.id, result[0].userId));
+      }
+
+      await db.insert(userTable).values({
+        username,
+        tag,
+        role,
+        user_image: null,
+        email,
+        password_hash: passwordHash,
+        is_admin: true,
+      });
+    },
+
+    sendConfirmationEmail: async function (resend, email, name, sessionID) {
+      const token = this.generateSessionToken();
+      const verifyLink = this.generateLink({
+        path: "/verifyEmail",
+        queryParams: `token=${token}`,
+      });
+      const hour = 1 * 60 * 60 * 1000;
+
       await db
         .update(sessionTable)
         .set({
-          expiresAt: session.expiresAt,
+          token,
+          token_expiration: new Date(Date.now() + hour / 2),
         })
-        .where(eq(sessionTable.id, session.id));
-    }
+        .where(eq(sessionTable.id, sessionID));
 
-    return { session, user };
-  };
+      await resend.emails.send({
+        from: "CyberSentry <team@cybersentry.tech>",
+        to: [email],
+        subject: "Confirm Your Email",
+        react: ConfirmSession({ name, verifyLink }),
+      });
+    },
 
-  const invalidateSession: AuthService["invalidateSession"] = async (
-    sessionId,
-  ) => {
-    await db.delete(sessionTable).where(eq(sessionTable.id, sessionId));
-  };
+    sendResetEmail: async function (resend, email) {
+      const reset_token = this.generateSessionToken();
+      const hour = 1 * 60 * 60 * 1000;
 
-  const setSessionTokenCookie: AuthService["setSessionTokenCookie"] = async (
-    res,
-    token,
-    expiresAt,
-    rememberMe,
-  ) => {
-    res.cookie("session", token, {
-      httpOnly: true,
-      sameSite: "lax",
-      expires: rememberMe ? expiresAt : undefined,
-      path: "/",
-      secure: process.env.ENV === "production",
-    });
-  };
+      const result = await db
+        .update(userTable)
+        .set({
+          reset_token,
+          reset_token_expires_at: new Date(Date.now() + hour / 2),
+        })
+        .where(eq(userTable.email, email))
+        .returning({ name: userTable.username, userID: userTable.id });
 
-  const deleteSessionTokenCookie: AuthService["deleteSessionTokenCookie"] = (
-    res,
-  ) => {
-    res.cookie("session", "", {
-      httpOnly: true,
-      sameSite: "lax",
-      maxAge: 0,
-      path: "/",
-      secure: process.env.ENV === "production",
-    });
-  };
+      const name = result[0]?.name ?? "ogabonga";
+      const userID = result[0]?.userID ?? "02dsds1d5zd1az4e5za";
 
-  const signTheAdminUp: AuthService["signTheAdminUp"] = async (
-    adminCredentials,
-  ) => {
-    if (!adminCredentials) {
-      throw new Error("Admin configuration not provided");
-    }
+      const reset_link = this.generateLink({
+        path: "/resetpassword",
+        queryParams: `userID=${userID}&token=${reset_token}`,
+      });
 
-    const { email, password, role, username, tag } = adminCredentials;
+      await resend.emails.send({
+        from: "CyberSentry <team@cybersentry.tech>",
+        to: [email],
+        subject: "Reset Your Password",
+        react: ResetPassword({ name, reset_link }),
+      });
 
-    const passwordHash = await hash(password, {
-      memoryCost: 19456,
-      timeCost: 2,
-      outputLen: 32,
-      parallelism: 1,
-    });
+      return {
+        status: "success",
+      };
+    },
 
-    const result = await db
-      .select({
-        userId: userTable.id,
-      })
-      .from(userTable)
-      .where(eq(userTable.email, email));
+    verifyConfirmationEmailToken: async (token, sessionID) => {
+      const storedToken = await db
+        .select({
+          token: sessionTable.token,
+          token_expiration: sessionTable.token_expiration,
+        })
+        .from(sessionTable)
+        .where(eq(sessionTable.id, sessionID));
 
-    if (result[0]) {
+      const result = token === storedToken[0]?.token;
+      const expiry =
+        storedToken[0]?.token_expiration instanceof Date
+          ? storedToken[0]?.token_expiration.getTime()
+          : null;
+
+      if (!result || (expiry && Date.now() >= expiry)) {
+        return {
+          status: "invalid",
+        };
+      }
+
       await db
-        .delete(sessionTable)
-        .where(eq(sessionTable.user_id, result[0].userId));
+        .update(sessionTable)
+        .set({
+          verified: true,
+        })
+        .where(eq(sessionTable.id, sessionID));
 
-      await db.delete(userTable).where(eq(userTable.id, result[0].userId));
-    }
+      return { status: "valid" };
+    },
 
-    await db.insert(userTable).values({
-      username,
-      tag,
-      role,
-      user_image: null,
-      email,
-      password_hash: passwordHash,
-      is_admin: true,
-    });
+    verifyResetEmailToken: async (token, userID) => {
+      const storedToken = await db
+        .select({
+          token: userTable.reset_token,
+          token_expiration: userTable.reset_token_expires_at,
+        })
+        .from(userTable)
+        .where(eq(userTable.id, userID));
+
+      const result = token === storedToken[0]?.token;
+      const expiry =
+        storedToken[0]?.token_expiration instanceof Date
+          ? storedToken[0]?.token_expiration.getTime()
+          : null;
+
+      if (!result || (expiry && Date.now() >= expiry)) {
+        return {
+          status: "invalid",
+        };
+      }
+
+      return { status: "valid" };
+    },
+
+    generateLink: ({ path, queryParams }) =>
+      `${isProduction ? `https://${domainName}` : "http://localhost:3000"}${path}?${queryParams}`,
+
+    verifySession: async (sessionID) => {
+      await db
+        .update(sessionTable)
+        .set({
+          verified: true,
+        })
+        .where(eq(sessionTable.id, sessionID));
+    },
   };
-
-  const checkAuth: AuthService["checkAuth"] = async (req, res, next) => {
-    const token = req.cookies.session;
-    if (token === null) {
-      return res.status(401).json("Unauthorized access");
-    }
-
-    const { session } = await validateSessionToken(token);
-    if (session === null) {
-      deleteSessionTokenCookie(res);
-      return res.status(401).json("Unauthorized access");
-    }
-
-    setSessionTokenCookie(res, token, session.expiresAt, session.remember_me);
-    next();
-  };
-
-  return {
-    generateSessionToken,
-    createSession,
-    validateSessionToken,
-    invalidateSession,
-    setSessionTokenCookie,
-    deleteSessionTokenCookie,
-    signTheAdminUp,
-    checkAuth,
-  };
-};
+}

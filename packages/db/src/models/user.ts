@@ -17,6 +17,11 @@ export const userTable = pgTable("user", {
   password_hash: varchar("password_hash", { length: 255 }).notNull(),
   is_admin: boolean("is_admin").notNull().default(false),
   createdAt: timestamp().defaultNow().notNull(),
+  reset_token: text("reset_token"),
+  reset_token_expires_at: timestamp("reset_token_expires_at", {
+    withTimezone: true,
+    mode: "date",
+  }),
 });
 
 export const sessionTable = pgTable("session", {
@@ -29,4 +34,10 @@ export const sessionTable = pgTable("session", {
     mode: "date",
   }).notNull(),
   remember_me: boolean("remember_me").notNull().default(false),
+  token: text("token"),
+  token_expiration: timestamp("token_expiration", {
+    withTimezone: true,
+    mode: "date",
+  }),
+  verified: boolean("verified").notNull().default(false),
 });

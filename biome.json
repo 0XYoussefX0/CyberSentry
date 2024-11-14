@@ -24,7 +24,10 @@
         "useExhaustiveDependencies": "warn",
         "useHookAtTopLevel": "error",
         "useJsxKeyInIterable": "error",
-        "noUnusedImports": "warn"
+        "noUnusedImports": {
+          "level": "warn",
+          "fix": "unsafe"
+        }
       },
       "nursery": {
         "useSortedClasses": {
@@ -37,7 +40,7 @@
       "suspicious": {
         "noCommentText": "error",
         "noDuplicateJsxProps": "error",
-        "noConsole": "error",
+        "noConsole": "warn",
         "noExplicitAny": "off"
       }
     }

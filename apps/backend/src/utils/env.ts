@@ -11,6 +11,8 @@ function validateEnv(): Env {
   try {
     const env = v.parse(EnvSchema, {
       NODE_ENV: process.env.NODE_ENV,
+      RESEND_API_KEY: process.env.RESEND_API_KEY,
+      ENCRYPTION_KEY: process.env.ENCRYPTION_KEY,
       DOMAIN_NAME: process.env.DOMAIN_NAME,
       ADMIN_APP_EMAIL: process.env.ADMIN_APP_EMAIL,
       ADMIN_APP_PASSWORD: process.env.ADMIN_APP_PASSWORD,
@@ -32,3 +34,15 @@ function validateEnv(): Env {
 }
 
 export const env = validateEnv();
+
+export const isProduction = env.NODE_ENV === "production";
+
+export const ENCRYPTION_KEY = Buffer.from(env.ENCRYPTION_KEY, "hex");
+
+export const adminCredentials = {
+  email: env.ADMIN_APP_EMAIL,
+  password: env.ADMIN_APP_PASSWORD,
+  role: env.ADMIN_APP_ROLE,
+  username: env.ADMIN_APP_USERNAME,
+  tag: env.ADMIN_APP_TAG,
+};

@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   Body,
   Button,
@@ -14,17 +13,38 @@ import {
   Text,
 } from "@react-email/components";
 
-export const ConfirmEmail = () => {
+// TODO: pass the minio Host to the function so that it can be used in the getPublicUrl func when the app is in production
+
+const getPublicUrl = (
+  bucket_name: string,
+  fileName: string,
+  host: string,
+  protocol: "https" | "http",
+) => {
+  return `${protocol}://${host}:9000/${bucket_name}/${fileName}`;
+};
+
+export const ConfirmSession = ({
+  name,
+  verifyLink,
+}: { name: string; verifyLink: string }) => {
   return (
     <Html>
       <Head />
-      <Preview>You updated the password for your Twitch account</Preview>
+      <Preview>
+        Confirm your session to ensure it's really you accessing your account.
+      </Preview>
       <Body style={main}>
         <Container style={container}>
           <Section style={logo}>
             <Img
-              width={150}
-              src="http://localhost/v1/storage/buckets/66f05e0e001e13410008/files/66f05ec20035bec76102/view?project=66d9edab001522e8390b&project=66d9edab001522e8390b&mode=admin"
+              width={100}
+              src={getPublicUrl(
+                "public-assets",
+                "Logo.png",
+                "localhost",
+                "http",
+              )}
             />
           </Section>
           <Section style={sectionsBorders}>
@@ -35,31 +55,27 @@ export const ConfirmEmail = () => {
             </Row>
           </Section>
           <Section style={content}>
-            <Text style={paragraph}>Hi There 👋,</Text>
-            <Text style={paragraph}>Welcome to CyberSentry!</Text>
+            <Text style={paragraph}>Hi {name} 👋,</Text>
+            <Text style={paragraph}>Welcome to IMS Technology!</Text>
             <Text style={paragraph}>
-              We're thrilled to have you join our community. To complete your
-              registration, please confirm your email address by clicking the
-              button below. This step helps us verify your account and ensures
-              you can start using all the features CyberSentry has to offer.
+              We noticed a login attempt using your credentials. To make sure
+              it's really you, please confirm your session by clicking the
+              button below. This helps us protect your account from unauthorized
+              access.
             </Text>
             <Text style={paragraph}>
-              <Button
-                style={button}
-                href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=signup&next=%2Fonboarding"
-              >
-                Confirm Your Email
+              <Button style={button} href={verifyLink}>
+                Confirm Your Session
               </Button>
             </Text>
             <Text style={paragraph}>
-              If you have any questions or need assistance, feel free to reach
-              out to CyberSentry Support.
+              If you did not attempt to log in, please secure your account
+              immediately by contacting our support team.
             </Text>
-            <Text style={paragraph}>Thanks for joining us!</Text>
             <Text style={paragraph}>
-              Best,
+              Best regards,
               <br />
-              CyberSentry Support Team
+              IMS Technology Support Team
             </Text>
           </Section>
         </Container>
@@ -70,7 +86,12 @@ export const ConfirmEmail = () => {
               <Link href="https://www.facebook.com">
                 <Img
                   style={{ width: 20, height: 20 }}
-                  src="http://localhost/v1/storage/buckets/66f05e0e001e13410008/files/66f05eac0013bd86d929/view?project=66d9edab001522e8390b&project=66d9edab001522e8390b&mode=admin"
+                  src={getPublicUrl(
+                    "public-assets",
+                    "facebook.png",
+                    "localhost",
+                    "http",
+                  )}
                 />
               </Link>
             </Column>
@@ -78,22 +99,32 @@ export const ConfirmEmail = () => {
               <Link href="https://www.instagram.com">
                 <Img
                   style={{ width: 20, height: 20 }}
-                  src="http://localhost/v1/storage/buckets/66f05e0e001e13410008/files/66f05eba0021325fd1b9/view?project=66d9edab001522e8390b&project=66d9edab001522e8390b&mode=admin"
+                  src={getPublicUrl(
+                    "public-assets",
+                    "instagram.png",
+                    "localhost",
+                    "http",
+                  )}
                 />
               </Link>
             </Column>
             <Column align="left" style={{ width: "fit", paddingLeft: "8px" }}>
               <Link href="https://x.com">
                 <Img
-                  style={{ width: 20, height: 20 }}
-                  src="http://localhost/v1/storage/buckets/66f05e0e001e13410008/files/66f05eca000438a28670/view?project=66d9edab001522e8390b&project=66d9edab001522e8390b&mode=admin"
+                  style={{ width: 17, height: 17 }}
+                  src={getPublicUrl(
+                    "public-assets",
+                    "x.png",
+                    "localhost",
+                    "http",
+                  )}
                 />
               </Link>
             </Column>
           </Row>
           <Row>
             <Text style={{ textAlign: "center", color: "#706a7b" }}>
-              © 2022 CyberSentry, All Rights Reserved <br />
+              © 2024 IMS Technology, All Rights Reserved <br />
               123 Boulevard Mohamed VI, 3rd Floor, Casablanca, 20000 - Morocco
             </Text>
           </Row>
@@ -103,7 +134,7 @@ export const ConfirmEmail = () => {
   );
 };
 
-export default ConfirmEmail;
+export default ConfirmSession;
 
 const fontFamily = "HelveticaNeue,Helvetica,Arial,sans-serif";
 
@@ -141,7 +172,9 @@ const logo = {
   display: "flex",
   justifyContent: "center",
   alingItems: "center",
-  padding: 30,
+  paddingRight: 8,
+  paddingTop: 10,
+  paddingBottom: 10,
 };
 
 const sectionsBorders = {
@@ -155,12 +188,12 @@ const sectionBorder = {
 };
 
 const sectionCenter = {
-  borderBottom: "1px solid rgb(145,71,255)",
+  borderBottom: "1px solid #1B2947",
   width: "102px",
 };
 
 const button = {
-  backgroundColor: "#7F56D9",
+  backgroundColor: "#1B2947",
   borderRadius: "5px",
   color: "#fff",
   fontSize: "16px",

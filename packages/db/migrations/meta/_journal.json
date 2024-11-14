@@ -8,6 +8,27 @@
       "when": 1730237808928,
       "tag": "0000_green_expediter",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1731011652267,
+      "tag": "0001_early_hercules",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1731092689724,
+      "tag": "0002_plain_sunspot",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1731092752474,
+      "tag": "0003_cynical_romulus",
+      "breakpoints": true
     }
   ]
 }
