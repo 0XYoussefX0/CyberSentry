@@ -2,8 +2,8 @@ import { sessionTable, userTable } from "@pentest-app/db/user";
 
 import type { Session } from "@pentest-app/types/server";
 
-import { hash } from "@node-rs/argon2";
 import { sha256 } from "@oslojs/crypto/sha2";
+
 import {
   encodeBase32LowerCaseNoPadding,
   encodeHexLowerCase,
@@ -49,12 +49,14 @@ export function createAuthService({
       return session;
     },
     validateSessionToken: async function (cookies) {
-      const token = cookies.get("session");
+      const sessionCookie = cookies.get("session");
 
-      if (!token || token.length !== 32) {
+      if (!sessionCookie || sessionCookie.value.length !== 32) {
         this.deleteSessionTokenCookie(cookies);
         return { session: null, user: null };
       }
+
+      const { value: token } = sessionCookie;
 
       const sessionId = encodeHexLowerCase(
         sha256(new TextEncoder().encode(token)),
@@ -99,6 +101,33 @@ export function createAuthService({
       );
       return { session, user };
     },
+    getUser: async (cookies) => {
+      const sessionCookie = cookies.get("session");
+
+      if (!sessionCookie || sessionCookie.value.length !== 32) {
+        return { session: null, user: null };
+      }
+
+      const { value: token } = sessionCookie;
+
+      const sessionId = encodeHexLowerCase(
+        sha256(new TextEncoder().encode(token)),
+      );
+
+      const result = await db
+        .select()
+        .from(sessionTable)
+        .innerJoin(userTable, eq(sessionTable.user_id, userTable.id))
+        .where(eq(sessionTable.id, sessionId));
+
+      if (!result[0]) {
+        return { session: null, user: null };
+      }
+
+      const { user, session } = result[0];
+
+      return { session, user };
+    },
     invalidateSession: async function (sessionId, cookies) {
       await db.delete(sessionTable).where(eq(sessionTable.id, sessionId));
       this.deleteSessionTokenCookie(cookies);
@@ -121,50 +150,10 @@ export function createAuthService({
         secure: true,
       });
     },
-    signTheAdminUp: async (adminCredentials) => {
-      if (!adminCredentials) {
-        throw new Error("Admin configuration not provided");
-      }
-
-      const { email, password, role, username, tag } = adminCredentials;
-
-      const passwordHash = await hash(password, {
-        memoryCost: 19456,
-        timeCost: 2,
-        outputLen: 32,
-        parallelism: 1,
-      });
-
-      const result = await db
-        .select({
-          userId: userTable.id,
-        })
-        .from(userTable)
-        .where(eq(userTable.email, email));
-
-      if (result[0]) {
-        await db
-          .delete(sessionTable)
-          .where(eq(sessionTable.user_id, result[0].userId));
-
-        await db.delete(userTable).where(eq(userTable.id, result[0].userId));
-      }
-
-      await db.insert(userTable).values({
-        username,
-        tag,
-        role,
-        user_image: null,
-        email,
-        password_hash: passwordHash,
-        is_admin: true,
-      });
-    },
-
     sendConfirmationEmail: async function (resend, email, name, sessionID) {
       const token = this.generateSessionToken();
       const verifyLink = this.generateLink({
-        path: "/verifyEmail",
+        path: "/api/verifyConfirmationToken",
         queryParams: `token=${token}`,
       });
       const hour = 1 * 60 * 60 * 1000;
@@ -202,7 +191,7 @@ export function createAuthService({
       const userID = result[0]?.userID ?? "02dsds1d5zd1az4e5za";
 
       const reset_link = this.generateLink({
-        path: "/resetpassword",
+        path: "/api/verifyResetToken",
         queryParams: `userID=${userID}&token=${reset_token}`,
       });
 

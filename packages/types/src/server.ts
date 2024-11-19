@@ -3,7 +3,11 @@ import type { sessionTable, userTable } from "@pentest-app/db/user";
 import type { InferSelectModel } from "drizzle-orm";
 import type { Client } from "minio";
 
-import type { EnvSchema } from "@pentest-app/schemas/server";
+import type {
+  EnvSchema,
+  PasswordSchema,
+  SignUpSchema,
+} from "@pentest-app/schemas/server";
 import type { InferOutput } from "valibot";
 
 import type {
@@ -83,3 +87,6 @@ export type Consumers = {
   consumer: Consumer<AppData>;
   roomID: string;
 }[];
+
+export type SignUpSchemaType = InferOutput<typeof SignUpSchema>;
+export type PasswordSchemaType = InferOutput<typeof PasswordSchema>;

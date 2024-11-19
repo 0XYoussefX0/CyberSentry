@@ -51,13 +51,19 @@ const EmailPasswordSchemas = v.object({
   ...PasswordSchema.entries,
 });
 
-export const SignUpSchema = v.objectAsync({
-  ...EmailPasswordSchemas.entries,
-  role: v.pipe(v.string(), v.nonEmpty("Role is required")),
-  username: v.pipe(v.string(), v.nonEmpty("Name is required")),
-  tag: v.pipe(v.string(), v.nonEmpty("Tag is required")),
-  ...UserImageShema.entries,
-});
+export const SignUpSchema = v.pipeAsync(
+  v.instance(FormData),
+  v.transform((input) => {
+    return Object.fromEntries(input.entries());
+  }),
+  v.objectAsync({
+    ...EmailPasswordSchemas.entries,
+    role: v.pipe(v.string(), v.nonEmpty("Role is required")),
+    username: v.pipe(v.string(), v.nonEmpty("Name is required")),
+    tag: v.pipe(v.string(), v.nonEmpty("Tag is required")),
+    ...UserImageShema.entries,
+  }),
+);
 
 export const LoginSchema = v.object({
   ...EmailPasswordSchemas.entries,

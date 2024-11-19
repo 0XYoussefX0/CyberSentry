@@ -12,6 +12,10 @@
       "import": "./dist/drizzle.js",
       "types": "./dist/drizzle.d.ts"
     },
+    "./migrate": {
+      "import": "./dist/migrate.js",
+      "types": "./dist/migrate.d.ts"
+    },
     "./user": {
       "import": "./dist/models/user.js",
       "types": "./dist/models/user.d.ts"

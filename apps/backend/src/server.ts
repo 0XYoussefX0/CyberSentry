@@ -4,13 +4,12 @@ import express from "express";
 
 import cors from "cors";
 
-import { isProduction } from "@/src/utils/env.js";
+import { adminCredentials, env, isProduction } from "@/src/utils/env.js";
 
-import { initializeTRPC, validateOrigin } from "./middlewares.js";
+import { validateOrigin } from "./middlewares.js";
+import { signTheAdminUp } from "./utils/config.js";
 
-import { auth, createCookiesObj } from "@/src/utils/config.js";
-import { TokenSchema } from "@pentest-app/schemas/server";
-import * as v from "valibot";
+import { runMigrations } from "@pentest-app/db/migrate";
 
 const app = express();
 
@@ -27,7 +26,6 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.get("/health", (req, res) => {
-  res.cookie("session", "jsjjsjs");
   res.status(200).json({ status: "UP" });
 });
 
@@ -35,25 +33,9 @@ if (isProduction) {
   app.use(validateOrigin);
 }
 
-app.post("/verifyAuth", async (req, res) => {
-  const body = req.body;
+await signTheAdminUp(adminCredentials);
 
-  const validationResult = v.safeParse(TokenSchema, body);
-
-  if (validationResult.issues) return res.status(400).send("Token is invalid");
-
-  const { token } = validationResult.output;
-
-  req.cookies.session = token;
-
-  const cookies = createCookiesObj(req, res);
-
-  const result = await auth.validateSessionToken(cookies);
-
-  return res.status(200).json(result);
-});
-
-app.use(...initializeTRPC());
+await runMigrations(env.DATABASE_URL);
 
 const server = createServer(app);
 

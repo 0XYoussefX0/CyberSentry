@@ -16,6 +16,12 @@
     "@biomejs/biome": "1.9.4",
     "turbo": "^2.2.3"
   },
-  "workspaces": ["apps/*", "packages/*"],
-  "packageManager": "npm@10.9.0"
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "packageManager": "npm@10.9.0",
+  "dependencies": {
+    "@node-rs/argon2": "^2.0.0"
+  }
 }

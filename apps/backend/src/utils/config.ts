@@ -1,14 +1,16 @@
-import { adminCredentials, env, isProduction } from "@/src/utils/env.js";
+import { env, isProduction } from "@/src/utils/env.js";
 import { getDb } from "@pentest-app/db/drizzle";
 
 import { Resend } from "resend";
 
 import { createAuthService } from "@pentest-app/auth/index";
 import { getMinio } from "@pentest-app/minio/index";
-import type { CookieOptions } from "express";
 
-import type { Cookies } from "@pentest-app/types/global";
-import type { Request, Response } from "express";
+import { sessionTable, userTable } from "@pentest-app/db/user";
+import type { AdminCredentials } from "@pentest-app/types/global";
+
+import { hash } from "@node-rs/argon2";
+import { eq } from "drizzle-orm";
 
 export const db = await getDb(env.DATABASE_URL);
 
@@ -33,13 +35,42 @@ export const auth = createAuthService({
   domainName: env.DOMAIN_NAME,
 });
 
-await auth.signTheAdminUp(adminCredentials);
+export const signTheAdminUp = async (adminCredentials: AdminCredentials) => {
+  if (!adminCredentials) {
+    throw new Error("Admin configuration not provided");
+  }
 
-export const createCookiesObj = (req: Request, res: Response): Cookies => ({
-  set(name: string, value: string, options: CookieOptions) {
-    res.cookie(name, value, options);
-  },
-  get(name: string) {
-    return req.cookies[name] as string | undefined;
-  },
-});
+  const { email, password, role, username, tag } = adminCredentials;
+
+  const passwordHash = await hash(password, {
+    memoryCost: 19456,
+    timeCost: 2,
+    outputLen: 32,
+    parallelism: 1,
+  });
+
+  const result = await db
+    .select({
+      userId: userTable.id,
+    })
+    .from(userTable)
+    .where(eq(userTable.email, email));
+
+  if (result[0]) {
+    await db
+      .delete(sessionTable)
+      .where(eq(sessionTable.user_id, result[0].userId));
+
+    await db.delete(userTable).where(eq(userTable.id, result[0].userId));
+  }
+
+  await db.insert(userTable).values({
+    username,
+    tag,
+    role,
+    user_image: null,
+    email,
+    password_hash: passwordHash,
+    is_admin: true,
+  });
+};

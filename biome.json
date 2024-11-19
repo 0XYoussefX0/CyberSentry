@@ -11,6 +11,9 @@
     "enabled": true,
     "rules": {
       "recommended": true,
+      "style": {
+        "useNodejsImportProtocol": "off"
+      },
       "a11y": {
         "noAriaUnsupportedElements": "warn",
         "noBlankTarget": "off",

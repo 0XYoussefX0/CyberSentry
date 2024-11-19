@@ -1,73 +1,80 @@
 import type { SessionValidationResult } from "@pentest-app/types/server";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const publicRoutes = [
-  "/",
-  "/error",
-  "/forgot-password",
-  "/login",
-  "/check-email-reset",
-  "/resetpassword",
-];
+function getProtectionLevel(
+  currentPath: string,
+): "public" | "partialPrivate" | "private" {
+  const partialPrivateRoutes = ["/check-email-confirmation"];
+  const publicRoutes = [
+    "/home",
+    "/login",
+    "/forgotpassword",
+    "/check-email-reset",
+  ];
+
+  if (partialPrivateRoutes.includes(currentPath)) return "partialPrivate";
+  if (publicRoutes.includes(currentPath)) return "public";
+  return "private";
+}
 
 export async function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname;
+  const currentPath = request.nextUrl.pathname;
 
-  const pathIsPublic = publicRoutes.includes(path);
+  const protectionLevel = getProtectionLevel(currentPath);
 
-  const cookie = request.cookies.get("session");
+  const cookiesStore = cookies();
 
-  let userData: SessionValidationResult = { user: null, session: null };
+  const sessionCookie = cookiesStore.get("session");
 
-  let sessionCookie: undefined | string = undefined;
+  let user = null;
+  let session = null;
+  let apiResponse: Response | undefined = undefined;
 
-  if (cookie && typeof cookie.value === "string" && cookie.value.length > 0) {
-    const token = cookie.value;
-
-    const result = await fetch("http://localhost:4000/verifyAuth", {
+  if (sessionCookie) {
+    apiResponse = await fetch(new URL("/api/validateSession", request.url), {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ token }),
+      body: JSON.stringify({ token: sessionCookie.value }),
     });
 
-    const cookies = result.headers.getSetCookie();
+    const result = (await apiResponse.json()) as SessionValidationResult;
 
-    sessionCookie = cookies[0];
-
-    userData = await result.json();
+    user = result.user;
+    session = result.session;
   }
-
-  const { user, session } = userData;
-
-  console.log(userData);
 
   let response = NextResponse.next();
 
-  if (!user && !pathIsPublic) {
-    response = NextResponse.redirect(new URL("/login", request.url));
+  if (protectionLevel === "public") {
+    if (user && session?.verified)
+      response = NextResponse.redirect(new URL("/dashboard", request.url));
+    else if (user && !session?.verified)
+      response = NextResponse.redirect(
+        new URL("/check-email-confirmation", request.url),
+      );
   }
 
-  if (user && session && session.verified && pathIsPublic) {
-    response = NextResponse.redirect(new URL("/dashboard", request.url));
+  if (protectionLevel === "partialPrivate") {
+    if (!user) response = NextResponse.redirect(new URL("/login", request.url));
+    else if (session?.verified)
+      response = NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  if (
-    user &&
-    session &&
-    !session.verified &&
-    !path.startsWith("/check-email-confirmation") &&
-    !path.startsWith("/verifyEmail")
-  ) {
-    response = NextResponse.redirect(
-      new URL("/check-email-confirmation", request.url),
-    );
+  if (protectionLevel === "private") {
+    if (!user) response = NextResponse.redirect(new URL("/login", request.url));
+    else if (!session?.verified)
+      response = NextResponse.redirect(
+        new URL("/check-email-confirmation", request.url),
+      );
   }
 
-  if (sessionCookie) {
-    response.headers.set("Set-Cookie", sessionCookie);
+  if (apiResponse) {
+    const newCookies = apiResponse.headers.getSetCookie();
+
+    const authCookie = newCookies[0];
+
+    response.headers.append("Set-Cookie", authCookie);
   }
 
   return response;

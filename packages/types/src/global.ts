@@ -3,7 +3,9 @@ import type { CookieOptions } from "express";
 import type { Resend } from "resend";
 import type { Session, SessionValidationResult } from "./server.js";
 
-type AdminCredentials = {
+export type CookiesOptions = CookieOptions;
+
+export type AdminCredentials = {
   email: string;
   password: string;
   role: string;
@@ -19,6 +21,7 @@ export type AuthService = {
     remember_me: boolean,
   ) => Promise<Session>;
   validateSessionToken: (cookies: Cookies) => Promise<SessionValidationResult>;
+  getUser: (cookies: Cookies) => Promise<SessionValidationResult>;
   invalidateSession: (sessionId: string, cookies: Cookies) => Promise<void>;
   setSessionTokenCookie: (
     token: string,
@@ -27,7 +30,6 @@ export type AuthService = {
     cookies: Cookies,
   ) => void;
   deleteSessionTokenCookie: (cookies: Cookies) => void;
-  signTheAdminUp: (adminCredentials: AdminCredentials) => Promise<void>;
   sendConfirmationEmail: (
     resend: Resend,
     email: string,
@@ -57,7 +59,7 @@ export type AuthService = {
 
 export type Cookies = {
   set: (name: string, value: string, options: CookieOptions) => void;
-  get: (name: string) => string | undefined;
+  get: (name: string) => { name: string; value: string } | undefined;
 };
 
 export type CreateAuthServiceArgs = {
