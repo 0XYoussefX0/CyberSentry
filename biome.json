@@ -12,7 +12,9 @@
     "rules": {
       "recommended": true,
       "style": {
-        "useNodejsImportProtocol": "off"
+        "useNodejsImportProtocol": "off",
+        "useNamingConvention": "warn",
+        "useFilenamingConvention": "warn"
       },
       "a11y": {
         "noAriaUnsupportedElements": "warn",

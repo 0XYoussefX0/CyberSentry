@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 // import { redirect } from "next/navigation";
 
-// import { DATABASE_ID, USERS_COLLECTION_ID } from "@/lib/env";
-
+import { auth } from "@/actions/config";
+import AppContent from "@/app/(app)/_components/AppContent";
 // import ConnectToSocket from "@/components/ConnectToSocket";
-// import SideBar from "@/components/SideBar";
+import SideBar from "@/app/(app)/_components/SideBar";
+import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,52 +17,20 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // const { account, databases } = await createSessionClient();
-  // const user = await getUser(account);
+  const cookiesStore = cookies();
+  const { user } = await auth.getUser(cookiesStore);
 
-  // if (!user) redirect("/login");
-
-  // let err: AppwriteException | null = null;
-  // let avatar_image: string | null = null;
-
-  // try {
-  //   const { avatar_image: image } = await databases.getDocument(
-  //     DATABASE_ID,
-  //     USERS_COLLECTION_ID,
-  //     user.$id,
-  //   );
-
-  //   avatar_image = image;
-  // } catch (e) {
-  //   // handle the error later
-  //   err = e as AppwriteException;
-  // }
-
-  // if (err) {
-  //   redirect(`/error?errorMessage=${err.message}`);
-  // }
-
-  // if (!avatar_image) {
-  //   redirect(`/error`);
-  // }
+  if (!user) return "User Not Found";
 
   return (
-    <>
-      {/* <ConnectToSocket />
+    <div className="flex">
+      {/* <ConnectToSocket /> */}
       <SideBar
-        avatar_image={avatar_image}
-        username={user.name}
+        userImage={user.user_image}
+        userName={user.username}
         userEmail={user.email}
-      /> */}
-      <div
-        className=" bg-white transition"
-        style={{
-          transitionProperty: "margin-left",
-          transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
-        }}
-      >
-        {children}
-      </div>
-    </>
+      />
+      <AppContent>{children}</AppContent>
+    </div>
   );
 }

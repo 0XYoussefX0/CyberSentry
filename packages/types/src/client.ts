@@ -16,6 +16,8 @@ import type {
   profileDetailsFormSchema,
 } from "@pentest-app/schemas/client";
 
+import type { Socket } from "socket.io-client";
+
 type Constraints = "length" | "symbol" | "uppercase" | "number";
 
 export type PasswordConstraints = {
@@ -130,12 +132,6 @@ export type CompleteProfileResponse =
       ];
     };
 
-export type SideBarProps = {
-  avatar_image: string;
-  username: string;
-  userEmail: string;
-};
-
 export type UserInfo = {
   avatar_image: string;
   name: string;
@@ -169,3 +165,75 @@ export type MentionInputProps = {
   debounceFetchUsers: (query: string) => void;
   deletePreviousSelectedUser: (e: KeyboardEvent<HTMLInputElement>) => void;
 };
+
+export type SideBarProps = {
+  userImage: string | null;
+  userName: string;
+  userEmail: string;
+};
+
+export type Message = {
+  type: "file" | "audio" | "text";
+  content: string;
+  sender_id: string;
+  timestamp: string;
+  status: "seen" | "sent" | undefined;
+};
+
+export type MessagesState = {
+  messages: {
+    [key: string]: Message;
+  };
+  setMessages: (newMessage: Message, messageId: string) => void;
+};
+
+export type SocketState = {
+  socket: null | Socket;
+  intializeSocket: () => Promise<Socket>;
+  disconnect: () => void;
+};
+
+export type CallStoreState = {
+  openCallModal: boolean;
+  callInfo:
+    | null
+    | {
+        call_type: "one to one";
+        roomID: string;
+        user_name: string;
+        user_avatar_image: string;
+      }
+    | { call_type: "many to many"; room_name: string; roomID: string };
+  setOpenCallModal: (
+    callInfo: CallStoreState["callInfo"],
+    openCallModal: boolean,
+  ) => void;
+};
+
+export type OpenState = {
+  open: boolean;
+  setOpen: () => void;
+};
+
+export type SideBarTopProps = {
+  open: boolean;
+  setOpen: () => void;
+};
+
+export type BreakPoint = {
+  matches: boolean;
+  mediaQuery: MediaQueryList;
+  listener: () => void;
+  label: string;
+  mediaQueryValue: string;
+  usageCount: number;
+};
+
+export type BreakPointInput = Pick<BreakPoint, "label" | "mediaQueryValue">;
+
+export interface ResponsiveBreakPointsState {
+  breakpoints: BreakPoint[];
+  registerBreakpoints: (breakpoints: BreakPointInput[]) => void;
+  unregisterBreakpoints: (breakpoints: BreakPointInput[]) => void;
+  getBreakpointValue: (label: string) => boolean | undefined;
+}

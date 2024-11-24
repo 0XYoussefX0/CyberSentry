@@ -49,6 +49,7 @@
     "react-dom": "^18",
     "react-easy-crop": "^5.0.8",
     "react-hook-form": "^7.52.2",
+    "react-responsive": "^10.0.0",
     "react-window": "^1.8.10",
     "resend": "^4.0.1-alpha.0",
     "server-only": "^0.0.1",
